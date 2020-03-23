@@ -1,0 +1,28 @@
+{
+  "name": "dfd",
+  "version": "1.0.0",
+  "description": "DFD Movie App | EPOS",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "server": "nodemon app.js",
+    "start": "node app.js"
+  },
+  "author": "DFD",
+  "license": "ISC",
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "body-parser": "^1.19.0",
+    "cookie-parser": "^1.4.4",
+    "express": "^4.17.1",
+    "express-handlebars": "^3.1.0",
+    "express-session": "^1.17.0",
+    "jquery": "^3.4.1",
+    "mongoose": "^5.8.3",
+    "nodemon": "^2.0.2",
+    "passport": "^0.4.1",
+    "passport-local": "^1.0.0",
+    "popper.js": "^1.16.0",
+    "req-flash": "0.0.3"
+  }
+}

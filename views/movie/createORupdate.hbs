@@ -1,0 +1,36 @@
+  <div class="row">
+    <div class="col-md-8 offset-md-2" id="body-container">
+
+      <h3>{{title}}</h3>
+
+      {{#if updating}}
+        <form action="/movie/update/{{movie._id}}" method="POST">
+      {{else}}
+        <form action="/movie/create" method="POST">
+      {{/if}}
+      {{!-- <input type="hidden" name="_id"> --}}
+        <fieldset>
+          <div class="form-group">
+            <label for="nameID">Name</label>
+            <input type="text"  name="name" class="form-control {{#if movie.nameError}}is-invalid{{/if}}" value="{{movie.name}}" id="nameID" placeholder="Enter Name">
+            <div class="text-danger">
+              {{movie.nameError}}
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="imageID">Image</label>
+            <input type="text" name="image" class="form-control" id="imageID" value="{{movie.image}}" placeholder="Enter Image URL">
+          </div>
+          <div class="form-group">
+            <label for="descriptionID">Description</label>
+            <textarea class="form-control {{#if movie.descriptionError}}is-invalid{{/if}}" name="description" id="descriptionID" rows="3" placeholder="Description (min 30 characters)">{{movie.description}}</textarea>
+            <div class="text-danger">
+              {{movie.descriptionError}}
+            </div>
+          </div>
+          <button type="submit" class="btn btn-primary">Submit</button>
+        </fieldset>
+      </form>
+      
+    </div> 
+  </div>

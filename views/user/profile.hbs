@@ -1,0 +1,38 @@
+
+  
+  <div class="row">
+    <div class="col-md-8 offset-md-2" id="body-container">
+
+      User Profile For: {{user.username}} <hr>
+
+      {{#if user.movies}}
+
+        Movies That "{{user.username}}" Suggested: <br>
+
+        {{#each user.movies}}
+          <a href="/movie/{{this._id}}" style="text-decoration: none;">&nbsp; &nbsp; &bull; &nbsp;{{this.name}}</a><br>
+        {{/each}}
+      
+      {{/if}}
+
+      {{#if user.comments}}
+
+        <br>Comments By "{{user.username}}": <br>
+
+        {{#each user.comments}}
+          <a href="/movie/{{this.movie}}/comment/{{this._id}}" style="text-decoration: none;">&nbsp; &nbsp; &bull; &nbsp;{{this.body}}</a><br>
+        {{/each}}
+      
+      {{/if}}
+
+      {{#if user.likes}}
+
+        <br>Movies That "{{user.username}}" Liked: <br>
+
+        {{#each user.likes}}
+          <a href="/movie/{{this.movie._id}}" style="text-decoration: none;">&nbsp; &nbsp; &bull; &nbsp;{{this.movie.name}}</a><br>
+        {{/each}}
+      
+      {{/if}}
+    </div> 
+  </div>

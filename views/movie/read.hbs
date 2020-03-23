@@ -1,0 +1,239 @@
+{{!-- {{log commentID}} --}}
+
+<div class="container-fluid container-max-width mt-5">
+  <div class="row" id="row-for-movie-cards">
+
+      <div class="col-md-8 col-sm-6 offset-md-2 offset-sm-6 card mb-3 mt-3">
+        {{#if updatedMovie}}
+          <div class="alert alert-success mb-5">{{updatedMovie}}</div>
+        {{/if}}
+
+        {{#if createdComment}}
+          <div class="alert alert-success mb-5">{{createdComment}}</div>
+        {{/if}}
+
+        {{#if updatedComment}}
+          <div class="alert alert-success mb-5">{{updatedComment}}</div>
+        {{/if}}
+
+        {{#if deletedComment}}
+          <div class="alert alert-success mb-5">{{deletedComment}}</div>
+        {{/if}}
+
+        {{#if createdLike}}
+          <div class="alert alert-success mb-5">{{createdLike}}</div>
+        {{/if}}
+
+        {{#if deletedLike}}
+          <div class="alert alert-success mb-5">{{deletedLike}}</div>
+        {{/if}}
+
+        <div class="card-border">
+
+          {{#if notAuthorized}}
+              <div class="alert alert-danger mt-3">{{notAuthorized}}</div>
+          {{/if}}
+
+          <h3 class="card-header">{{movie.name}}</h3>
+          <div class="card-body">
+            {{!-- <h5 class="card-title">Special title treatment</h5> --}}
+            {{!-- <h6 class="card-subtitle text-muted">Support card subtitle</h6> --}}
+          </div>
+          <img style="height: 500px; width: 100%; display: block;" src="{{movie.image}}" alt="Card image">
+          <div class="card-body">
+            <p class="card-text">{{movie.description}}</p>
+            <br><i class="far fa-user"></i> Suggested By:  <a href="/users/{{user._id}}">{{user.username}}</a> 
+            <br><i class="far fa-comments"></i> Comments: {{movie.comments.length}}
+            <br><i class="far fa-heart"></i> Likes: {{movie.likes.length}}
+            <br><br>
+
+            {{#if loggedInUser}}
+              {{#if correctUser}}
+                  <a href="/movie/update/{{movie._id}}" class="card-link btn btn-warning"><i class="far fa-edit"></i> Edit</a>
+                  <button data-toggle="modal" data-target="#deleteModal" class="card-link btn btn-danger mr-4"><i class="far fa-trash-alt"></i> Delete</button>
+              {{/if}}
+            {{/if}}
+
+            {{!-- Ako Nije Ulogovan Izbaci Mu Modal --}}
+
+            {{#unless loggedInUser}}
+              <button data-toggle="modal" data-target="#likeModal" class="card-link btn btn-outline-danger" style="display: block;"><i class="fa fa-heart"></i> Like</button>
+            {{/unless}}
+
+            {{#if loggedInUser}}
+
+              {{#if alreadyLiked}}
+                <form action="/movie/{{movie._id}}/likes/delete/{{likeID}}" method="POST" style="display: inline-block;">
+                  <button type="submit" class="card-link btn btn-danger"><i class="fa fa-heart"></i> Liked</button>
+                </form>
+              {{else}}
+                <form action="/movie/{{movie._id}}/likes/create" method="POST" style="display: inline-block;">
+                  <button type="submit" class="card-link btn btn-outline-danger"><i class="fa fa-heart"></i> Like</button>
+                </form>
+              {{/if}}
+
+            {{/if}}
+          </div>
+
+          <div class="card-footer text-muted" id="dateID">
+            <strong>Created At: </strong> {{date}}
+          </div>
+        </div>
+      </div>
+
+  </div>
+</div> 
+
+<div class="modal" id="deleteModal">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Are You Sure That You Want To Delete Movie <strong>"{{movie.name}}"</strong></h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-footer">
+        <form action="/movie/delete/{{movie._id}}" method="POST">
+          <button type="submit" class="card-link btn btn-danger">Yes</button>
+        </form> 
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">No</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal" id="likeModal">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">You Need To Login To Be Able To Like Movies</strong></h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-footer">
+        <a href="/login"><button type="submit" class="card-link btn btn-primary">Login</button></a>
+        <a href="/register"><button type="button" class="btn btn-outline-primary">Register</button></a>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<div class="container">
+	<h2 class="text-center">COMMENTS</h2>
+
+  {{#each movie.comments}}
+	
+    <div class="card" id="{{this._id}}">
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-2">
+                    <img src="https://image.ibb.co/jw55Ex/def_face.jpg" class="img img-rounded img-fluid"/>
+                    <p class="text-secondary text-center">15 Minutes Ago</p>
+                </div>
+                <div class="col-md-10">
+                    <p style="margin-bottom: 2rem;">
+                        <a class="float-left" href="/users/{{this.author._id}}" style="text-decoration: none;"><i class="far fa-user"></i> <strong>{{this.author.username}}</strong></a>
+                        <hr>
+                  </p>
+                  <div class="clearfix"></div>
+                    <p>{{this.body}}</p>
+                    <p>
+                      {{#if ../loggedInUser}}
+                        {{#ifEqualsString ../loggedInUser._id this.author._id}}
+                        <a class="float-right btn text-white btn-danger btn-sm" data-target="#deleteCommentModal{{../this._id}}" data-toggle="modal"><i class="far fa-trash-alt"></i> Delete</a>
+                        <a class="float-right btn text-white btn-warning btn-sm mr-2" name="{{../this._id}}" role="button" data-toggle="collapse" href="#collapseEdit{{../this._id}}" aria-expanded="false" aria-controls="collapse{{../this._id}}"><i class="far fa-edit"></i> Edit</a> 
+                        {{/ifEqualsString}}
+                      {{/if}}
+                      {{!-- <a class="float-right btn text-white btn-danger btn-sm mr-2"><i class="fa fa-heart"></i> Like</a> --}}
+                  </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{#if ../loggedInUser}}
+
+    <!--Edit comment form-->
+      <div class="collapse" id="collapseEdit{{this._id}}">
+        <div class="well well-edit">
+          <h4>Edit your comment <i class="fas fa-pencil-alt"></i></h4>
+          <form id="edit-comment-form{{this._id}}" name="{{this._id}}" action="/comments/update/{{this._id}}" method="POST" onsubmit="return validateEditCommentForm(this);">
+            <div class="form-group">
+              <input class="form-control" type="text" disabled value="User: {{this.author.username}}">
+            </div>
+            <div class="form-group">
+              <div class="error-input" id="missing-edit-comment-error{{this._id}}"></div>
+              <textarea class="form-control" id="commentBodyEditID{{this._id}}" name="commentBodyEdit" placeholder="Your comment text..." form="edit-comment-form{{this._id}}" rows="5" cols="70">{{this.body}}</textarea>
+            </div>
+            <input type="hidden" name="movieID" value="{{movie._id}}">
+            <div class="form-group">
+              <button type="submit" class="btn btn-warning" style="width: 100%;">Edit comment <i class="far fa-comment"></i></button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- Modal to delete comment -->
+      <div class="modal fade" id="deleteCommentModal{{this._id}}">
+        <div class="modal-dialog" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title">Are You Sure That You Want To Delete Comment <strong>"{{this.body}}"</strong></h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-footer">
+              <form action="/comments/delete/{{this._id}}" method="POST">
+                <input type="hidden" name="movieID" value="{{movie._id}}">
+                <button type="submit" class="card-link btn btn-danger">Yes</button>
+              </form> 
+              <button type="button" class="btn btn-secondary" data-dismiss="modal">No</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    {{/if}}
+
+  {{/each}}
+
+  <div class="container" style="text-align: center;">
+    <a class="btn btn-success pull-right" id="add-new-comment-btn" role="button" data-toggle="collapse" href="#collapseComment" aria-expanded="false" aria-controls="collapseComment">
+      <i class="fas fa-plus"></i> Add new comment
+    </a>
+  </div>
+
+<!--Collapse Add a comment form START-->
+  <div class="collapse" id="collapseComment">
+    <div class="well">
+      {{#unless loggedInUser}}
+        <!--If the user is not logged in, direct him to the login page-->
+        <h5 style="text-align: center;">You need to login before you can comment. <a href="/login">Click here</a> to go to the login page.</h5>
+      {{/unless}}
+      {{#if loggedInUser}}
+        <!--If the user is logged in, show the new comment form-->
+        <h4>Write your comment <i class="fas fa-pencil-alt"></i></h4>
+        <form action="/comments/create" id="add-new-comment-form" onsubmit="return validateNewCommentForm();" method="POST">
+          <div class="form-group">
+            <input class="form-control" type="text" disabled value="User: {{loggedInUser.username}}">
+          </div>
+          <div class="form-group">
+            <div class="error-input" id="missing-comment-error"></div>
+            <textarea class="form-control" name="commentBody" id="commentBodyID" placeholder="Write your comment..." rows="5" cols="70"></textarea>
+          </div>
+          <input type="hidden" name="movieID" value="{{movie._id}}">
+          <div class="form-group">
+            <button type="submit" class="btn btn-success" style="width: 100%;">Submit <i class="far fa-comment"></i></button>
+          </div>
+        </form>
+      {{/if}}
+    </div>
+  </div>
+  <!--Collapse Add a comment form END-->
+</div>
+
+<br><br><br>

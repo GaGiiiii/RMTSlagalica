@@ -1,0 +1,63 @@
+
+
+  
+  <div class="row">
+    <div class="col-md-8 offset-md-2" id="body-container">
+
+      {{#if message}}
+          <div class="alert alert-danger">{{message}}</div>
+      {{/if}}  
+
+      {{#if notLoggedIn}}
+        <div class="alert alert-danger">{{notLoggedIn}}</div>
+      {{/if}}
+
+      <h3>{{title}}</h3>
+
+      {{#if registering}}
+        <form action="/register" method="POST">
+      {{else}}
+        <form action="/login" method="POST">
+      {{/if}}
+      {{!-- <input type="hidden" name="_id"> --}}
+        <fieldset>
+          <div class="form-group">
+            <label for="usernameID">Username</label>
+            <input type="text"  name="username" class="form-control {{#if user.usernameError}}is-invalid{{/if}}" value="{{user.username}}" id="usernameID" placeholder="Enter Username">
+            <div class="text-danger">
+              {{user.usernameError}}
+              {{user.usernameTaken}}
+            </div>
+          </div>
+          {{#if registering}}
+            <div class="form-group">
+              <label for="emailID">Email</label>
+              <input type="email"  name="email" class="form-control {{#if user.emailError}}is-invalid{{/if}}" value="{{user.email}}" id="emailID" placeholder="Enter Email">
+              <div class="text-danger">
+                {{user.emailError}}
+                {{user.emailTaken}}
+              </div>
+            </div>
+          {{/if}}
+          <div class="form-group">
+            <label for="passwordID">Password</label>
+            <input type="password"  name="password" class="form-control {{#if user.passwordError}}is-invalid{{/if}}" id="passwordID" placeholder="Enter Password">
+            <div class="text-danger">
+              {{user.passwordError}}
+            </div>
+          </div>
+          {{#if registering}}
+            <div class="form-group">
+              <label for="confirm-passwordID">Confirm Password</label>
+              <input type="password"  name="confirmPassword" class="form-control {{#if user.confirmPasswordError}}is-invalid{{/if}}" id="confirm-passwordID" placeholder="Confirm Password">
+              <div class="text-danger">
+              {{user.confirmPasswordError}}
+            </div>
+            </div>
+          {{/if}}
+          <button type="submit" class="btn btn-primary">Submit</button>
+        </fieldset>
+      </form>
+      
+    </div> 
+  </div>

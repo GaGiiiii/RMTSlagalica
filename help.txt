@@ -1,0 +1,32 @@
+https://gist.github.com/brianmacarthur/a4e3e0093d368aa8e423
+
+
+
+    res.render('index' , {
+      layout: 'main',
+      createdMovie: req.flash('createdMovie'),
+      deletedMovie: req.flash('deletedMovie'),
+      userRegistered: req.flash('userRegistered'),
+      userLoggedOut: req.flash('userLoggedOut'),
+      context: {
+        users: users,
+        movies: movies
+      },
+      // movies: movies,
+      message: req.flash('error'),
+      success: req.flash('success'),
+      // users: users
+    });
+
+
+    {{#context}}
+      {{#this.movies}}    
+        {{#../this.users}}
+          {{this._id}}
+          {{../this.author}}
+            {{#ifEquals this._id ../this.author}}
+              ZASTO NE ULAZI U OVAJ IF
+            {{/ifEquals}}
+        {{/../this.users}}
+      {{/this.movies}}
+    {{/context}}

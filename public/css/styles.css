@@ -1,0 +1,74 @@
+#body-container{
+  background-color: #fff;
+  margin-top: 25px;
+  padding: 20px;
+}
+
+.card{
+  border: none;
+}
+
+.card-border{
+  border: 2px solid #333;
+  border-radius: 5px 5px 5px 5px/25px 25px 25px 5px;
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
+a.card-header-link{
+  text-decoration: none;
+}
+
+a.card-header-link:hover{
+  text-decoration: underline;
+}
+
+#add-new-comment-btn{
+  margin-bottom: 1.5rem;
+}
+
+@media only screen and (min-width: 1600px){
+  .container-max-width{
+    max-width: 80%;
+  }
+}
+
+/* TOOLTIP */
+
+.tooltip2 {
+  position: relative;
+  display: inline-block;
+  border-bottom: 1px dotted black;
+}
+
+.tooltip2 .tooltiptext2 {
+  visibility: hidden;
+  width: 120px;
+  background-color: black;
+  color: #fff;
+  text-align: center;
+  border-radius: 6px;
+  padding: 5px 0;
+  
+  /* Position the tooltip */
+  position: absolute;
+  z-index: 1;
+  top: 120%;
+  left: 30%;
+  margin-left: -60px;
+}
+
+.tooltip2:hover{
+  cursor: not-allowed;
+}
+
+.tooltip2:hover .tooltiptext2 {
+  visibility: visible;
+}
+
+@media only screen and (max-width: 991px){
+  .tooltip2 .tooltiptext2 {
+    top: 120%;
+    left: 50%;
+  }
+}
