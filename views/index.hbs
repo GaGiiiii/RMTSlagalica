@@ -1,75 +1,50 @@
-{{#if message}}
-  <div class="container-fluid mt-5">
-    <div class="alert alert-success">{{message}}</div>
+  
+  
+  
+  <div class="col-md-8 offset-md-2 mt-3">
+    <div class="jumbotron">
+      <h1 class="display-3">Dobrodošli!</h1>
+      <p class="lead">Testirajte Vaše poznavanje računarskih mreža i tehnologija. Takmičite se protiv Vaših prijatelja (ako ih imate) i saznajte ko najbolje poznaje mreže!</p>
+      <hr class="my-4">
+      <p>Maksimalan broj igrača u jednoj partiji je 4, trenutno je konektovano 420 igrača.</p>
+      <p class="lead">
+        <form action="slagalica.html">
+          <input type="text" class="form-control" id="nickname" placeholder="Unesite Vaš nadimak" required oninvalid="this.setCustomValidity('Potrebno je uneti nadimak.')"
+              oninput="this.setCustomValidity('')"> 
+          <button class="btn btn-primary join-btn btn-lg" type="submit">Pridruži se !</button>
+        </form>
+      </p>
+    </div>
   </div>
-{{/if}}
 
-{{#if success}}
-  <div class="container-fluid mt-5">
-    <div class="alert alert-success">{{success}}</div>
-  </div>
-{{/if}}
-
-{{#if createdMovie}}
-  <div class="container-fluid mt-5">
-    <div class="alert alert-success">{{createdMovie}}</div>
-  </div>
-{{/if}}
-
-{{#if deletedMovie}}
-  <div class="container-fluid mt-5">
-    <div class="alert alert-success">{{deletedMovie}}</div>
-  </div>
-{{/if}}
-
-{{#if userRegistered}}
-  <div class="container-fluid mt-5">
-    <div class="alert alert-success">{{userRegistered}}</div>
-  </div>
-{{/if}}
-
-{{#if userLoggedOut}}
-  <div class="container-fluid mt-5">
-    <div class="alert alert-success">{{userLoggedOut}}</div>
-  </div>
-{{/if}}
-
-{{#if alreadyLoggedIn}}
-  <div class="container-fluid mt-5">
-    <div class="alert alert-danger">{{alreadyLoggedIn}}</div>
-  </div>
-{{/if}}
-
-<div class="container-fluid container-max-width mt-5">
-  <div class="row" id="row-for-movie-cards">
-
-    {{#each movies}}
-
-        <div class="col-md-8 offset-md-2 offset-sm-1 col-sm-10 card mb-3 mt-3">
-          <div class="card-border">
-            <a href="/movie/{{this._id}}" class="card-header-link">
-              <h3 class="card-header">{{this.name}}</h3>
-            </a>
-            <div class="card-body">
-              {{!-- <h5 class="card-title">Special title treatment</h5> --}}
-              {{!-- <h6 class="card-subtitle text-muted">Support card subtitle</h6> --}}
-            </div>
-            <a href="/movie/{{this._id}}">
-              <img style="height: 500px; width: 100%; display: block;" src="{{this.image}}" alt="Card image">
-            </a>
-            <div class="card-body">
-              <p class="card-text">{{this.description}}</p>
-              <i class="far fa-user"></i> Suggested By: <a href="/users/{{this.author._id}}">{{this.author.username}}</a> 
-              <br><i class="far fa-comments"></i> Comments: {{this.comments.length}}
-              <br><i class="far fa-heart"></i> Likes: {{this.likes.length}}
-            </div>
-            <div class="card-footer dateDIVClass text-muted" id="dateDIV{{this._id}}" style="margin-top: .5rem;">
-              {{this.created_at}}
-            </div>
-          </div>
+  <div class="col-md-8 offset-md-2">
+    <div class="chat-container">
+      <header class="chat-header">
+        <h1><i class="fas fa-smile"></i> Chat</h1>
+      </header>
+      <main class="chat-main">
+        <div class="chat-sidebar">
+          <h3><i class="fas fa-users"></i> Igrači</h3>
+          <ul id="users">
+            <li>Brad</li>
+            <li>John</li>
+            <li>Mary</li>
+            <li>Paul</li>
+            <li>Mike</li>
+          </ul>
         </div>
+        <div class="chat-messages">
 
-    {{/each}}
-
+        </div>
+      </main>
+      <div class="chat-form-container">
+        <form id="chat-form">
+          <input type="text" class="form-control" id="chat-message-input" placeholder="Unesite poruku" required auto complete="off"
+              oninvalid="this.setCustomValidity('Potrebno je uneti poruku.')" oninput="this.setCustomValidity('')"> 
+          <button class="btn btn-sm btn-primary chat-send-message-btn"><i class="fas fa-paper-plane"></i> Pošalji</button>
+        </form>
+      </div>
+    </div>
   </div>
-</div>
+
+  <br><br><br>

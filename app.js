@@ -48,7 +48,7 @@ app.use(session({
   saveUninitialized: true
 }));
 app.use(flash());
-// app.use(express.static(__dirname + '/public/'));
+// app.use(express.static(path.join(__dirname, 'public')));
 app.use('*/images', express.static(path.join(__dirname, 'public/images')));
 app.use('*/js', express.static(path.join(__dirname, 'public/js')));
 app.use('*/css', express.static(path.join(__dirname, 'public/css')));
@@ -99,4 +99,14 @@ let io = socketIO(server);
 
 io.on('connection', (socket) => {
   console.log("Made Socket Connection.", socket.id);
+
+  socket.on('chat', (data) => {
+    io.sockets.emit('chat', data);
+  });
+
+  socket.on('typing', (data) => {
+    socket.broadcast.emit('typing', data);
+  });
 });
+
+
