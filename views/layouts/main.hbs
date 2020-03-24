@@ -12,59 +12,10 @@
 </head>
 <body>
   
-<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
-  <a class="navbar-brand" href="/">DFD Movies</a>
-  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarColor01" aria-controls="navbarColor01" aria-expanded="false" aria-label="Toggle navigation">
-    <span class="navbar-toggler-icon"></span>
-  </button>
-
-  <div class="collapse navbar-collapse" id="navbarColor01">
-    <ul class="navbar-nav mr-auto">
-      {{#if userLel}}
-        <li class="nav-item">
-          <a class="nav-link" href="/movie/create">Suggest New</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="/users/{{userLel._id}}">Logged In As "{{userLel.username}}"</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="/logout">Logout</a>
-        </li>
-      {{/if}}  
-      {{#if loggedInUser}}
-      <li class="nav-item">
-        <a class="nav-link" href="/movie/create">Suggest New</a>
-      </li>
-        <li class="nav-item">
-          <a class="nav-link" href="/users/{{loggedInUser._id}}">Logged In As "{{loggedInUser.username}}"</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="/logout">Logout</a>
-        </li>
-      {{else}}
-        {{#unless userLel}}
-          <li class="nav-item">
-            <a class="nav-link" href="/login">Login</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="/register">Register</a>
-          </li>
-        {{/unless}}
-      {{/if}}
-    </ul>
-    <form class="form-inline my-2 my-lg-0">
-      <input class="form-control mr-sm-2" type="text" placeholder="Search">
-      {{!-- <button class="btn btn-secondary my-2 my-sm-0" type="submit">Search</button> --}}
-      <button type="button" class="btn btn-secondary tooltip2"><span class="tooltiptext2">Search Currently Disabled</span>Search</button>
-    </form>
-  </div>
-</nav>
-  
   {{{body}}}
 
 <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
-<script src="js/script.js"></script>
 
 </body>
 </html>

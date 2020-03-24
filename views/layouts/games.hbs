@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>DFD Movies</title>
+  <link rel="stylesheet" href="https://bootswatch.com/4/sketchy/bootstrap.min.css">
+  <script src="https://kit.fontawesome.com/5c5689b7a2.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.js"></script>
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="css/chat.css">
+</head>
+<body>
+  
+  {{{body}}}
+
+    
+  <div class="col-md-8 offset-md-2">
+    <div class="chat-container">
+      <header class="chat-header">
+        <h1><i class="fas fa-smile"></i> Chat</h1>
+      </header>
+      <main class="chat-main">
+        <div class="chat-sidebar">
+          <h3><i class="fas fa-users"></i> Igrači</h3>
+          <ul id="users">
+            <li>Brad</li>
+            <li>John</li>
+            <li>Mary</li>
+            <li>Paul</li>
+            <li>Mike</li>
+          </ul>
+        </div>
+        <div class="chat-messages">
+
+        </div>
+      </main>
+      <div class="chat-form-container">
+        <form id="chat-form">
+          <input type="text" class="form-control" id="chat-message-input" placeholder="Unesite poruku" required auto complete="off"
+              oninvalid="this.setCustomValidity('Potrebno je uneti poruku.')" oninput="this.setCustomValidity('')"> 
+          <button class="btn btn-sm btn-primary chat-send-message-btn"><i class="fas fa-paper-plane"></i> Pošalji</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+<script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qs/6.9.2/qs.min.js"></script>
+<script src="/socket.io/socket.io.js"></script>
+<script src="js/script.js"></script>
+
+</body>
+</html>

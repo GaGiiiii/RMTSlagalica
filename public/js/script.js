@@ -133,38 +133,79 @@ if(commentID){
 }
 
 
-// Make Connection
-// IO Dole je iz biblioteke, a ne sa servera.
-
-let socket = io.connect('http://localhost:3000');
-
-let message = document.getElementById("message");
-let handle = document.getElementById("handle");
-let btn = document.getElementById("send");
-let output = document.getElementById("output");
-let feedback = document.getElementById("feedback");
-
-// Emit Events
-
-btn.addEventListener('click', () => {
-  socket.emit('chat', {
-    message: message.value,
-    handle: handle.value
-  })
-});
-
-message.addEventListener('keypress', () => {
-  socket.emit('typing', handle.value);
-});
-
 // Listen for events
 
-socket.on('chat', (data) => {
-  feedback.innerHTML = "";
-  output.innerHTML += "<p><strong>" + data.handle + ":</strong> "
-                                    + data.message + "</p>";
-});   
+const chatForm = document.getElementById('chat-form');
+const chatMessages = document.querySelector('.chat-messages');
+const userList = document.getElementById('users');
+const socket = io();
 
-socket.on('typing', (data) => {
-  feedback.innerHTML = "<p><em>" + data + " is typing a message...</em></p>";
+// Get username from URL
+
+const params = Qs.parse(location.search, {
+                    ignoreQueryPrefix: true
+                  });
+
+// Join chatroom
+
+socket.emit('joinsGame', params.username);
+
+// Get room and users
+
+socket.on('joinedUsers', (users) => {
+  console.log(users)
+    outputUsers(users);
 });
+
+// Message from server
+
+socket.on('message', (message) => {
+    console.log(message);
+    outputMessage(message);
+
+    // Scroll down
+
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+});
+
+// Message submit
+
+chatForm.addEventListener('submit', (event) => {
+    event.preventDefault();
+
+    // Input with ID msg
+
+    const msgInput = document.querySelector("#chat-message-input");
+
+    const msg = msgInput.value;
+
+    // Emit message to server
+
+    socket.emit('chatMessage', msg);
+
+    // Clear input
+
+    msgInput.value = "";
+    msgInput.focus();
+});
+
+// Output message to DOM
+
+function outputMessage(message){
+    const div = document.createElement('div');
+    div.classList.add('message');
+
+    div.innerHTML = `<p class="meta">${message.username} <span>${message.time}</span></p>
+    <p class="text">
+        ${message.text}
+    </p>`;
+
+    document.querySelector('.chat-messages').appendChild(div);
+}
+
+// Add users to DOM
+
+function outputUsers(users){
+    userList.innerHTML = `${users.map(user => `<li>${user.username}</li>`).join('')}`;
+    console.log(users);
+}

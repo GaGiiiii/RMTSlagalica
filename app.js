@@ -1,8 +1,9 @@
 /* ********** DEPENDENCIES ********** */
 
 const express = require('express');
-const socketIO = require('socket.io');
+const socketio = require('socket.io');
 const mongoose = require('mongoose');
+const http = require('http');
 const bodyParser = require('body-parser');
 const path = require('path');
 const expressHandlebars = require('express-handlebars');
@@ -11,11 +12,15 @@ const flash = require('req-flash');
 const cookieParser = require('cookie-parser');
 const passport = require('passport');
 const config = require('./config/database');
+const formatMessage = require('./utils/messages');
+const {userJoins, getCurrentUser, userLeaves, getJoinedUsers} = require('./utils/users');
 
 
 /* ********** INITIALIZE EXPRESS APP ********** */
 
 const app = express();
+const server = http.createServer(app);
+const io = socketio(server);
 
 /* ********** IMPORT ROUTES ********** */
 
@@ -23,6 +28,8 @@ const movieRoutes = require('./routes/movie.route');
 const userRoutes = require('./routes/user.route');
 const commentRoutes = require('./routes/comment.route');
 const likeRoutes = require('./routes/like.route');
+const globalRoutes = require('./routes/global.routes');
+const gamesRoutes = require('./routes/games.routes');
 
 
 /* ********** MONGOOSE ********** */
@@ -84,29 +91,58 @@ app.use("/", movieRoutes);
 app.use('/', userRoutes);
 app.use('/', commentRoutes);
 app.use('/', likeRoutes);
+app.use('/', globalRoutes);
+app.use('/', gamesRoutes);
+
+/* ********** SOCKET COMMUNICATION ********** */
+
+io.on('connection', (socket) => {
+  console.log("New Socket Connection.");
+
+  socket.on('joinsGame', (username) => {
+      const user = userJoins(socket.id, username);
+      console.log(username);
+
+      // Welcome current user
+
+      socket.emit('message', formatMessage('Admin', 'Uspešno ste se konektovali.'));
+
+      // Broadcast when user connects
+
+      socket.broadcast.emit('message', formatMessage('Admin', `${user.username} se konektovao.`));
+
+      // Send users and room info
+
+      io.emit('joinedUsers', getJoinedUsers());
+  });
+
+  // Listen for chatMessage
+
+  socket.on('chatMessage', (msg) => {
+      const user = getCurrentUser(socket.id);
+
+      io.emit('message', formatMessage(user.username, msg));
+  });
+
+  // Runs when client disconnects
+
+  socket.on('disconnect', () => {
+      const user = userLeaves(socket.id);
+
+      if(user){
+          io.emit('message', formatMessage('Admin', `${user.username} se diskonektovao.`));
+      
+          // Send users and room info
+
+          io.emit('joinedUsers', getJoinedUsers());
+      }
+  });
+});
 
 /* ********** SERVER START ********** */
 
 let portNumber = process.env.PORT || 3000;
 
-let server = app.listen(portNumber, () => {
+server.listen(portNumber, () => {
     console.log("*** Server is running on port: " + portNumber);
 });
-
-/* ********** SOCKET SETUP ********** */
-
-let io = socketIO(server);
-
-io.on('connection', (socket) => {
-  console.log("Made Socket Connection.", socket.id);
-
-  socket.on('chat', (data) => {
-    io.sockets.emit('chat', data);
-  });
-
-  socket.on('typing', (data) => {
-    socket.broadcast.emit('typing', data);
-  });
-});
-
-
