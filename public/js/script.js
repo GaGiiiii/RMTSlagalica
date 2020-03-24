@@ -133,3 +133,7 @@ if(commentID){
 }
 
 
+// Make Connection
+// IO Dole je iz biblioteke, a ne sa servera.
+
+let socket = io.connect('http://localhost:3000');

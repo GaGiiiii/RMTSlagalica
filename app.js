@@ -1,6 +1,7 @@
 /* ********** DEPENDENCIES ********** */
 
 const express = require('express');
+const socketIO = require('socket.io');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const path = require('path');
@@ -88,8 +89,14 @@ app.use('/', likeRoutes);
 
 let portNumber = process.env.PORT || 3000;
 
-app.listen(portNumber, () => {
+let server = app.listen(portNumber, () => {
     console.log("*** Server is running on port: " + portNumber);
 });
 
+/* ********** SOCKET SETUP ********** */
 
+let io = socketIO(server);
+
+io.on('connection', (socket) => {
+  console.log("Made Socket Connection.", socket.id);
+});
