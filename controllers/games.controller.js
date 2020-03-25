@@ -12,6 +12,7 @@ const LikeModel = require('../models/like.model');
         exports.slagalica = function (req, res) {
             res.render('games/slagalica' , {
                 layout: 'games',
+                user: req.body.username
             });
         };
 

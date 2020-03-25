@@ -99,9 +99,10 @@ app.use('/', gamesRoutes);
 io.on('connection', (socket) => {
   console.log("New Socket Connection.");
 
+  io.emit('joinedUsersOnConnection', getJoinedUsers());
+
   socket.on('joinsGame', (username) => {
       const user = userJoins(socket.id, username);
-      console.log(username);
 
       // Welcome current user
 
@@ -113,7 +114,7 @@ io.on('connection', (socket) => {
 
       // Send users and room info
 
-      io.emit('joinedUsers', getJoinedUsers());
+      io.emit('joinedUsersOnConnect', getJoinedUsers());
   });
 
   // Listen for chatMessage
@@ -127,6 +128,8 @@ io.on('connection', (socket) => {
   // Runs when client disconnects
 
   socket.on('disconnect', () => {
+      console.log("Socket disconnects.");
+
       const user = userLeaves(socket.id);
 
       if(user){
@@ -134,7 +137,7 @@ io.on('connection', (socket) => {
       
           // Send users and room info
 
-          io.emit('joinedUsers', getJoinedUsers());
+          io.emit('joinedUsersOnDisconnect', getJoinedUsers());
       }
   });
 });

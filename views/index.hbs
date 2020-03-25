@@ -6,9 +6,9 @@
       <h1 class="display-3">Dobrodošli!</h1>
       <p class="lead">Testirajte Vaše poznavanje računarskih mreža i tehnologija. Takmičite se protiv Vaših prijatelja (ako ih imate) i saznajte ko najbolje poznaje mreže!</p>
       <hr class="my-4">
-      <p>Maksimalan broj igrača u jednoj partiji je 4, trenutno je konektovano 420 igrača.</p>
+      <p>Maksimalan broj igrača u jednoj partiji je 4, trenutni broj konektovanih igrača je <span id="numberOfConnected">420</span>.</p>
       <p class="lead">
-        <form action="slagalica">
+        <form action="slagalica" method="POST">
           <input type="text" name="username" class="form-control" id="nickname" placeholder="Unesite Vaš nadimak" required oninvalid="this.setCustomValidity('Potrebno je uneti nadimak.')"
               oninput="this.setCustomValidity('')"> 
           <button class="btn btn-primary join-btn btn-lg" type="submit">Pridruži se !</button>
