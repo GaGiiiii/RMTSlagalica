@@ -17,18 +17,31 @@
 <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
 <script>
-  const socket = io('http://localhost:3000');
+  const origin = window.location.origin;   // Returns base URL (https://example.com)
+  const socket = io(origin);
+  let span = document.getElementById('numberOfConnected');
+  let joinButton = document.getElementById('join-btn');
+
+  function checkUsers(users){
+    span.innerText = users.length;
+    if(users.length >= 4){
+      joinButton.disabled = true;
+    }else{
+      joinButton.disabled = false;
+    }
+  }
 
   socket.on('joinedUsersOnConnection', (users) => {
-    let span = document.getElementById('numberOfConnected');
-    span.innerText = users.length;
+      checkUsers(users);
   });
 
-    socket.on('joinedUsersOnConnect', (users) => {
-    let span = document.getElementById('numberOfConnected');
-    span.innerText = users.length;
+  socket.on('joinedUsersOnConnect', (users) => {
+      checkUsers(users);
   });
 
+  socket.on('joinedUsersOnDisconnect', (users) => {
+    checkUsers(users);
+  });
 
 </script>
 </body>

@@ -3,7 +3,8 @@
 const chatForm = document.getElementById('chat-form');
 const chatMessages = document.querySelector('.chat-messages');
 const userList = document.getElementById('users');
-const socket = io('http://localhost:3000/');
+const origin = window.location.origin;   // Returns base URL (https://example.com)
+const socket = io(origin + '/');
 
 // Get username from URL
 
