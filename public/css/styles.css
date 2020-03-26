@@ -14,3 +14,9 @@
 #nickname{
   width: 200px;
 }
+
+@media only screen and (max-width: 430px){
+  #welcomeh1{
+    font-size: 3.2rem;
+  }
+}
