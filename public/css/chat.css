@@ -9,11 +9,11 @@
   
   #chat-message-input{
     border-color: #000;
-    margin-right: 1rem;
   }
   
   .chat-send-message-btn{
     border-color: #000;
+    height: 40px;
   }
   
   
@@ -105,9 +105,15 @@
   .chat-form-container form {
       display: flex;
   }
+
+  #chat-message-input-container{
+      flex: 1;
+      margin-right: 1rem;
+
+  }
   
   .chat-form-container input[type='text'] {
-      flex: 1;
+      /* flex: 1; */
   }
   
   @media (max-width: 700px) {

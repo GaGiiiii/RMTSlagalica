@@ -35,19 +35,22 @@
       </main>
       <div class="chat-form-container">
         <form id="chat-form">
-          <input type="text" class="form-control" id="chat-message-input" placeholder="Unesite poruku" required auto complete="off"
+          <div id="chat-message-input-container">
+            <input type="text" class="form-control" id="chat-message-input" placeholder="Unesite poruku" required auto complete="off"
               oninvalid="this.setCustomValidity('Potrebno je uneti poruku.')" oninput="this.setCustomValidity('')"> 
+            <div class="invalid-feedback">Poruka ne može biti duža od 100 karaktera.</div>
+          </div>
           <button class="btn btn-sm btn-primary chat-send-message-btn"><i class="fas fa-paper-plane"></i> Pošalji</button>
         </form>
       </div>
     </div>
   </div>
 
-<script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
-<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/qs/6.9.2/qs.min.js"></script>
-<script src="/socket.io/socket.io.js"></script>
-<script src="js/script.js"></script>
+  <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qs/6.9.2/qs.min.js"></script>
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="js/games.js"></script>
 
 </body>
 </html>

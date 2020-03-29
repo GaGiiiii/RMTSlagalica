@@ -1,2 +1,0 @@
-1. Duzina nadimka max 15 karaktera.
-2. Disable script and html from index and game.

@@ -47,16 +47,26 @@ chatForm.addEventListener('submit', (event) => {
 
     const msgInput = document.querySelector("#chat-message-input");
 
-    const msg = msgInput.value;
+    let msg = msgInput.value;
 
-    // Emit message to server
+    msg = cleanInput(msg);
 
-    socket.emit('chatMessage', msg);
+    if(isValidMessageLength(msg)){
 
-    // Clear input
+        // Emit message to server
 
-    msgInput.value = "";
-    msgInput.focus();
+        socket.emit('chatMessage', msg);
+
+        // Clear input
+
+        msgInput.value = "";
+        msgInput.style.borderColor = "#000";
+        msgInput.classList.remove('is-invalid');
+        msgInput.focus(); 
+    }else{
+        msgInput.classList.add('is-invalid');
+        msgInput.style.borderColor = "#dc3545";
+    }
 });
 
 // Output message to DOM
@@ -78,4 +88,18 @@ function outputMessage(message){
 function outputUsers(users){
     userList.innerHTML = `${users.map(user => `<li>${user.username}</li>`).join('')}`;
     console.log(users);
+}
+
+function isValidMessageLength(message){
+    return message.length <= 100 ? true : false;
+  }
+
+function cleanInput(input){
+    // Create a new div element
+    let temporalDivElement = document.createElement("div");
+    // Set the HTML content with the providen
+    temporalDivElement.innerHTML = input;
+
+    // Retrieve the text property of the element (cross-browser support)
+    return temporalDivElement.textContent || temporalDivElement.innerText || "";
 }
