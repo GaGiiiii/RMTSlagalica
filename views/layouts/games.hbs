@@ -10,41 +10,86 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.js"></script>
   <link rel="stylesheet" href="css/styles.css">
   <link rel="stylesheet" href="css/chat.css">
+  <link rel="stylesheet" href="css/games.css">
 </head>
 <body>
   
   {{{body}}}
 
-  <input type="hidden" name="username" id="username" value="{{user}}">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-12">
+        <h1 style="text-align: center; margin-bottom: 2rem;">Rezultat</h1>
+        <table class="table table-hover" id="scoreboard-table">
+          <thead>
+            <tr id="scoreboard-users">
+              <th scope="col"></th>
 
-  <div class="col-md-8 offset-md-2">
-    <div class="chat-container">
-      <header class="chat-header">
-        <h1><i class="fas fa-smile"></i> Chat</h1>
-      </header>
-      <main class="chat-main">
-        <div class="chat-sidebar">
-          <h3><i class="fas fa-users"></i> Igrači</h3>
-          <ul id="users">
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="scoreboard-games">
+              <th class="game-name" scope="row"><strong>Slagalica</strong></th>
+            </tr>
+            <tr class="scoreboard-games">
+              <th class="game-name" scope="row">Moj broj</th>
 
-          </ul>
-        </div>
-        <div class="chat-messages">
+            </tr>
+            <tr class="scoreboard-games">
+              <th class="game-name" scope="row">Spojnice</th>
+            </tr>
+            <tr class="scoreboard-games">
+              <th class="game-name" scope="row">Skocko</th>
 
-        </div>
-      </main>
-      <div class="chat-form-container">
-        <form id="chat-form">
-          <div id="chat-message-input-container">
-            <input type="text" class="form-control" id="chat-message-input" placeholder="Unesite poruku" required auto complete="off"
-              oninvalid="this.setCustomValidity('Potrebno je uneti poruku.')" oninput="this.setCustomValidity('')"> 
-            <div class="invalid-feedback">Poruka ne može biti duža od 100 karaktera.</div>
-          </div>
-          <button class="btn btn-sm btn-primary chat-send-message-btn"><i class="fas fa-paper-plane"></i> Pošalji</button>
-        </form>
+            </tr>
+            <tr class="scoreboard-games">
+              <th class="game-name" scope="row">Ko zna zna</th>
+
+            </tr>
+            <tr class="scoreboard-games">
+              <th class="game-name" scope="row">Asocijacije</th>
+
+            </tr>
+          </tbody>
+        </table> 
       </div>
+
+      <br><br><br>
+
+      <input type="hidden" name="username" id="username" value="{{user}}">
+
+        <div class="col-md-12" style="margin-top: 2rem; margin-bottom: 4rem;">
+          <div class="chat-container">
+            <header class="chat-header">
+              <h1><i class="fas fa-smile"></i> Chat</h1>
+            </header>
+            <main class="chat-main">
+              <div class="chat-sidebar">
+                <h3><i class="fas fa-users"></i> Igrači</h3>
+                <ul id="users">
+
+                </ul>
+              </div>
+              <div class="chat-messages">
+
+              </div>
+            </main>
+            <div class="chat-form-container">
+              <form id="chat-form">
+                <div id="chat-message-input-container">
+                  <input type="text" class="form-control" id="chat-message-input" placeholder="Unesite poruku" required auto complete="off"
+                    oninvalid="this.setCustomValidity('Potrebno je uneti poruku.')" oninput="this.setCustomValidity('')"> 
+                  <div class="invalid-feedback">Poruka ne može biti duža od 100 karaktera.</div>
+                </div>
+                <button class="btn btn-sm btn-primary chat-send-message-btn"><i class="fas fa-paper-plane"></i> Pošalji</button>
+              </form>
+            </div>
+          </div>
+        </div>
     </div>
   </div>
+
+  
 
   <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>

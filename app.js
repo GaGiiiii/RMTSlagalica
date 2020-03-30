@@ -137,7 +137,10 @@ io.on('connection', (socket) => {
       
           // Send users and room info
 
-          io.emit('joinedUsersOnDisconnect', getJoinedUsers());
+          io.emit('joinedUsersOnDisconnect', {
+            users: getJoinedUsers(),
+            user: user
+          });
       }
   });
 });
