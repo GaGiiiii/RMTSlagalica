@@ -1,3 +1,2 @@
-1. Isti username ne moze
 2. Sredi kod
 3. Kada igra pocninje ??? ne moze vise da se ulazi, kada je kraj igre ???
