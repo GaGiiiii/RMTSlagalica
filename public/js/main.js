@@ -14,14 +14,15 @@ function checkUsers(users){
 
 socket.on('joinedUsersOnConnection', (users) => {
     checkUsers(users);
+    console.log(users)
 });
 
 socket.on('joinedUsersOnConnect', (users) => {
     checkUsers(users);
 });
 
-socket.on('joinedUsersOnDisconnect', (users) => {
-  checkUsers(users);
+socket.on('joinedUsersOnDisconnect', (object) => {
+  checkUsers(object.users);
 });
 
 function checkNicknameForm(){
