@@ -8,6 +8,8 @@ const scoreboardGames = document.querySelectorAll('.scoreboard-games');
 const origin = window.location.origin;   // Returns base URL (https://example.com)
 const socket = io(origin + '/');
 
+let isGameInProggress = false;
+
 // Get username from URL
 
 const params = Qs.parse(location.search, {
@@ -26,9 +28,8 @@ socket.on('joinedUsersOnConnect', (users) => {
 });
 
 socket.on('joinedUsersOnDisconnect', (object) => {
-    otuputUsersOnDisconnect(object.users);
-    outputDisconnectedUser(object.user.username);
-    console.log(object)
+    otuputUsersOnDisconnect(object);
+    console.log(object) // users and user user.username
 });
 
 // Message from server
@@ -111,10 +112,11 @@ function outputUsersOnConnect(users){
         th = document.createElement('th');
         th.innerHTML = `${user.username}`;
         scoreboardUsers.appendChild(th);
-        
+        let counter = 1;
         scoreboardGames.forEach((scoreboardGame) => {
             td = document.createElement('td');
             td.classList.add('td');
+            td.setAttribute("id", `${user.username}-game${counter++}-score`);
             td.innerHTML = "0";
             scoreboardGame.appendChild(td);
         });
@@ -123,20 +125,28 @@ function outputUsersOnConnect(users){
 
 }
 
-function otuputUsersOnDisconnect(users){
+function otuputUsersOnDisconnect(object){
+
+    if(!isGameInProggress){
+        outputUsersOnConnect(object.users);
+    }else{
+        otuputUsersOnDisconnectWhileGameInProgress(object);
+    }
+
+}
+
+function otuputUsersOnDisconnectWhileGameInProgress(object){
     userList.innerHTML = "";
-    users.forEach(user => {
+
+    object.users.forEach(user => {
         let li = document.createElement('li');
         li.innerHTML = `${user.username}`;
         userList.appendChild(li);
     });
 
-}
-
-function outputDisconnectedUser(user){
     scoreboardUsers.childNodes.forEach((childNode) => {
-        if(childNode.textContent == user){
-            childNode.textContent += ' (izašao)';
+        if(childNode.textContent == object.user.username){
+            childNode.textContent += ' (izašao/la)';
         }
     });
 }
