@@ -1,8 +1,10 @@
 const origin = window.location.origin;   // Returns base URL (https://example.com)
 const socket = io(origin);
-let span = document.getElementById('numberOfConnected');
-let joinButton = document.getElementById('join-btn');
-let usersFront = new Array();
+let span = document.getElementById('numberOfConnected'); // Span for number of connected users
+let joinButton = document.getElementById('join-btn'); // Button for joining games room
+let usersFront = new Array(); // Connected Users
+
+// Check number of in-game users and disable button
 
 function checkUsers(users){
   span.innerText = users.length;
@@ -13,17 +15,19 @@ function checkUsers(users){
   }
 }
 
-socket.on('joinedUsersOnConnection', (users) => {
+socket.on('userJoinedOnServer', (users) => {
     checkUsers(users);
     usersFront = users;
 });
 
-socket.on('joinedUsersOnConnect', (users) => {
+// Info about users in game
+
+socket.on('connectedUsersInfo', (users) => {
     checkUsers(users);
     usersFront = users;
 });
 
-socket.on('joinedUsersOnDisconnect', (object) => {
+socket.on('usersInfoAfterDisconnect', (object) => {
     checkUsers(object.users);
 });
 
@@ -66,6 +70,8 @@ function nicknameTaken(nickname){
       return true;
     }
   }
+
+  // YOU CAN'T BREAK FOREACH LOOP !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
   return false;
 }

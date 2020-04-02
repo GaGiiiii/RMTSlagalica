@@ -1,14 +1,14 @@
 const express = require('express');
 const router = express.Router();
 
-// Require The Controllers
+/* ********** CONTROLLERS ********** */
 
 const globalController = require('../controllers/global.controller');
 
-// Routes
+/* ********** ROUTES ********** */
 
 router.get('/', globalController.index);
 
-// Export Router
+/* ********** EXPORTS ********** */
 
 module.exports = router;

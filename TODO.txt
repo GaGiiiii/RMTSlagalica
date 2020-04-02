@@ -1,2 +1,4 @@
-2. Sredi kod
 3. Kada igra pocninje ??? ne moze vise da se ulazi, kada je kraj igre ???
+4. Ako neko reloaduje u sred gejma ? tj posalje post request u sred gejma ???
+5. Ako u isto vreme kliknu join moze da se joinuje 5 igraca
+6. Ako je gameInProgress = true onda ne moze da reloaduje stranicu niti da baci post request bilo kako, samo ga redirekt....

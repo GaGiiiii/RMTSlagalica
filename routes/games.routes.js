@@ -3,29 +3,14 @@ const router = express.Router();
 const {userJoins, getCurrentUser, userLeaves, getJoinedUsers} = require('../utils/users');
 
 
-// Require The Controllers
+/* ********** CONTROLLERS ********** */
 
 const gamesController = require('../controllers/games.controller');
 
-// Routes
+/* ********** ROUTES ********** */
 
-router.post('/slagalica', gamesController.slagalica);
+router.post('/igre', gamesController.index);
 
-// Check Access
-
-function checkAccess(req, res, next){
-    const users = getJoinedUsers();
-    const user = req.body.username;
-
-    const exists = users.find(user => user.username === user);
-
-    if(exists){
-        return next();
-    }else{
-        res.redirect('/');
-    }
-  }
-
-// Export Router
+/* ********** EXPORTS ********** */
 
 module.exports = router;

@@ -1,6 +1,6 @@
 const users = [];
 
-// Join user to chat
+/* ********** USER JOINS ********** */
 
 function userJoins(id, username){
     const user = {
@@ -13,13 +13,13 @@ function userJoins(id, username){
     return user;
 }
 
-// Get current user
+/* ********** GET USER FROM SOCKET ID ********** */
 
 function getCurrentUser(id){
     return users.find(user => user.id === id);
 }
 
-// User leaves chat
+/* ********** USER LEAVES ********** */
 
 function userLeaves(id){
     const index = users.findIndex(user => user.id === id);
@@ -30,11 +30,13 @@ function userLeaves(id){
     }
 }
 
-// Get room users
+/* ********** GET CONNECTED USERS ********** */
 
 function getJoinedUsers(){
     return users;
 }
+
+/* ********** EXPORTS ********** */
 
 module.exports = {
     userJoins,

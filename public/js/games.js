@@ -10,29 +10,23 @@ const socket = io(origin + '/');
 
 let isGameInProggress = false;
 
-// Get username from URL
-
-const params = Qs.parse(location.search, {
-                    ignoreQueryPrefix: true
-                  });
-
-// Join chatroom
+// User joined game, tell server
 
 let username = document.getElementById('username');
-socket.emit('joinsGame', username.value);
+socket.emit('userJoinedInGame', username.value);
 
-// Get room and users
+// Info about connected users
 
-socket.on('joinedUsersOnConnect', (users) => {
+socket.on('connectedUsersInfo', (users) => {
     outputUsersOnConnect(users);
 });
 
-socket.on('joinedUsersOnDisconnect', (object) => {
+socket.on('usersInfoAfterDisconnect', (object) => {
     otuputUsersOnDisconnect(object);
     console.log(object) // users and user user.username
 });
 
-// Message from server
+// Messages from server
 
 socket.on('message', (message) => {
     outputMessage(message);
@@ -42,7 +36,7 @@ socket.on('message', (message) => {
     chatMessages.scrollTop = chatMessages.scrollHeight;
 });
 
-// Message submit
+// Message submit in chat
 
 chatForm.addEventListener('submit', (event) => {
     event.preventDefault();
@@ -88,11 +82,6 @@ function outputMessage(message){
 }
 
 // Add users to DOM
-
-// function outputUsers(users){
-//     userList.innerHTML = `${users.map(user => `<li>${user.username}</li>`).join('')}`;
-//     scoreboardUsers.innerHTML = `${users.map(user => `<th>${user.username}</th>`).join('')}`;
-// }
 
 function outputUsersOnConnect(users){
     userList.innerHTML = "";
