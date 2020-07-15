@@ -1,3 +1,14 @@
 td{
     font-weight: 400;
 }
+
+.ready-container{
+    text-align: center;
+    margin-top: 4rem;
+}
+
+.ready-btn{
+    width: 200px;
+    height: 60px;
+    font-size: 1.5rem;
+}

@@ -5,7 +5,8 @@ const users = [];
 function userJoins(id, username){
     const user = {
         id,
-        username
+        username,
+        ready: false
     }
 
     users.push(user);

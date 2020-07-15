@@ -1,5 +1,6 @@
 // Listen for events
 
+const readyBtn = document.querySelector('.ready-btn');
 const chatForm = document.getElementById('chat-form');
 const chatMessages = document.querySelector('.chat-messages');
 const userList = document.getElementById('users');
@@ -9,6 +10,7 @@ const origin = window.location.origin;   // Returns base URL (https://example.co
 const socket = io(origin + '/');
 
 let isGameInProggress = false;
+let userReady = false;
 
 // User joined game, tell server
 
@@ -34,6 +36,22 @@ socket.on('message', (message) => {
     // Scroll down
 
     chatMessages.scrollTop = chatMessages.scrollHeight;
+});
+
+socket.on('userReady', (object) => {
+    const li = document.querySelector("#li_" + object.username);
+    const th = document.querySelector("#th_" + object.username);
+
+    li.innerHTML = object.username + " (spreman/a)";
+    th.innerHTML = object.username + " (spreman/a)";
+});
+
+socket.on('userNotReady', (object) => {
+    const li = document.querySelector("#li_" + object.username);
+    const th = document.querySelector("#th_" + object.username);
+
+    li.innerHTML = object.username;
+    th.innerHTML = object.username;
 });
 
 // Message submit in chat
@@ -67,6 +85,22 @@ chatForm.addEventListener('submit', (event) => {
     }
 });
 
+readyBtn.addEventListener('click', () => {
+    if(!userReady){
+        userReady = true;
+        readyBtn.classList.remove("btn-outline-danger");
+        readyBtn.classList.add("btn-outline-success");
+        readyBtn.innerHTML = "Spreman <i class='fas fa-check'></i>";
+        socket.emit('userReady', socket.id);
+    }else{
+        userReady = false;
+        readyBtn.classList.remove("btn-outline-success");
+        readyBtn.classList.add("btn-outline-danger");
+        readyBtn.innerHTML = "Spreman <i class='fas fa-times'></i>";
+        socket.emit('userNotReady', socket.id);
+    }
+});
+
 // Output message to DOM
 
 function outputMessage(message){
@@ -84,6 +118,9 @@ function outputMessage(message){
 // Add users to DOM
 
 function outputUsersOnConnect(users){
+    if(userReady){
+        console.log("dsadsada");
+    }
     userList.innerHTML = "";
     scoreboardUsers.innerHTML = '<th scope="col"></th>';
     let tds = document.querySelectorAll('.td');
@@ -96,10 +133,20 @@ function outputUsersOnConnect(users){
 
     users.forEach(user => {
         let li = document.createElement('li');
-        li.innerHTML = `${user.username}`;
+        let th = document.createElement('th');
+        console.log(user.ready);
+
+        if(user.ready){
+            li.innerHTML = `${user.username} (spreman/a)`;
+            th.innerHTML = `${user.username} (spreman/a)`;
+        }else{
+            li.innerHTML = `${user.username}`;
+            th.innerHTML = `${user.username}`;
+        }
+
+        li.id = `li_${user.username}`;
         userList.appendChild(li);
-        th = document.createElement('th');
-        th.innerHTML = `${user.username}`;
+        th.id = `th_${user.username}`;
         scoreboardUsers.appendChild(th);
         let counter = 1;
         scoreboardGames.forEach((scoreboardGame) => {

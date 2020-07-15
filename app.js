@@ -75,6 +75,20 @@ io.on('connection', (socket) => {
       io.emit('connectedUsersInfo', getJoinedUsers());
   });
 
+  socket.on('userReady', (id) => {
+    let users = getJoinedUsers();
+    let user = users.find(user => user.id === id);
+    user.ready = true;
+    io.emit("userReady", user);
+  });
+
+  socket.on('userNotReady', (id) => {
+    let users = getJoinedUsers();
+    let user = users.find(user => user.id === id);
+    user.ready = false;
+    io.emit("userNotReady", user);
+  });
+
   // Listen for chatMessage
 
   socket.on('chatMessage', (msg) => {
