@@ -38,12 +38,25 @@ socket.on('message', (message) => {
     chatMessages.scrollTop = chatMessages.scrollHeight;
 });
 
-socket.on('userReady', (object) => {
-    const li = document.querySelector("#li_" + object.username);
-    const th = document.querySelector("#th_" + object.username);
+socket.on('userReady', (usersInfo) => {
+    const li = document.querySelector("#li_" + usersInfo.user.username);
+    const th = document.querySelector("#th_" + usersInfo.user.username);
 
-    li.innerHTML = object.username + " (spreman/a)";
-    th.innerHTML = object.username + " (spreman/a)";
+    li.innerHTML = usersInfo.user.username + " (spreman/a)";
+    th.innerHTML = usersInfo.user.username + " (spreman/a)";
+
+    // If everyone is ready then the game can start, otherwise return
+
+    for(let i = 0; i < usersInfo.users.length; i++){
+        if(!usersInfo.users[i].ready){
+            return;
+        }
+    }
+
+    // First game can start now 
+
+    isGameInProggress = true;
+    startGame();
 });
 
 socket.on('userNotReady', (object) => {
@@ -199,4 +212,77 @@ function cleanInput(input){
 
     // Retrieve the text property of the element (cross-browser support)
     return temporalDivElement.textContent || temporalDivElement.innerText || "";
+}
+
+function startGame(){
+    const gamesContainer = document.querySelector('.games-container');
+
+    gamesContainer.innerHTML = "<button class='btn btn-outline-primary letter-btn'>A</button> \
+    <button class='btn btn-outline-primary letter-btn'>A</button> \
+    <button class='btn btn-outline-primary letter-btn'>A</button> \
+    <button class='btn btn-outline-primary letter-btn'>A</button> \
+    <button class='btn btn-outline-primary letter-btn'>A</button> \
+    <button class='btn btn-outline-primary letter-btn'>A</button> \
+ \
+    <br> \
+ \
+    <button class='btn btn-outline-primary letter-btn'>A</button> \
+    <button class='btn btn-outline-primary letter-btn'>A</button> \
+    <button class='btn btn-outline-primary letter-btn'>A</button> \
+    <button class='btn btn-outline-primary letter-btn'>A</button> \
+    <button class='btn btn-outline-primary letter-btn'>A</button> \
+    <button class='btn btn-outline-primary letter-btn'>A</button> \
+\
+    <br>\
+    <br>\
+\
+    <div class='container'>\
+      <div class='row'>\
+        <div class='col-md-10 col-sm-10 cl-xs-10' style='text-align: right;'>\
+          <input type='text' disabled class='form-control' id='word-input'>\
+        </div>\
+        <div class='col-md-2 col-sm-2 col-xs-2'>\
+          <button class='btn btn-outline-primary delete-letter-btn'><i class='fas fa-backspace'></i></button>\
+        </div>\
+      </div>\
+    </div>";
+
+    socket.emit('slagalicaStarts');
+
+    socket.on('generatedLetters', (lettersArray) => {
+        console.log(lettersArray);
+        const letters = document.querySelectorAll(".letter-btn");
+        const wordInput = document.querySelector('#word-input');
+        const deleteLetterBtn = document.querySelector('.delete-letter-btn');
+        let lettersArrayCounter = 0;
+    
+        letters.forEach((letter) => {
+            if(letter.value == ""){
+                letter.innerHTML = lettersArray[lettersArrayCounter];
+                letter.value = lettersArray[lettersArrayCounter++];
+            }
+
+            letter.addEventListener('click', (event) => {
+                console.log("DASDAS");
+                wordInput.value += event.target.value;
+                letter.disabled = true;
+            });
+        });
+    
+        deleteLetterBtn.addEventListener('click', () => {
+            let char =  wordInput.value[wordInput.value.length -1];
+            wordInput.value = wordInput.value.substring(0, wordInput.value.length - 1);
+    
+            for(let i = 0; i < letters.length; i++){
+                if(letters[i].value === char){
+                    if(letters[i].disabled){
+                        letters[i].disabled = false;
+    
+                        break;
+                    }
+                }
+            }
+        });
+    });
+
 }

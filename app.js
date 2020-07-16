@@ -79,7 +79,13 @@ io.on('connection', (socket) => {
     let users = getJoinedUsers();
     let user = users.find(user => user.id === id);
     user.ready = true;
-    io.emit("userReady", user);
+
+    let usersInfo = {
+      users: users,
+      user: user
+    }
+
+    io.emit("userReady", usersInfo);
   });
 
   socket.on('userNotReady', (id) => {
@@ -87,6 +93,10 @@ io.on('connection', (socket) => {
     let user = users.find(user => user.id === id);
     user.ready = false;
     io.emit("userNotReady", user);
+  });
+
+  socket.on('slagalicaStarts', () => {
+    io.emit('generatedLetters', generatedLetters);
   });
 
   // Listen for chatMessage
@@ -117,10 +127,30 @@ io.on('connection', (socket) => {
   });
 });
 
+let generatedLetters = [];
+
+function generateLetters(){
+
+  for(let i = 0; i < 12; i++){
+    generatedLetters.push(randomLetter());
+  }
+
+  console.log(generatedLetters);
+
+  return generatedLetters;
+};
+
+function randomLetter() {
+  let characters = 'ABVGDĐEŽZIJKLMNOPRSTUFHCČŠ'; // LJ NJ DZ
+
+  return characters.charAt(Math.floor(Math.random() * characters.length));;
+}
+
 /* ********** SERVER START ********** */
 
 let portNumber = process.env.PORT || 3000;
 
 server.listen(portNumber, () => {
     console.log("*** Server is running on port: " + portNumber);
+    generateLetters();
 });
