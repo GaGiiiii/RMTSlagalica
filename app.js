@@ -80,12 +80,21 @@ io.on('connection', (socket) => {
     let user = users.find(user => user.id === id);
     user.ready = true;
 
+    for(let i = 0; i < users.length; i++){
+      if(!users[i].ready){
+          io.emit('userReady', user);
+
+          return;
+      }
+    }
+
     let usersInfo = {
       users: users,
       user: user
     }
 
-    io.emit("userReady", usersInfo);
+    io.emit('userReady', user);
+    io.emit("allUsersReady", generateLetters());
   });
 
   socket.on('userNotReady', (id) => {
@@ -93,10 +102,6 @@ io.on('connection', (socket) => {
     let user = users.find(user => user.id === id);
     user.ready = false;
     io.emit("userNotReady", user);
-  });
-
-  socket.on('slagalicaStarts', () => {
-    io.emit('generatedLetters', generatedLetters);
   });
 
   // Listen for chatMessage
@@ -127,23 +132,73 @@ io.on('connection', (socket) => {
   });
 });
 
-let generatedLetters = [];
 
 function generateLetters(){
+  let generatedLetters = [];
+  let numberOfVocals = Math.floor(Math.random() * 6);
+  let vocals = [];
+  let vocalsCounter = 0;
+  let nonVocals = [];
+  let nonVocalsCounter = 0;
 
-  for(let i = 0; i < 12; i++){
-    generatedLetters.push(randomLetter());
+  if(numberOfVocals < 2){
+    numberOfVocals = 2;
   }
 
+  console.log(numberOfVocals);
+
+  for(let i = 0; i < numberOfVocals; i++){
+    vocals.push(randomVocal());
+  }
+
+  for(let i = 0; i < 12 - numberOfVocals; i++){
+    nonVocals.push(randomLetter());
+  }
+
+  for(let i = 0; i < 12; i++){
+
+    // Ako ima 4 samoglasnika neka bude na svakoj trecoj poziciji
+
+    if(numberOfVocals <= 4){
+      if(i % 3 === 0){
+        if(vocals.length === vocalsCounter){
+          generatedLetters.push(nonVocals[nonVocalsCounter++]);
+        }else{
+          generatedLetters.push(vocals[vocalsCounter++]);
+        }
+      }else{
+        generatedLetters.push(nonVocals[nonVocalsCounter++]);
+      }
+    }else if(numberOfVocals > 4){ // Ako ima 5 ili 6 samoglasnika neka budu na svakoj drugoj poziciji
+      if(i % 2 === 0){
+        if(vocals.length === vocalsCounter){
+          generatedLetters.push(nonVocals[nonVocalsCounter++]);
+        }else{
+          generatedLetters.push(vocals[vocalsCounter++]);
+        }
+      }else{
+        generatedLetters.push(nonVocals[nonVocalsCounter++]);
+      }
+    }
+  }
+
+  console.log(vocals);
+  console.log(nonVocals);
   console.log(generatedLetters);
 
   return generatedLetters;
 };
 
 function randomLetter() {
-  let characters = 'ABVGDĐEŽZIJKLMNOPRSTUFHCČŠ'; // LJ NJ DZ
+  let characters = 'BVGDĐŽZJKLMNPRSTFHCČŠ'; // LJ NJ DZ
 
-  return characters.charAt(Math.floor(Math.random() * characters.length));;
+  return characters.charAt(Math.floor(Math.random() * characters.length));
+}
+
+function randomVocal(){
+  let characters = 'AEIOU'; // LJ NJ DZ
+
+  return characters.charAt(Math.floor(Math.random() * characters.length));
 }
 
 /* ********** SERVER START ********** */

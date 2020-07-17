@@ -25,7 +25,6 @@ socket.on('connectedUsersInfo', (users) => {
 
 socket.on('usersInfoAfterDisconnect', (object) => {
     otuputUsersOnDisconnect(object);
-    console.log(object) // users and user user.username
 });
 
 // Messages from server
@@ -38,25 +37,19 @@ socket.on('message', (message) => {
     chatMessages.scrollTop = chatMessages.scrollHeight;
 });
 
-socket.on('userReady', (usersInfo) => {
-    const li = document.querySelector("#li_" + usersInfo.user.username);
-    const th = document.querySelector("#th_" + usersInfo.user.username);
+socket.on('userReady', (user) => {
+    const li = document.querySelector("#li_" + user.username);
+    const th = document.querySelector("#th_" + user.username);
 
-    li.innerHTML = usersInfo.user.username + " (spreman/a)";
-    th.innerHTML = usersInfo.user.username + " (spreman/a)";
+    li.innerHTML = user.username + " (spreman/a)";
+    th.innerHTML = user.username + " (spreman/a)";
+});
 
-    // If everyone is ready then the game can start, otherwise return
-
-    for(let i = 0; i < usersInfo.users.length; i++){
-        if(!usersInfo.users[i].ready){
-            return;
-        }
-    }
-
+socket.on('allUsersReady', (lettersArray) => {
     // First game can start now 
 
     isGameInProggress = true;
-    startGame();
+    startGame(lettersArray);
 });
 
 socket.on('userNotReady', (object) => {
@@ -131,9 +124,6 @@ function outputMessage(message){
 // Add users to DOM
 
 function outputUsersOnConnect(users){
-    if(userReady){
-        console.log("dsadsada");
-    }
     userList.innerHTML = "";
     scoreboardUsers.innerHTML = '<th scope="col"></th>';
     let tds = document.querySelectorAll('.td');
@@ -147,7 +137,6 @@ function outputUsersOnConnect(users){
     users.forEach(user => {
         let li = document.createElement('li');
         let th = document.createElement('th');
-        console.log(user.ready);
 
         if(user.ready){
             li.innerHTML = `${user.username} (spreman/a)`;
@@ -214,7 +203,7 @@ function cleanInput(input){
     return temporalDivElement.textContent || temporalDivElement.innerText || "";
 }
 
-function startGame(){
+function startGame(lettersArray){
     const gamesContainer = document.querySelector('.games-container');
 
     gamesContainer.innerHTML = "<button class='btn btn-outline-primary letter-btn'>A</button> \
@@ -247,42 +236,37 @@ function startGame(){
       </div>\
     </div>";
 
-    socket.emit('slagalicaStarts');
+    const letters = document.querySelectorAll(".letter-btn");
+    const wordInput = document.querySelector('#word-input');
+    const deleteLetterBtn = document.querySelector('.delete-letter-btn');
+    let lettersArrayCounter = 0;
 
-    socket.on('generatedLetters', (lettersArray) => {
-        console.log(lettersArray);
-        const letters = document.querySelectorAll(".letter-btn");
-        const wordInput = document.querySelector('#word-input');
-        const deleteLetterBtn = document.querySelector('.delete-letter-btn');
-        let lettersArrayCounter = 0;
-    
-        letters.forEach((letter) => {
-            if(letter.value == ""){
-                letter.innerHTML = lettersArray[lettersArrayCounter];
-                letter.value = lettersArray[lettersArrayCounter++];
-            }
+    letters.forEach((letter) => {
+        if(letter.value == ""){
+            letter.innerHTML = lettersArray[lettersArrayCounter];
+            letter.value = lettersArray[lettersArrayCounter++];
+        }
 
-            letter.addEventListener('click', (event) => {
-                console.log("DASDAS");
-                wordInput.value += event.target.value;
-                letter.disabled = true;
-            });
-        });
-    
-        deleteLetterBtn.addEventListener('click', () => {
-            let char =  wordInput.value[wordInput.value.length -1];
-            wordInput.value = wordInput.value.substring(0, wordInput.value.length - 1);
-    
-            for(let i = 0; i < letters.length; i++){
-                if(letters[i].value === char){
-                    if(letters[i].disabled){
-                        letters[i].disabled = false;
-    
-                        break;
-                    }
-                }
-            }
+        letter.addEventListener('click', (event) => {
+            wordInput.value += event.target.value;
+            letter.disabled = true;
         });
     });
+
+    deleteLetterBtn.addEventListener('click', () => {
+        let char =  wordInput.value[wordInput.value.length -1];
+        wordInput.value = wordInput.value.substring(0, wordInput.value.length - 1);
+
+        for(let i = 0; i < letters.length; i++){
+            if(letters[i].value === char){
+                if(letters[i].disabled){
+                    letters[i].disabled = false;
+
+                    break;
+                }
+            }
+        }
+    });
+    
 
 }

@@ -1,8 +1,11 @@
 3. Kada igra pocninje ??? ne moze vise da se ulazi, kada je kraj igre ???
 4. Ako neko reloaduje u sred gejma ? tj posalje post request u sred gejma ???
-5. Ako u isto vreme kliknu join moze da se joinuje 5 igraca
+5*. Ako u isto vreme kliknu join moze da se joinuje 5 igraca
 6. Ako je gameInProgress = true onda ne moze da reloaduje stranicu niti da baci post request bilo kako, samo ga redirekt....
 7. Kada gameInProgress postaje false, kada se diskonektuju svi ili kada dodje do kraja igre
-8. Kada kuca slova i rec je retardirana input je crven i pise da nije dobra rec, kada ukuca rec koja je ok input je success.
-9. Ne treba na klijentskoj strani da se proverava kada su svi spremni i da mu kaze 3 klijenta e mi smo spremni
-treba server sam da proveri da li su svi spremni a ne svaki klijent da mu javlja da su svi spremni....
+8*. Kada kuca slova i rec je retardirana input je crven i pise da nije dobra rec, kada ukuca rec koja je ok input je success.
+9. Dodaj potvrdi dugme
+10. Dodaj tajmer od 60 sec 
+11. Reci se salju na server tek kada prodje vreme ili ako su svi potvrdili reci 
+12. Mora se znati koji id je poslao koju rec 
+13. Server nakon 60 sec kaze klijentima gotovo proslo je vreme posaljite reci ili na potvrdu klijenta proveri da li su svi potvrdili
