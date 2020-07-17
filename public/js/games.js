@@ -287,7 +287,7 @@ function startGame(lettersArray){
     
     // TIMER 
 
-    let timeLeft = 8;
+    let timeLeft = 59;
     
     let timeleftInterval = setInterval(() => {
         if(timeLeft >= 0){

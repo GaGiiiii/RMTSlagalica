@@ -120,7 +120,7 @@ io.on('connection', (socket) => {
 
     setTimeout(() => {
       io.emit('timeIsUp');
-    }, 10000);
+    }, 61000);
   });
 
   socket.on('word', (word) => {
