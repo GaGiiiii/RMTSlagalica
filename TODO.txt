@@ -1,4 +1,3 @@
-3. Kada igra pocninje ??? ne moze vise da se ulazi, kada je kraj igre ???
 4. Ako neko reloaduje u sred gejma ? tj posalje post request u sred gejma ???
 5*. Ako u isto vreme kliknu join moze da se joinuje 5 igraca
 6. Ako je gameInProgress = true onda ne moze da reloaduje stranicu niti da baci post request bilo kako, samo ga redirekt....
@@ -9,3 +8,4 @@
 11. Reci se salju na server tek kada prodje vreme ili ako su svi potvrdili reci 
 12. Mora se znati koji id je poslao koju rec 
 13. Server nakon 60 sec kaze klijentima gotovo proslo je vreme posaljite reci ili na potvrdu klijenta proveri da li su svi potvrdili
+14. Skloni igra je u toku iz pInfo kada se zavrsi igra.

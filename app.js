@@ -10,6 +10,9 @@ const formatMessage = require('./utils/messages');
 const {userJoins, getCurrentUser, userLeaves, getJoinedUsers} = require('./utils/users');
 
 
+let gameInProgress = false;
+
+
 /* ********** INITIALIZE EXPRESS APP ********** */
 
 const app = express();
@@ -57,7 +60,12 @@ app.use('/', gamesRoutes);
 io.on('connection', (socket) => {
   console.log("New Socket Connection.");
 
-  io.emit('userJoinedOnServer', getJoinedUsers());
+  let object = { // Object that holds all users when new user connects and hold info if the game already started
+    users: getJoinedUsers(),
+    gameInProgress: gameInProgress
+  }
+
+  io.emit('userJoinedOnServer', object);
 
   socket.on('userJoinedInGame', (username) => {
       const user = userJoins(socket.id, username);
@@ -88,13 +96,17 @@ io.on('connection', (socket) => {
       }
     }
 
+    // ALL USERS READY GAME CAN START NOW
+
     let usersInfo = {
       users: users,
       user: user
     }
 
+    gameInProgress = true;
     io.emit('userReady', user);
     io.emit("allUsersReady", generateLetters());
+    io.emit("gameStartedDisableJoins");
   });
 
   socket.on('userNotReady', (id) => {
@@ -121,6 +133,11 @@ io.on('connection', (socket) => {
 
       if(user){
           io.emit('message', formatMessage('Admin', `${user.username} se diskonektovao.`));
+
+          if(getJoinedUsers() == 0){
+            io.emit('allUsersDisconnected');
+            gameInProgress = false;
+          }
       
           // Send users and room info
 

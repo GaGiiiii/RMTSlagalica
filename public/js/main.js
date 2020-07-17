@@ -3,11 +3,14 @@ const socket = io(origin);
 let span = document.getElementById('numberOfConnected'); // Span for number of connected users
 let joinButton = document.getElementById('join-btn'); // Button for joining games room
 let usersFront = new Array(); // Connected Users
+const pInfo = document.getElementById('info'); // Paragraph with info
 
 // Check number of in-game users and disable button
 
 function checkUsers(users){
-  span.innerText = users.length;
+  if(span){
+    span.innerText = users.length;
+  }
   if(users.length >= 4){
     joinButton.disabled = true;
   }else{
@@ -15,9 +18,14 @@ function checkUsers(users){
   }
 }
 
-socket.on('userJoinedOnServer', (users) => {
-    checkUsers(users);
-    usersFront = users;
+socket.on('userJoinedOnServer', (object) => {
+    checkUsers(object.users);
+    usersFront = object.users;
+    
+    if(object.gameInProgress){
+      joinButton.disabled = true;
+      pInfo.innerHTML += " (Igra je u toku).";
+    }
 });
 
 // Info about users in game
@@ -29,6 +37,20 @@ socket.on('connectedUsersInfo', (users) => {
 
 socket.on('usersInfoAfterDisconnect', (object) => {
     checkUsers(object.users);
+});
+
+socket.on('gameStartedDisableJoins', () => {
+  joinButton.disabled = true;
+  pInfo.innerHTML += " (Igra je u toku).";
+});
+
+socket.on('allUsersDisconnected', () => {
+  joinButton.disabled = false;
+  pInfo.innerHTML = pInfo.innerHTML.substring(0, pInfo.innerHTML.length - 18);
+  span = document.getElementById('numberOfConnected'); // Moramo opet uzeti span jer se u DOMu napravio novi kada smo innerHTML uradili
+  if(span){
+    span.innerText = 0;
+  }
 });
 
 function checkNicknameForm(){
