@@ -70,6 +70,15 @@ io.on('connection', (socket) => {
   socket.on('userJoinedInGame', (username) => {
       const user = userJoins(socket.id, username);
 
+      if(gameInProgress){
+        let redirectInfo = {
+          username: username,
+          destination: '/'
+        }
+
+        io.emit('redirect', redirectInfo);
+      }
+
       // Welcome current user
 
       socket.emit('message', formatMessage('Admin', 'Uspešno ste se konektovali.'));
@@ -224,5 +233,4 @@ let portNumber = process.env.PORT || 3000;
 
 server.listen(portNumber, () => {
     console.log("*** Server is running on port: " + portNumber);
-    generateLetters();
 });

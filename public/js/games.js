@@ -27,6 +27,12 @@ socket.on('usersInfoAfterDisconnect', (object) => {
     otuputUsersOnDisconnect(object);
 });
 
+socket.on('redirect', (redirectInfo) => {
+    if(redirectInfo.username == username.value){
+        window.location.href = redirectInfo.destination;
+    }
+});
+
 // Messages from server
 
 socket.on('message', (message) => {

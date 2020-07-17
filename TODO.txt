@@ -1,6 +1,4 @@
-4. Ako neko reloaduje u sred gejma ? tj posalje post request u sred gejma ???
 5*. Ako u isto vreme kliknu join moze da se joinuje 5 igraca
-6. Ako je gameInProgress = true onda ne moze da reloaduje stranicu niti da baci post request bilo kako, samo ga redirekt....
 7. Kada gameInProgress postaje false, kada se diskonektuju svi ili kada dodje do kraja igre
 8*. Kada kuca slova i rec je retardirana input je crven i pise da nije dobra rec, kada ukuca rec koja je ok input je success.
 9. Dodaj potvrdi dugme
