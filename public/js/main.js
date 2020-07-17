@@ -1,5 +1,5 @@
 const origin = window.location.origin;   // Returns base URL (https://example.com)
-const socket = io(origin);
+const socket = io(origin); // Client Socket
 let span = document.getElementById('numberOfConnected'); // Span for number of connected users
 let joinButton = document.getElementById('join-btn'); // Button for joining games room
 let usersFront = new Array(); // Connected Users
@@ -21,6 +21,15 @@ function checkUsers(users){
 socket.on('userJoinedOnServer', (object) => {
     checkUsers(object.users);
     usersFront = object.users;
+
+    /*
+      let object = { // Object that holds all users when new user connects and hold info if the game already started
+        users: getJoinedUsers(),
+        gameInProgress: gameInProgress
+      }
+    */
+
+    // If game is in progress block the join button, say that game started.
     
     if(object.gameInProgress){
       joinButton.disabled = true;
@@ -40,9 +49,14 @@ socket.on('usersInfoAfterDisconnect', (object) => {
 });
 
 socket.on('gameStartedDisableJoins', () => {
+
+  // If game started disable join button
+
   joinButton.disabled = true;
   pInfo.innerHTML += " (Igra je u toku).";
 });
+
+// When all users disconnect enable join button
 
 socket.on('allUsersDisconnected', () => {
   joinButton.disabled = false;

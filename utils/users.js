@@ -6,7 +6,9 @@ function userJoins(id, username){
     const user = {
         id,
         username,
-        ready: false
+        ready: false,
+        confirmedMove: false,
+        points: 0
     }
 
     users.push(user);

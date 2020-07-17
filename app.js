@@ -23,6 +23,7 @@ const io = socketio(server);
 
 const globalRoutes = require('./routes/global.routes');
 const gamesRoutes = require('./routes/games.routes');
+const { use } = require('./routes/global.routes');
 
 /* ********** APP USE ********** */
 
@@ -116,6 +117,34 @@ io.on('connection', (socket) => {
     io.emit('userReady', user);
     io.emit("allUsersReady", generateLetters());
     io.emit("gameStartedDisableJoins");
+
+    setTimeout(() => {
+      io.emit('timeIsUp');
+    }, 10000);
+  });
+
+  socket.on('word', (word) => {
+    let user = getCurrentUser(socket.id);
+    let users = getJoinedUsers();
+    if(user){
+      user.confirmedMove = true;
+    }
+
+    for(let i = 0; i < users.length; i++){
+      if(!users[i].confirmedMove){
+        user.points += 5;
+
+        return;
+      }
+    }
+
+    user.points =+ 5;
+
+    io.emit('slagalicaOver', users);
+
+    // console.log(word);
+    // console.log(getCurrentUser(socket.id));
+    // console.log(users);
   });
 
   socket.on('userNotReady', (id) => {
@@ -171,7 +200,7 @@ function generateLetters(){
     numberOfVocals = 2;
   }
 
-  console.log(numberOfVocals);
+  // console.log(numberOfVocals);
 
   for(let i = 0; i < numberOfVocals; i++){
     vocals.push(randomVocal());
@@ -208,9 +237,9 @@ function generateLetters(){
     }
   }
 
-  console.log(vocals);
-  console.log(nonVocals);
-  console.log(generatedLetters);
+  // console.log(vocals);
+  // console.log(nonVocals);
+  // console.log(generatedLetters);
 
   return generatedLetters;
 };

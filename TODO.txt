@@ -1,9 +1,8 @@
-5*. Ako u isto vreme kliknu join moze da se joinuje 5 igraca
-7. Kada gameInProgress postaje false, kada se diskonektuju svi ili kada dodje do kraja igre
-8*. Kada kuca slova i rec je retardirana input je crven i pise da nije dobra rec, kada ukuca rec koja je ok input je success.
-9. Dodaj potvrdi dugme
-10. Dodaj tajmer od 60 sec 
-11. Reci se salju na server tek kada prodje vreme ili ako su svi potvrdili reci 
-12. Mora se znati koji id je poslao koju rec 
-13. Server nakon 60 sec kaze klijentima gotovo proslo je vreme posaljite reci ili na potvrdu klijenta proveri da li su svi potvrdili
-14. Skloni igra je u toku iz pInfo kada se zavrsi igra.
+1*. Ako u isto vreme kliknu join moze da se joinuje 5 igraca
+2*. Kada kuca slova i rec je retardirana input je crven i pise da nije dobra rec, kada ukuca rec koja je ok input je success.
+3*. Trebalo bi da se izabera jedna rec iz baze reci i da se njena slova iskoriste i ostatak doda random.
+
+
+4. Kada gameInProgress postaje false, kada se diskonektuju svi ili kada dodje do kraja igre
+5. Skloni igra je u toku iz pInfo kada se zavrsi igra.
+

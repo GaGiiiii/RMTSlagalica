@@ -23,17 +23,27 @@ td{
     padding: 0.5rem 1rem;
 }
 
-#word-input{
-    margin-top: .3rem;
-    right: 1px;
+.confirm-button{
     width: 80%;
-    position: absolute;
+    margin-left: -3.5rem;
+    margin-top: 1rem;
 }
 
-@media only screen and (max-width: 767px){
-    #word-input{
-        position: static;
-        margin-left: 2rem;
+#word-input{
+    display: inline-block;
+    width: 80%;
+    margin: 0;
+    height: 2.7rem;
+    margin-top: .2rem;
+}
+
+#timer{
+    font-size: 2rem;
+}
+
+@media only screen and (max-width: 360px){
+    .confirm-button{
+        margin-left: 0;
     }
   }
   

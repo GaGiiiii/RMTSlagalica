@@ -27,6 +27,8 @@ socket.on('usersInfoAfterDisconnect', (object) => {
     otuputUsersOnDisconnect(object);
 });
 
+// If users reloads the page when the game is in progress redirect him to home page
+
 socket.on('redirect', (redirectInfo) => {
     if(redirectInfo.username == username.value){
         window.location.href = redirectInfo.destination;
@@ -43,6 +45,8 @@ socket.on('message', (message) => {
     chatMessages.scrollTop = chatMessages.scrollHeight;
 });
 
+// When user clicks ready change html
+
 socket.on('userReady', (user) => {
     const li = document.querySelector("#li_" + user.username);
     const th = document.querySelector("#th_" + user.username);
@@ -50,6 +54,8 @@ socket.on('userReady', (user) => {
     li.innerHTML = user.username + " (spreman/a)";
     th.innerHTML = user.username + " (spreman/a)";
 });
+
+// When all users are ready game can start
 
 socket.on('allUsersReady', (lettersArray) => {
     // First game can start now 
@@ -211,16 +217,18 @@ function cleanInput(input){
 
 function startGame(lettersArray){
     const gamesContainer = document.querySelector('.games-container');
+    let confirmedWord = false;
 
-    gamesContainer.innerHTML = "<button class='btn btn-outline-primary letter-btn'>A</button> \
+    gamesContainer.innerHTML = "<p id='timer'>60</p><h1 id='game-name-header'>SLAGALICA</h1>\
+    <button class='btn btn-outline-primary letter-btn'>A</button>\
+    <button class='btn btn-outline-primary letter-btn'>A</button>\
+    <button class='btn btn-outline-primary letter-btn'>A</button>\
+    <button class='btn btn-outline-primary letter-btn'>A</button>\
     <button class='btn btn-outline-primary letter-btn'>A</button> \
     <button class='btn btn-outline-primary letter-btn'>A</button> \
-    <button class='btn btn-outline-primary letter-btn'>A</button> \
-    <button class='btn btn-outline-primary letter-btn'>A</button> \
-    <button class='btn btn-outline-primary letter-btn'>A</button> \
- \
+  \
     <br> \
- \
+  \
     <button class='btn btn-outline-primary letter-btn'>A</button> \
     <button class='btn btn-outline-primary letter-btn'>A</button> \
     <button class='btn btn-outline-primary letter-btn'>A</button> \
@@ -233,11 +241,12 @@ function startGame(lettersArray){
 \
     <div class='container'>\
       <div class='row'>\
-        <div class='col-md-10 col-sm-10 cl-xs-10' style='text-align: right;'>\
+        <div class='col-md-12 col-sm-12'>\
           <input type='text' disabled class='form-control' id='word-input'>\
-        </div>\
-        <div class='col-md-2 col-sm-2 col-xs-2'>\
           <button class='btn btn-outline-primary delete-letter-btn'><i class='fas fa-backspace'></i></button>\
+        </div>\
+        <div class='col-md-12'> \
+          <button class='btn btn-outline-primary confirm-button'>POTVRDI</button>\
         </div>\
       </div>\
     </div>";
@@ -245,6 +254,8 @@ function startGame(lettersArray){
     const letters = document.querySelectorAll(".letter-btn");
     const wordInput = document.querySelector('#word-input');
     const deleteLetterBtn = document.querySelector('.delete-letter-btn');
+    const timerP = document.getElementById('timer');
+    const confirmButton = document.querySelector('.confirm-button');
     let lettersArrayCounter = 0;
 
     letters.forEach((letter) => {
@@ -274,5 +285,52 @@ function startGame(lettersArray){
         }
     });
     
+    // TIMER 
+
+    let timeLeft = 8;
+    
+    let timeleftInterval = setInterval(() => {
+        if(timeLeft >= 0){
+            timerP.innerHTML = timeLeft;
+            timeLeft--;
+        }else{
+            clearInterval(timeleftInterval);
+        }
+    
+    }, 1000);
+
+    confirmButton.addEventListener('click', (event) => {
+        let word = wordInput.value;
+        socket.emit('word', word);
+        letters.forEach((letter) => {
+            letter.disabled = true;
+        });
+        deleteLetterBtn.disabled = true;
+        confirmButton.disabled = true;
+        confirmedWord = true;
+    });
+
+    if(!confirmedWord){
+        socket.on('timeIsUp', () => {
+            let word = wordInput.value;
+            socket.emit('word', word);
+    
+            letters.forEach((letter) => {
+                letter.disabled = true;
+            });
+            deleteLetterBtn.disabled = true;
+            confirmButton.disabled = true;
+        });
+    }
+
+    socket.on('slagalicaOver', (users) => {
+        clearInterval(timeleftInterval);
+
+        users.forEach((user) => {
+            let pointsField = document.querySelector('#' + user.username + '-game1-score');
+            pointsField.innerText = user.points;
+        });
+        
+    });
 
 }
