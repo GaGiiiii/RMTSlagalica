@@ -7,8 +7,8 @@ function userJoins(id, username){
         id,
         username,
         ready: false,
-        confirmedMove: false,
-        points: 0
+        pointsSlagalica: 0,
+        pointsSpojnice: 0
     }
 
     users.push(user);

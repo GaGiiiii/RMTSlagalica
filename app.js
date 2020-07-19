@@ -119,34 +119,6 @@ io.on('connection', (socket) => {
     io.emit('userReady', user);
     io.emit("allUsersReady", generateLetters());
     io.emit("gameStartedDisableJoins");
-    timeout = setTimer(); // Timer for Slagalica
-  });
-
-  socket.on('word', (word) => {
-    let user = getCurrentUser(socket.id);
-    let users = getJoinedUsers();
-    if(user){
-      user.confirmedMove = true;
-    }
-
-    for(let i = 0; i < users.length; i++){
-      if(!users[i].confirmedMove){
-        user.points += 5;
-
-        return;
-      }
-    }
-
-    user.points =+ 5;
-
-    io.emit('slagalicaOver', users);
-    io.emit('startSpojnice', dataForSpojnice());
-    clearTimeout(timeout); // Stop timer for slagalica
-    timeout = setTimer(); // Timer for spojnice
-
-    // console.log(word);
-    // console.log(getCurrentUser(socket.id));
-    // console.log(users);
   });
 
   socket.on('userNotReady', (id) => {
@@ -156,8 +128,24 @@ io.on('connection', (socket) => {
     io.emit("userNotReady", user);
   });
 
-  socket.on('finishedSlagalicaGiveDataForSpojnice', () => {
+  socket.on('timeIsUp', (currentGame) => {
+    socket.emit('timeIsUp' + currentGame);
+  });
+
+  socket.on('finishedSlagalicaGiveDataForSpojnice', (word) => {
+    let user = getCurrentUser(socket.id);
+
+    user.pointsSlagalica =+ 5;
+    io.emit('updateSlagalicaPoints', user);
     socket.emit('startSpojnice', dataForSpojnice());
+  });
+
+  socket.on('finishedSpojniceGiveDataForKoZnaZna', (correctAnswers) => {
+    let user = getCurrentUser(socket.id);
+
+    user.pointsSpojnice =+ correctAnswers * 5;
+    io.emit('updateSpojnicePoints', user);
+    socket.emit('startKoZnaZna', dataForSpojnice());
   });
 
   // Listen for chatMessage
@@ -285,14 +273,6 @@ function dataForSpojnice(){
   array.push(data, data2);
 
   return array[Math.floor(Math.random() * 2)];
-}
-
-function setTimer(){
-  let timeout = setTimeout(() => {
-    io.emit('timeIsUp');
-  }, 15000);
-
-  return timeout;
 }
 
 /* ********** SERVER START ********** */

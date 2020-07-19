@@ -11,6 +11,7 @@ const socket = io(origin + '/');
 
 let isGameInProggress = false;
 let userReady = false;
+let currentGame = '';
 
 // User joined game, tell server
 
@@ -217,16 +218,12 @@ function cleanInput(input){
 
 function startGame(lettersArray){
     const gamesContainer = document.querySelector('.games-container');
-    outputSlagalica(gamesContainer, lettersArray);
-
-    // socket.on('startSpojnice', (data) => {
-    //     // outputSpojnice(gamesContainer, data);
-    //     // console.log("START SPOJNICE");
-    // });
+    startSlagalica(gamesContainer, lettersArray);
 }
 
-function outputSlagalica(gamesContainer, lettersArray){
+function startSlagalica(gamesContainer, lettersArray){
     let confirmedWord = false;
+    currentGame = 'Slagalica';
 
     gamesContainer.innerHTML = "<p id='timer'>60</p><h1 id='game-name-header'>SLAGALICA</h1>\
     <button class='btn btn-outline-primary letter-btn'>A</button>\
@@ -299,7 +296,6 @@ function outputSlagalica(gamesContainer, lettersArray){
 
     confirmButton.addEventListener('click', (event) => {
         let word = wordInput.value;
-        socket.emit('word', word);
         letters.forEach((letter) => {
             letter.disabled = true;
         });
@@ -307,18 +303,18 @@ function outputSlagalica(gamesContainer, lettersArray){
         confirmButton.disabled = true;
         confirmedWord = true;
 
-        socket.emit('finishedSlagalicaGiveDataForSpojnice');
+        socket.emit('finishedSlagalicaGiveDataForSpojnice', word);
         socket.on('startSpojnice', (data) => {
-            setTimeout(() => outputSpojnice(gamesContainer, data), 3000);
+            clearInterval(timer);
+            setTimeout(() => startSpojnice(gamesContainer, data), 3000);
         });
     });
 
 
-    socket.on('timeIsUp', () => {
+    socket.on('timeIsUpSlagalica', () => {
         if(!confirmedWord){ // Ako je vreme isteklo a nije confirmovao rec uradi sve ovo
             confirmedWord = true; // Ovo mora da ne bi bio infinite loop
             let word = wordInput.value;
-            socket.emit('word', word);
 
             letters.forEach((letter) => {
                 letter.disabled = true;
@@ -327,27 +323,20 @@ function outputSlagalica(gamesContainer, lettersArray){
             deleteLetterBtn.disabled = true;
             confirmButton.disabled = true;
 
-            socket.emit('finishedSlagalicaGiveDataForSpojnice');
+            socket.emit('finishedSlagalicaGiveDataForSpojnice', word);
             socket.on('startSpojnice', (data) => {
-                setTimeout(() => outputSpojnice(gamesContainer, data), 3000);
+                clearInterval(timer);
+                setTimeout(() => startSpojnice(gamesContainer, data), 3000);
             });
         }
     });
-
-    socket.on('slagalicaOver', (users) => {
-        clearInterval(timer);
-
-        users.forEach((user) => {
-            let pointsField = document.querySelector('#' + user.username + '-game1-score');
-            pointsField.innerText = user.points;
-        });
-    });
 }
 
-function outputSpojnice(gamesContainer, data){
+function startSpojnice(gamesContainer, data){
     let correctAnswers = 0;
     let helpArrayKeys = Object.keys(data);
     let helpArrayValues = Object.values(data);
+    currentGame = 'Spojnice';
 
     gamesContainer.innerHTML = "<p id='timer'>60</p><h1 id='game-name-header'>SPOJNICE</h1>\
     <div class='container-fluid'>\
@@ -429,35 +418,48 @@ function outputSpojnice(gamesContainer, data){
             }else{
                 // Game is over
                 finishedAll = true;
-                // clearInterval(timer);
+                clearInterval(timer);
+                socket.emit('finishedSpojniceGiveDataForKoZnaZna', correctAnswers);
             }
         });
 
     }
 
-    socket.on('timeIsUp', () => {
+    socket.on('timeIsUpSpojnice', () => {
         if(!finishedAll){
             console.log("ISTEKLO VREME");
             clearInterval(timer);
             for(let i = 5; i < spojniceBtns.length; i++){
                 spojniceBtns[i].disabled = true;
             }
+            socket.emit('finishedSpojniceGiveDataForKoZnaZna', correctAnswers);
         }
     });
-    
-
 }
+
+socket.on('updateSlagalicaPoints', (user) => {
+    let pointsField = document.querySelector('#' + user.username + '-game1-score');
+    pointsField.innerText = user.pointsSlagalica;
+});
+
+socket.on('updateSpojnicePoints', (user) => {
+    console.log("User: " + user.username + "\n");
+    console.log("Points: " + user.pointsSpojnice);
+    let pointsField = document.querySelector('#' + user.username + '-game3-score');
+    pointsField.innerText = user.pointsSpojnice;
+});
 
 function setTimer(){
     const timerP = document.getElementById('timer');
-    let timeLeft = 59;
+    let timeLeft = 15;
 
     let timeleftInterval = setInterval(() => {
         if(timeLeft >= 0){
             timerP.innerHTML = timeLeft;
             timeLeft--;
-        }else{
-            clearInterval(timeleftInterval);
+        }else{            
+            socket.emit('timeIsUp', currentGame)
+            // clearInterval(timeleftInterval);
         }
     
     }, 1000);
