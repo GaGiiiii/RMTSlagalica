@@ -141,6 +141,7 @@ io.on('connection', (socket) => {
     user.points =+ 5;
 
     io.emit('slagalicaOver', users);
+    io.emit('startSpojnice', dataForSpojnice());
 
     // console.log(word);
     // console.log(getCurrentUser(socket.id));
@@ -254,6 +255,31 @@ function randomVocal(){
   let characters = 'AEIOU'; // LJ NJ DZ
 
   return characters.charAt(Math.floor(Math.random() * characters.length));
+}
+
+function dataForSpojnice(){
+  let data = {
+    kljuc1: 'value3',
+    kljuc2: 'value6',
+    kljuc6: 'value4',
+    kljuc4: 'value1',
+    kljuc3: 'value2',
+    kljuc5: 'value5',
+  }
+
+  let data2 = {
+    kljuc2: 'value3',
+    kljuc1: 'value6',
+    kljuc3: 'value4',
+    kljuc5: 'value1',
+    kljuc6: 'value2',
+    kljuc4: 'value5',
+  }
+
+  let array = [];
+  array.push(data, data2);
+
+  return array[Math.floor(Math.random() * 2)];
 }
 
 /* ********** SERVER START ********** */

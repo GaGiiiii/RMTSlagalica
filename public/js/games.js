@@ -217,6 +217,14 @@ function cleanInput(input){
 
 function startGame(lettersArray){
     const gamesContainer = document.querySelector('.games-container');
+    outputSlagalica(gamesContainer, lettersArray);
+
+    socket.on('startSpojnice', (data) => {
+        outputSpojnice(gamesContainer, data);
+    });
+}
+
+function outputSlagalica(gamesContainer, lettersArray){
     let confirmedWord = false;
 
     gamesContainer.innerHTML = "<p id='timer'>60</p><h1 id='game-name-header'>SLAGALICA</h1>\
@@ -284,11 +292,11 @@ function startGame(lettersArray){
             }
         }
     });
-    
+
     // TIMER 
 
     let timeLeft = 59;
-    
+
     let timeleftInterval = setInterval(() => {
         if(timeLeft >= 0){
             timerP.innerHTML = timeLeft;
@@ -330,7 +338,74 @@ function startGame(lettersArray){
             let pointsField = document.querySelector('#' + user.username + '-game1-score');
             pointsField.innerText = user.points;
         });
-        
     });
+}
+
+function outputSpojnice(gamesContainer, data){
+    gamesContainer.innerHTML = "<p id='timer'>60</p><h1 id='game-name-header'>SPOJNICE</h1>\
+    <div class='container-fluid'>\
+      <div class='row'>\
+        <div class='col-md-6'>\
+          <button class='btn btn-outline-primary spojnice-btn spojnice-btn-key' disabled>A</button>\
+          <button class='btn btn-outline-primary spojnice-btn spojnice-btn-key' disabled>A</button>\
+          <button class='btn btn-outline-primary spojnice-btn spojnice-btn-key' disabled>A</button>\
+          <button class='btn btn-outline-primary spojnice-btn spojnice-btn-key' disabled>A</button>\
+          <button class='btn btn-outline-primary spojnice-btn spojnice-btn-key' disabled>A</button> \
+          <button class='btn btn-outline-primary spojnice-btn spojnice-btn-key' disabled>A</button> \
+        </div>\
+        <div class='col-md-6'>\
+          <button class='btn btn-outline-primary spojnice-btn'>A</button>\
+          <button class='btn btn-outline-primary spojnice-btn'>A</button>\
+          <button class='btn btn-outline-primary spojnice-btn'>A</button>\
+          <button class='btn btn-outline-primary spojnice-btn'>A</button>\
+          <button class='btn btn-outline-primary spojnice-btn'>A</button> \
+          <button class='btn btn-outline-primary spojnice-btn'>A</button> \
+        </div>\
+      </div>\
+    </div>";
+
+    const spojniceBtns = document.querySelectorAll('.spojnice-btn');
+    let counter = 0;
+
+    spojniceBtns.forEach((spojniceBtn) => {
+        if(counter < 6){
+            spojniceBtn.innerText = Object.keys(data)[counter++];
+        }else{
+            spojniceBtn.innerText = Object.values(data)[(counter++) - 6]; // -6 zato sto Object.values array krece od 0 a counter je dosao do 6
+        }
+    });
+
+    // Select First Key
+
+    counter = 0;
+
+    let keyValue = spojniceBtns[counter];
+    let valueValue;
+    spojniceBtns[counter].style.backgroundColor = "#333";
+    spojniceBtns[counter].style.color = "#fff";
+
+    // Add event listeners on click for all values
+
+    for(let i = 5; i < spojniceBtns.length; i++){
+
+        spojniceBtns[i].addEventListener('click', (event) => {
+
+            valueValue = event.target.innerHTML; // Take key value and value value looool
+            event.target.disabled = true; // Disable selected value button so he can't choose it again
+            counter++; // Raise counter so next key gets highlighted
+
+            if(counter < 6){ // Do that only if there is left keys
+                keyValue = spojniceBtns[counter]; // Get new key value to compare it with value value
+
+                // Hightlight next key and remove hightlift from old one 
+
+                spojniceBtns[counter].style.backgroundColor = "#333";
+                spojniceBtns[counter].style.color = "#fff";
+                spojniceBtns[counter - 1].style.backgroundColor = "#fff";
+                spojniceBtns[counter - 1].style.color = "#000";
+            }
+        });
+
+    }
 
 }
