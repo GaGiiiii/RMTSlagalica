@@ -219,9 +219,10 @@ function startGame(lettersArray){
     const gamesContainer = document.querySelector('.games-container');
     outputSlagalica(gamesContainer, lettersArray);
 
-    socket.on('startSpojnice', (data) => {
-        outputSpojnice(gamesContainer, data);
-    });
+    // socket.on('startSpojnice', (data) => {
+    //     // outputSpojnice(gamesContainer, data);
+    //     // console.log("START SPOJNICE");
+    // });
 }
 
 function outputSlagalica(gamesContainer, lettersArray){
@@ -262,7 +263,6 @@ function outputSlagalica(gamesContainer, lettersArray){
     const letters = document.querySelectorAll(".letter-btn");
     const wordInput = document.querySelector('#word-input');
     const deleteLetterBtn = document.querySelector('.delete-letter-btn');
-    const timerP = document.getElementById('timer');
     const confirmButton = document.querySelector('.confirm-button');
     let lettersArrayCounter = 0;
 
@@ -295,17 +295,7 @@ function outputSlagalica(gamesContainer, lettersArray){
 
     // TIMER 
 
-    let timeLeft = 59;
-
-    let timeleftInterval = setInterval(() => {
-        if(timeLeft >= 0){
-            timerP.innerHTML = timeLeft;
-            timeLeft--;
-        }else{
-            clearInterval(timeleftInterval);
-        }
-    
-    }, 1000);
+    let timer = setTimer();
 
     confirmButton.addEventListener('click', (event) => {
         let word = wordInput.value;
@@ -316,23 +306,36 @@ function outputSlagalica(gamesContainer, lettersArray){
         deleteLetterBtn.disabled = true;
         confirmButton.disabled = true;
         confirmedWord = true;
+
+        socket.emit('finishedSlagalicaGiveDataForSpojnice');
+        socket.on('startSpojnice', (data) => {
+            setTimeout(() => outputSpojnice(gamesContainer, data), 3000);
+        });
     });
 
-    if(!confirmedWord){
-        socket.on('timeIsUp', () => {
+
+    socket.on('timeIsUp', () => {
+        if(!confirmedWord){ // Ako je vreme isteklo a nije confirmovao rec uradi sve ovo
+            confirmedWord = true; // Ovo mora da ne bi bio infinite loop
             let word = wordInput.value;
             socket.emit('word', word);
-    
+
             letters.forEach((letter) => {
                 letter.disabled = true;
             });
+
             deleteLetterBtn.disabled = true;
             confirmButton.disabled = true;
-        });
-    }
+
+            socket.emit('finishedSlagalicaGiveDataForSpojnice');
+            socket.on('startSpojnice', (data) => {
+                setTimeout(() => outputSpojnice(gamesContainer, data), 3000);
+            });
+        }
+    });
 
     socket.on('slagalicaOver', (users) => {
-        clearInterval(timeleftInterval);
+        clearInterval(timer);
 
         users.forEach((user) => {
             let pointsField = document.querySelector('#' + user.username + '-game1-score');
@@ -342,6 +345,10 @@ function outputSlagalica(gamesContainer, lettersArray){
 }
 
 function outputSpojnice(gamesContainer, data){
+    let correctAnswers = 0;
+    let helpArrayKeys = Object.keys(data);
+    let helpArrayValues = Object.values(data);
+
     gamesContainer.innerHTML = "<p id='timer'>60</p><h1 id='game-name-header'>SPOJNICE</h1>\
     <div class='container-fluid'>\
       <div class='row'>\
@@ -369,11 +376,22 @@ function outputSpojnice(gamesContainer, data){
 
     spojniceBtns.forEach((spojniceBtn) => {
         if(counter < 6){
-            spojniceBtn.innerText = Object.keys(data)[counter++];
+            // spojniceBtn.innerText = Object.keys(data)[counter++];
+            let index = Math.floor(Math.random() * (helpArrayKeys.length - 1)); // Random index from 0 - 5.
+            spojniceBtn.innerText = helpArrayKeys[index];
+            helpArrayKeys.splice(index, 1);
+            counter++;
         }else{
-            spojniceBtn.innerText = Object.values(data)[(counter++) - 6]; // -6 zato sto Object.values array krece od 0 a counter je dosao do 6
+            // spojniceBtn.innerText = Object.values(data)[(counter++) - 6]; // -6 zato sto Object.values array krece od 0 a counter je dosao do 6
+            let index = Math.floor(Math.random() * (helpArrayValues.length - 1));
+            spojniceBtn.innerText = helpArrayValues[index];
+            helpArrayValues.splice(index, 1);
         }
     });
+
+    // Timer
+
+    let timer = setTimer();
 
     // Select First Key
 
@@ -383,6 +401,7 @@ function outputSpojnice(gamesContainer, data){
     let valueValue;
     spojniceBtns[counter].style.backgroundColor = "#333";
     spojniceBtns[counter].style.color = "#fff";
+    let finishedAll = false;
 
     // Add event listeners on click for all values
 
@@ -394,6 +413,10 @@ function outputSpojnice(gamesContainer, data){
             event.target.disabled = true; // Disable selected value button so he can't choose it again
             counter++; // Raise counter so next key gets highlighted
 
+            if(data[keyValue.innerText] == valueValue){
+                correctAnswers++;
+            }
+
             if(counter < 6){ // Do that only if there is left keys
                 keyValue = spojniceBtns[counter]; // Get new key value to compare it with value value
 
@@ -403,9 +426,41 @@ function outputSpojnice(gamesContainer, data){
                 spojniceBtns[counter].style.color = "#fff";
                 spojniceBtns[counter - 1].style.backgroundColor = "#fff";
                 spojniceBtns[counter - 1].style.color = "#000";
+            }else{
+                // Game is over
+                finishedAll = true;
+                // clearInterval(timer);
             }
         });
 
     }
 
+    socket.on('timeIsUp', () => {
+        if(!finishedAll){
+            console.log("ISTEKLO VREME");
+            clearInterval(timer);
+            for(let i = 5; i < spojniceBtns.length; i++){
+                spojniceBtns[i].disabled = true;
+            }
+        }
+    });
+    
+
+}
+
+function setTimer(){
+    const timerP = document.getElementById('timer');
+    let timeLeft = 59;
+
+    let timeleftInterval = setInterval(() => {
+        if(timeLeft >= 0){
+            timerP.innerHTML = timeLeft;
+            timeLeft--;
+        }else{
+            clearInterval(timeleftInterval);
+        }
+    
+    }, 1000);
+
+    return timeleftInterval;
 }

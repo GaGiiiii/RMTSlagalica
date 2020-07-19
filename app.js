@@ -9,6 +9,8 @@ const expressHandlebars = require('express-handlebars');
 const formatMessage = require('./utils/messages');
 const {userJoins, getCurrentUser, userLeaves, getJoinedUsers} = require('./utils/users');
 
+let timeout;
+
 
 let gameInProgress = false;
 
@@ -117,10 +119,7 @@ io.on('connection', (socket) => {
     io.emit('userReady', user);
     io.emit("allUsersReady", generateLetters());
     io.emit("gameStartedDisableJoins");
-
-    setTimeout(() => {
-      io.emit('timeIsUp');
-    }, 61000);
+    timeout = setTimer(); // Timer for Slagalica
   });
 
   socket.on('word', (word) => {
@@ -142,6 +141,8 @@ io.on('connection', (socket) => {
 
     io.emit('slagalicaOver', users);
     io.emit('startSpojnice', dataForSpojnice());
+    clearTimeout(timeout); // Stop timer for slagalica
+    timeout = setTimer(); // Timer for spojnice
 
     // console.log(word);
     // console.log(getCurrentUser(socket.id));
@@ -153,6 +154,10 @@ io.on('connection', (socket) => {
     let user = users.find(user => user.id === id);
     user.ready = false;
     io.emit("userNotReady", user);
+  });
+
+  socket.on('finishedSlagalicaGiveDataForSpojnice', () => {
+    socket.emit('startSpojnice', dataForSpojnice());
   });
 
   // Listen for chatMessage
@@ -280,6 +285,14 @@ function dataForSpojnice(){
   array.push(data, data2);
 
   return array[Math.floor(Math.random() * 2)];
+}
+
+function setTimer(){
+  let timeout = setTimeout(() => {
+    io.emit('timeIsUp');
+  }, 15000);
+
+  return timeout;
 }
 
 /* ********** SERVER START ********** */

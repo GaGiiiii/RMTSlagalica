@@ -6,3 +6,4 @@
 4. Kada gameInProgress postaje false, kada se diskonektuju svi ili kada dodje do kraja igre
 5. Skloni igra je u toku iz pInfo kada se zavrsi igra.
 
+6. Predji na sledecu igru dugme
