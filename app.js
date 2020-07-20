@@ -145,7 +145,7 @@ io.on('connection', (socket) => {
 
     user.pointsSpojnice =+ correctAnswers * 5;
     io.emit('updateSpojnicePoints', user);
-    socket.emit('startKoZnaZna', dataForSpojnice());
+    socket.emit('startKoZnaZna', dataForKoZnaZna());
   });
 
   // Listen for chatMessage
@@ -273,6 +273,58 @@ function dataForSpojnice(){
   array.push(data, data2);
 
   return array[Math.floor(Math.random() * 2)];
+}
+
+function dataForKoZnaZna(){
+  let dataTotal = {
+    "pitanje1 sklj": 'odgovor1',
+    "pitanje2 sklj": 'odgovor2',
+    "pitanje3 sklj": 'odgovor3',
+    "pitanje4 sklj": 'odgovor4',
+    "pitanje5 sklj": 'odgovor5',
+    "pitanje6 sklj": 'odgovor6',
+    "pitanje7 sklj": 'odgovor7',
+    "pitanje8 sklj": 'odgovor8',
+    "pitanje9 sklj": 'odgovor9',
+    "pitanje10 skljm": 'odgovor10',
+    "pitanje11 skljm": 'odgovor11',
+    "pitanje12 skljm": 'odgovor12',
+    "pitanje13 skljm": 'odgovor13',
+    "pitanje14 skljm": 'odgovor14',
+    "pitanje15 skljm": 'odgovor15',
+    "pitanje16 skljm": 'odgovor16',
+    "pitanje17 skljm": 'odgovor17',
+    "pitanje18 skljm": 'odgovor18',
+    "pitanje19 skljm": 'odgovor19',
+    "pitanje20 skljm": 'odgovor20',
+    "pitanje21 skljm": 'odgovor21',
+    "pitanje22 skljm": 'odgovor22',
+    "pitanje23 skljm": 'odgovor23',
+    "pitanje24 skljm": 'odgovor24',
+    "pitanje25 skljm": 'odgovor25',
+  }
+
+  let helpArrayKeys = Object.keys(dataTotal);
+  let helpArrayValues = Object.values(dataTotal);
+  let usedQuestions = [];
+  let questionNumber = 0;
+  let data = {
+    
+  };
+
+  for(let i = 0; i < 10; i++){
+    questionNumber = Math.floor(Math.random() * (helpArrayKeys.length - 1));
+
+    while(usedQuestions.includes(questionNumber)){
+      questionNumber = Math.floor(Math.random() * (helpArrayKeys.length - 1));
+    }
+
+    usedQuestions.push(questionNumber);
+    data[helpArrayKeys[questionNumber]] = helpArrayValues[questionNumber];
+    // data.helpArrayKeys[questionNumber] = helpArrayValues[questionNumber]; Mozda se pitate zasto ovo dole ne moze ? Zato sto Javascript.
+  }
+
+  return data;
 }
 
 /* ********** SERVER START ********** */

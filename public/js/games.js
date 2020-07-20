@@ -420,6 +420,10 @@ function startSpojnice(gamesContainer, data){
                 finishedAll = true;
                 clearInterval(timer);
                 socket.emit('finishedSpojniceGiveDataForKoZnaZna', correctAnswers);
+                socket.on('startKoZnaZna', (data) => {
+                    clearInterval(timer);
+                    setTimeout(() => startKoZnaZna(gamesContainer, data), 3000);
+                });
             }
         });
 
@@ -433,8 +437,57 @@ function startSpojnice(gamesContainer, data){
                 spojniceBtns[i].disabled = true;
             }
             socket.emit('finishedSpojniceGiveDataForKoZnaZna', correctAnswers);
+            socket.on('startKoZnaZna', (data) => {
+                clearInterval(timer);
+                setTimeout(() => startKoZnaZna(gamesContainer, data), 3000);
+            });
         }
     });
+}
+
+function startKoZnaZna(gamesContainer, data){
+    let correctAnswers = 0;
+    let wrongAnswers = 0;
+    let helpArrayKeys = Object.keys(data);
+    let helpArrayValues = Object.values(data);
+    let counter = 0;
+    currentGame = 'KoZnaZna';
+
+    gamesContainer.innerHTML = "<h1 id='game-name-header'>KO ZNA ZNA</h1>\
+    <div class='container-fluid'>\
+      <div class='row'>\
+        <div class='col-md-12'>\
+          <div class='jumbotron'>\
+            <p id='timer'>15</p>\
+            <h3 class='display-3 question-header'>1. PITANJE</h3>\
+            <p class='lead' id='question'>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Architecto velit \
+            adipisci dolorum eius unde, tempora molestias saepe inventore vitae, asperiores magnam commodi. \
+            Nulla recusandae a aut placeat. Animi possimus placeat quisquam reiciendis dignissimos. Fugiat pariatur, \
+            nihil est natus tempore dicta!</p>\
+            <hr class='my-4'>\
+           <div class='form-group has-success'>\
+            <input type='text' placeholder='Unesite Odgovor' class='form-control' id='answer-input'>\
+              <button class='btn btn-primary btn-lg' id='send-answer-button' role='button'>Pošalji</button>\
+          </div>\
+          </div>\
+        </div>\
+      </div>\
+    </div>";
+
+    const questionContainer = document.getElementById('question');
+    const answerInput = document.getElementById('answer-input');
+    const sendAnswerBtn = document.getElementById('send-answer-button'); // Pazi sta ces mu dozvoliti da unosi ovde !!!!
+    questionContainer.innerHTML = helpArrayKeys[counter]; // povecaj counter
+
+    sendAnswerBtn.addEventListener('click', (event) => {
+        let answerValue = answerInput.value;
+        console.log(answerValue);
+
+        if(counter < 9){
+            questionContainer.innerHTML = helpArrayKeys[++counter];
+        }
+    });
+
 }
 
 socket.on('updateSlagalicaPoints', (user) => {

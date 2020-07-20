@@ -48,6 +48,15 @@ td{
     margin-top: .5rem;
 }
 
+.question-header{
+    font-size: 2.5rem;
+}
+
+#send-answer-button{
+    width: 100%;
+    margin-top: 1rem;
+}
+
 @media only screen and (max-width: 360px){
     .confirm-button{
         margin-left: 0;
