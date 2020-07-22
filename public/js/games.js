@@ -549,7 +549,7 @@ function startKoZnaZna(gamesContainer, data){
     });
 }
 
-socket.once('updateSlagalicaPoints', (user) => {
+socket.on('updateSlagalicaPoints', (user) => {
     console.log("UPDATE POINTS SLAGALICA\n");
     let pointsField = document.querySelector('#' + user.username + '-game1-score');
     let pointsFieldTotal = document.querySelector('#' + user.username + '-game7-score');
@@ -557,7 +557,7 @@ socket.once('updateSlagalicaPoints', (user) => {
     pointsFieldTotal.innerText = user.points;
 });
 
-socket.once('updateSpojnicePoints', (user) => {
+socket.on('updateSpojnicePoints', (user) => {
     console.log("UPDATE POINTS SPOJNICE\n");
     let pointsField = document.querySelector('#' + user.username + '-game3-score');
     let pointsFieldTotal = document.querySelector('#' + user.username + '-game7-score');
@@ -565,7 +565,7 @@ socket.once('updateSpojnicePoints', (user) => {
     pointsFieldTotal.innerText = user.points;
 });
 
-socket.once('updateKoZnaZnaPoints', (user) => {
+socket.on('updateKoZnaZnaPoints', (user) => {
     console.log("UPDATE POINTS KOZNAZNA\n");
     let pointsField = document.querySelector('#' + user.username + '-game5-score');
     let pointsFieldTotal = document.querySelector('#' + user.username + '-game7-score');
@@ -574,7 +574,7 @@ socket.once('updateKoZnaZnaPoints', (user) => {
     isGameInProggress = false;
 });
 
-socket.once('gameOver', (winner) => {
+socket.on('gameOver', (winner) => {
     const gamesContainer = document.querySelector('.games-container');
     userReady = false;
 
@@ -612,7 +612,7 @@ socket.once('gameOver', (winner) => {
 
 function setTimer(){
     const timerP = document.getElementById('timer');
-    let timeLeft = 15;
+    let timeLeft = 60;
     console.log("U NAMA TECE PLAVA KRV\n");
 
     let timeleftInterval = setInterval(() => {
