@@ -446,11 +446,13 @@ function startSpojnice(gamesContainer, data){
 }
 
 function startKoZnaZna(gamesContainer, data){
-    let correctAnswers = 0;
-    let wrongAnswers = 0;
+    let infoKoZnaZna = {
+        correctAnswers: 0,
+        wrongAnswers: 0
+    }
+
     let helpArrayKeys = Object.keys(data);
     let helpArrayValues = Object.values(data);
-    let counter = 0;
     currentGame = 'KoZnaZna';
 
     gamesContainer.innerHTML = "<h1 id='game-name-header'>KO ZNA ZNA</h1>\
@@ -459,7 +461,7 @@ function startKoZnaZna(gamesContainer, data){
         <div class='col-md-12'>\
           <div class='jumbotron'>\
             <p id='timer'>15</p>\
-            <h3 class='display-3 question-header'>1. PITANJE</h3>\
+            <h3 class='display-3 question-header'><span id='question-number'>1</span>. PITANJE</h3>\
             <p class='lead' id='question'>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Architecto velit \
             adipisci dolorum eius unde, tempora molestias saepe inventore vitae, asperiores magnam commodi. \
             Nulla recusandae a aut placeat. Animi possimus placeat quisquam reiciendis dignissimos. Fugiat pariatur, \
@@ -477,18 +479,55 @@ function startKoZnaZna(gamesContainer, data){
     const questionContainer = document.getElementById('question');
     const answerInput = document.getElementById('answer-input');
     const sendAnswerBtn = document.getElementById('send-answer-button'); // Pazi sta ces mu dozvoliti da unosi ovde !!!!
-    questionContainer.innerHTML = helpArrayKeys[counter]; // povecaj counter
+    const questionNumberSpan = document.getElementById('question-number');
+    questionContainer.innerHTML = helpArrayKeys[0]; // povecaj counter
+
+    // TIMER
+
+    let information = {
+        questionNumberSpan: questionNumberSpan,
+        questionContainer: questionContainer,
+        counter: 0, 
+        answerInput: answerInput,
+        helpArrayKeys: helpArrayKeys,
+        helpArrayValues: helpArrayValues,
+        infoKoZnaZna: infoKoZnaZna,
+        sendAnswerBtn: sendAnswerBtn,
+        gamesContainer: gamesContainer,
+    }
+
+    let timeleftInterval = setTimer2(information);
 
     sendAnswerBtn.addEventListener('click', (event) => {
         let answerValue = answerInput.value;
         console.log(answerValue);
 
-        if(counter < 9){
-            questionContainer.innerHTML = helpArrayKeys[++counter];
+        if(answerValue == helpArrayValues[information.counter]){
+            information.infoKoZnaZna.correctAnswers++;
+        }else{
+            information.infoKoZnaZna.wrongAnswers++;
+        }
+
+        if(information.counter < 9){
+            clearInterval(timeleftInterval);
+            timeleftInterval = setTimer2(information);
+            questionContainer.innerHTML = helpArrayKeys[++information.counter];
+            questionNumberSpan.innerText = information.counter + 1;
+        }else{
+            clearInterval(timeleftInterval);
+            socket.emit('finishedKoZnaZna', information.infoKoZnaZna);
+            sendAnswerBtn.disabled = true;
+            answerInput.disabled = true;
+            console.log(information.infoKoZnaZna.correctAnswers)
+            console.log(information.infoKoZnaZna.wrongAnswers)
+            information.gamesContainer.innerHTML = "";
         }
     });
-
 }
+
+socket.on('gameOver', () => {
+    alert("DSADASDAS");// oboji pobednika i alertuj ga !!!
+});
 
 socket.on('updateSlagalicaPoints', (user) => {
     let pointsField = document.querySelector('#' + user.username + '-game1-score');
@@ -496,10 +535,13 @@ socket.on('updateSlagalicaPoints', (user) => {
 });
 
 socket.on('updateSpojnicePoints', (user) => {
-    console.log("User: " + user.username + "\n");
-    console.log("Points: " + user.pointsSpojnice);
     let pointsField = document.querySelector('#' + user.username + '-game3-score');
     pointsField.innerText = user.pointsSpojnice;
+});
+
+socket.on('updateKoZnaZnaPoints', (user) => {
+    let pointsField = document.querySelector('#' + user.username + '-game5-score');
+    pointsField.innerText = user.pointsKoZnaZna;
 });
 
 function setTimer(){
@@ -513,6 +555,44 @@ function setTimer(){
         }else{            
             socket.emit('timeIsUp', currentGame)
             // clearInterval(timeleftInterval);
+        }
+    
+    }, 1000);
+
+    return timeleftInterval;
+}
+
+function setTimer2(information){
+    const timerP = document.getElementById('timer');
+    let timeLeft = 5;
+
+    let timeleftInterval = setInterval(() => {
+        if(timeLeft >= 0){
+            timerP.innerHTML = timeLeft;
+            timeLeft--;
+        }else{            
+            let answerValue = information.answerInput.value;
+            console.log(answerValue);
+
+            if(answerValue == information.helpArrayValues[information.counter]){
+                information.infoKoZnaZna.correctAnswers++;
+            }else{
+                information.infoKoZnaZna.wrongAnswers++;
+            }
+
+            if(information.counter < 9){
+                information.questionContainer.innerHTML = information.helpArrayKeys[++information.counter];
+                timeLeft = 5;
+                information.questionNumberSpan.innerText = information.counter + 1;
+            }else{
+                clearInterval(timeleftInterval);
+                socket.emit('finishedKoZnaZna', information.infoKoZnaZna);
+                information.sendAnswerBtn.disabled = true;
+                information.answerInput.disabled = true;
+                console.log(information.infoKoZnaZna.correctAnswers)
+                console.log(information.infoKoZnaZna.wrongAnswers)
+                information.gamesContainer.innerHTML = "";
+            }
         }
     
     }, 1000);

@@ -135,7 +135,7 @@ io.on('connection', (socket) => {
   socket.on('finishedSlagalicaGiveDataForSpojnice', (word) => {
     let user = getCurrentUser(socket.id);
 
-    user.pointsSlagalica =+ 5;
+    user.pointsSlagalica += 5;
     io.emit('updateSlagalicaPoints', user);
     socket.emit('startSpojnice', dataForSpojnice());
   });
@@ -143,9 +143,33 @@ io.on('connection', (socket) => {
   socket.on('finishedSpojniceGiveDataForKoZnaZna', (correctAnswers) => {
     let user = getCurrentUser(socket.id);
 
-    user.pointsSpojnice =+ correctAnswers * 5;
+    user.pointsSpojnice += correctAnswers * 5;
     io.emit('updateSpojnicePoints', user);
     socket.emit('startKoZnaZna', dataForKoZnaZna());
+  });
+
+  socket.on('finishedKoZnaZna', (infoKoZnaZna) => {
+    let user = getCurrentUser(socket.id);
+    let users = getJoinedUsers();
+    let everyoneFinished = true;
+
+    user.pointsKoZnaZna += infoKoZnaZna.correctAnswers * 10;
+    user.pointsKoZnaZna += infoKoZnaZna.wrongAnswers * -5;
+    io.emit('updateKoZnaZnaPoints', user);
+    user.finishedGame = true;
+
+    for(let i = 0; i < users.length; i++){
+      if(!users[i].finishedGame){
+        everyoneFinished = false;
+
+        break;
+      }
+    }
+
+    if(everyoneFinished){
+      io.emit('gameOver');
+    }
+    // socket.emit('startKoZnaZna', dataForKoZnaZna());
   });
 
   // Listen for chatMessage

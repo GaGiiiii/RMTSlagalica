@@ -8,7 +8,9 @@ function userJoins(id, username){
         username,
         ready: false,
         pointsSlagalica: 0,
-        pointsSpojnice: 0
+        pointsSpojnice: 0,
+        pointsKoZnaZna: 0,
+        finishedGame: false
     }
 
     users.push(user);
