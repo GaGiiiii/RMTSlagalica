@@ -241,6 +241,7 @@ function startGame(lettersArray){
 }
 
 function startSlagalica(gamesContainer, lettersArray){
+    console.log("START SLAGALICA\n")
     let confirmedWord = false;
     currentGame = 'Slagalica';
 
@@ -324,18 +325,23 @@ function startSlagalica(gamesContainer, lettersArray){
 
         socket.emit('finishedSlagalicaGiveDataForSpojnice', word);
         clearInterval(timer);
-        socket.on('startSpojnice', (data) => {
-            setTimeout(() => startSpojnice(gamesContainer, data), 3000);
-        });
+        console.log("BEFORE");
     });
 
+    socket.once('startSpojnice', (data) => {
+        if(currentGame != "Spojnice"){
+            console.log(currentGame)
+            console.log("START SPOJNICE1"); // Zasto ovaj zahtev primi 3x
+            setTimeout(() => startSpojnice(gamesContainer, data), 3000);
+        }
+    });
 
     socket.on('timeIsUpSlagalica', () => {
         if(!confirmedWord){ // Ako je vreme isteklo a nije confirmovao rec uradi sve ovo
             confirmedWord = true; // Ovo mora da ne bi bio infinite loop
             let word = wordInput.value;
 
-            console.log("ISTEKLO SLAGALICA")
+            console.log("ISTEKLO SLAGALICA\n")
 
             letters.forEach((letter) => {
                 letter.disabled = true;
@@ -346,7 +352,8 @@ function startSlagalica(gamesContainer, lettersArray){
 
             socket.emit('finishedSlagalicaGiveDataForSpojnice', word);
             clearInterval(timer);
-            socket.on('startSpojnice', (data) => {
+            socket.once('startSpojnice', (data) => {
+                console.log("START SPOJNICE2");
                 setTimeout(() => startSpojnice(gamesContainer, data), 3000);
             });
         }
@@ -354,6 +361,7 @@ function startSlagalica(gamesContainer, lettersArray){
 }
 
 function startSpojnice(gamesContainer, data){
+    console.log("START SPOJNICE\n")
     let correctAnswers = 0;
     let helpArrayKeys = Object.keys(data);
     let helpArrayValues = Object.values(data);
@@ -441,7 +449,7 @@ function startSpojnice(gamesContainer, data){
                 finishedAll = true;
                 clearInterval(timer);
                 socket.emit('finishedSpojniceGiveDataForKoZnaZna', correctAnswers);
-                socket.on('startKoZnaZna', (data) => {
+                socket.once('startKoZnaZna', (data) => {
                     setTimeout(() => startKoZnaZna(gamesContainer, data), 3000);
                 });
             }
@@ -451,13 +459,13 @@ function startSpojnice(gamesContainer, data){
 
     socket.on('timeIsUpSpojnice', () => {
         if(!finishedAll){
-            console.log("ISTEKLO VREME");
+            console.log("ISTEKLO VREME\n");
             clearInterval(timer);
             for(let i = 5; i < spojniceBtns.length; i++){
                 spojniceBtns[i].disabled = true;
             }
             socket.emit('finishedSpojniceGiveDataForKoZnaZna', correctAnswers);
-            socket.on('startKoZnaZna', (data) => {
+            socket.once('startKoZnaZna', (data) => {
                 setTimeout(() => startKoZnaZna(gamesContainer, data), 3000);
             });
         }
@@ -542,7 +550,7 @@ function startKoZnaZna(gamesContainer, data){
 }
 
 socket.on('updateSlagalicaPoints', (user) => {
-    console.log("UPDATE POINTS SLAGALICA");
+    console.log("UPDATE POINTS SLAGALICA\n");
     let pointsField = document.querySelector('#' + user.username + '-game1-score');
     let pointsFieldTotal = document.querySelector('#' + user.username + '-game7-score');
     pointsField.innerText = user.pointsSlagalica;
@@ -550,7 +558,7 @@ socket.on('updateSlagalicaPoints', (user) => {
 });
 
 socket.on('updateSpojnicePoints', (user) => {
-    console.log("UPDATE POINTS SPOJNICE");
+    console.log("UPDATE POINTS SPOJNICE\n");
     let pointsField = document.querySelector('#' + user.username + '-game3-score');
     let pointsFieldTotal = document.querySelector('#' + user.username + '-game7-score');
     pointsField.innerText = user.pointsSpojnice;
@@ -558,7 +566,7 @@ socket.on('updateSpojnicePoints', (user) => {
 });
 
 socket.on('updateKoZnaZnaPoints', (user) => {
-    console.log("UPDATE POINTS KOZNAZNA");
+    console.log("UPDATE POINTS KOZNAZNA\n");
     let pointsField = document.querySelector('#' + user.username + '-game5-score');
     let pointsFieldTotal = document.querySelector('#' + user.username + '-game7-score');
     pointsField.innerText = user.pointsKoZnaZna;
@@ -605,6 +613,7 @@ socket.on('gameOver', (winner) => {
 function setTimer(){
     const timerP = document.getElementById('timer');
     let timeLeft = 15;
+    console.log("U NAMA TECE PLAVA KRV\n");
 
     let timeleftInterval = setInterval(() => {
         if(timeLeft >= 0){
