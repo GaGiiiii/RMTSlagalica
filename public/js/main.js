@@ -37,6 +37,11 @@ socket.on('userJoinedOnServer', (object) => {
     }
 });
 
+socket.on('gameOverForMain', () => {
+  joinButton.disabled = false;
+  pInfo.innerHTML = pInfo.innerHTML.substring(0, pInfo.innerHTML.length - 18);
+});
+
 // Info about users in game
 
 socket.on('connectedUsersInfo', (users) => {

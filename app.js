@@ -110,12 +110,21 @@ io.on('connection', (socket) => {
 
     // ALL USERS READY GAME CAN START NOW
 
+    users.forEach((user) => {
+      user.pointsSlagalica = 0;
+      user.pointsSpojnice = 0;
+      user.pointsKoZnaZna = 0;
+      user.points = 0;
+      user.finishedGame = false;
+    })
+
     let usersInfo = {
       users: users,
       user: user
     }
 
     gameInProgress = true;
+
     io.emit('userReady', user);
     io.emit("allUsersReady", generateLetters());
     io.emit("gameStartedDisableJoins");
@@ -135,7 +144,8 @@ io.on('connection', (socket) => {
   socket.on('finishedSlagalicaGiveDataForSpojnice', (word) => {
     let user = getCurrentUser(socket.id);
 
-    user.pointsSlagalica += 5;
+    user.pointsSlagalica = 5;
+    user.points += 5;
     io.emit('updateSlagalicaPoints', user);
     socket.emit('startSpojnice', dataForSpojnice());
   });
@@ -143,7 +153,8 @@ io.on('connection', (socket) => {
   socket.on('finishedSpojniceGiveDataForKoZnaZna', (correctAnswers) => {
     let user = getCurrentUser(socket.id);
 
-    user.pointsSpojnice += correctAnswers * 5;
+    user.pointsSpojnice = correctAnswers * 5;
+    user.points += user.pointsSpojnice;
     io.emit('updateSpojnicePoints', user);
     socket.emit('startKoZnaZna', dataForKoZnaZna());
   });
@@ -153,10 +164,12 @@ io.on('connection', (socket) => {
     let users = getJoinedUsers();
     let everyoneFinished = true;
 
-    user.pointsKoZnaZna += infoKoZnaZna.correctAnswers * 10;
+    user.pointsKoZnaZna = infoKoZnaZna.correctAnswers * 10;
     user.pointsKoZnaZna += infoKoZnaZna.wrongAnswers * -5;
+    user.points += user.pointsKoZnaZna;
     io.emit('updateKoZnaZnaPoints', user);
     user.finishedGame = true;
+    user.ready = false;
 
     for(let i = 0; i < users.length; i++){
       if(!users[i].finishedGame){
@@ -167,7 +180,27 @@ io.on('connection', (socket) => {
     }
 
     if(everyoneFinished){
-      io.emit('gameOver');
+      let winner = users[0];
+      let draw = false;
+      gameInProgress = false;
+
+      for(let i = 1; i < users.length; i++){
+        if(users[i].points > winner.points){
+          winner = users[i];
+        }
+      }
+
+      for(let i = 1; i < users.length; i++){
+        if(users[i] != winner && users[i].points == winner.points){
+          draw = true;
+
+          winner = undefined;
+        }
+      }
+
+
+      io.emit('gameOverForMain');
+      io.emit('gameOver', winner);
     }
     // socket.emit('startKoZnaZna', dataForKoZnaZna());
   });

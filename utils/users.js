@@ -10,7 +10,8 @@ function userJoins(id, username){
         pointsSlagalica: 0,
         pointsSpojnice: 0,
         pointsKoZnaZna: 0,
-        finishedGame: false
+        points: 0,
+        finishedGame: false,
     }
 
     users.push(user);

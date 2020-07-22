@@ -1,6 +1,6 @@
 // Listen for events
 
-const readyBtn = document.querySelector('.ready-btn');
+let readyBtn = document.querySelector('.ready-btn');
 const chatForm = document.getElementById('chat-form');
 const chatMessages = document.querySelector('.chat-messages');
 const userList = document.getElementById('users');
@@ -218,6 +218,25 @@ function cleanInput(input){
 
 function startGame(lettersArray){
     const gamesContainer = document.querySelector('.games-container');
+    const scores = document.querySelectorAll('.scoreboard-games td');
+
+    scores.forEach((score) => {
+        score.innerText = "0";
+    });
+
+    const lis = document.querySelectorAll("#users li");
+    const ths = document.querySelectorAll("#scoreboard-users th");
+
+    for(let i = 0; i < lis.length; i++){
+        let lisHTML = lis[i].innerHTML;
+        lis[i].innerHTML = lisHTML.substring(0, lisHTML.length - 12);
+    }
+
+    for(let i = 1; i < ths.length; i++){
+        let thsHTML = ths[i].innerHTML;
+        ths[i].innerHTML = thsHTML.substring(0,thsHTML.length - 12);
+    }
+
     startSlagalica(gamesContainer, lettersArray);
 }
 
@@ -304,8 +323,8 @@ function startSlagalica(gamesContainer, lettersArray){
         confirmedWord = true;
 
         socket.emit('finishedSlagalicaGiveDataForSpojnice', word);
+        clearInterval(timer);
         socket.on('startSpojnice', (data) => {
-            clearInterval(timer);
             setTimeout(() => startSpojnice(gamesContainer, data), 3000);
         });
     });
@@ -316,6 +335,8 @@ function startSlagalica(gamesContainer, lettersArray){
             confirmedWord = true; // Ovo mora da ne bi bio infinite loop
             let word = wordInput.value;
 
+            console.log("ISTEKLO SLAGALICA")
+
             letters.forEach((letter) => {
                 letter.disabled = true;
             });
@@ -324,8 +345,8 @@ function startSlagalica(gamesContainer, lettersArray){
             confirmButton.disabled = true;
 
             socket.emit('finishedSlagalicaGiveDataForSpojnice', word);
+            clearInterval(timer);
             socket.on('startSpojnice', (data) => {
-                clearInterval(timer);
                 setTimeout(() => startSpojnice(gamesContainer, data), 3000);
             });
         }
@@ -421,7 +442,6 @@ function startSpojnice(gamesContainer, data){
                 clearInterval(timer);
                 socket.emit('finishedSpojniceGiveDataForKoZnaZna', correctAnswers);
                 socket.on('startKoZnaZna', (data) => {
-                    clearInterval(timer);
                     setTimeout(() => startKoZnaZna(gamesContainer, data), 3000);
                 });
             }
@@ -438,7 +458,6 @@ function startSpojnice(gamesContainer, data){
             }
             socket.emit('finishedSpojniceGiveDataForKoZnaZna', correctAnswers);
             socket.on('startKoZnaZna', (data) => {
-                clearInterval(timer);
                 setTimeout(() => startKoZnaZna(gamesContainer, data), 3000);
             });
         }
@@ -468,7 +487,7 @@ function startKoZnaZna(gamesContainer, data){
             nihil est natus tempore dicta!</p>\
             <hr class='my-4'>\
            <div class='form-group has-success'>\
-            <input type='text' placeholder='Unesite Odgovor' class='form-control' id='answer-input'>\
+            <input type='text' placeholder='Unesite Odgovor' class='form-control' id='answer-input' maxlength='20'>\
               <button class='btn btn-primary btn-lg' id='send-answer-button' role='button'>Pošalji</button>\
           </div>\
           </div>\
@@ -500,7 +519,6 @@ function startKoZnaZna(gamesContainer, data){
 
     sendAnswerBtn.addEventListener('click', (event) => {
         let answerValue = answerInput.value;
-        console.log(answerValue);
 
         if(answerValue == helpArrayValues[information.counter]){
             information.infoKoZnaZna.correctAnswers++;
@@ -518,30 +536,70 @@ function startKoZnaZna(gamesContainer, data){
             socket.emit('finishedKoZnaZna', information.infoKoZnaZna);
             sendAnswerBtn.disabled = true;
             answerInput.disabled = true;
-            console.log(information.infoKoZnaZna.correctAnswers)
-            console.log(information.infoKoZnaZna.wrongAnswers)
             information.gamesContainer.innerHTML = "";
         }
     });
 }
 
-socket.on('gameOver', () => {
-    alert("DSADASDAS");// oboji pobednika i alertuj ga !!!
-});
-
 socket.on('updateSlagalicaPoints', (user) => {
+    console.log("UPDATE POINTS SLAGALICA");
     let pointsField = document.querySelector('#' + user.username + '-game1-score');
+    let pointsFieldTotal = document.querySelector('#' + user.username + '-game7-score');
     pointsField.innerText = user.pointsSlagalica;
+    pointsFieldTotal.innerText = user.points;
 });
 
 socket.on('updateSpojnicePoints', (user) => {
+    console.log("UPDATE POINTS SPOJNICE");
     let pointsField = document.querySelector('#' + user.username + '-game3-score');
+    let pointsFieldTotal = document.querySelector('#' + user.username + '-game7-score');
     pointsField.innerText = user.pointsSpojnice;
+    pointsFieldTotal.innerText = user.points;
 });
 
 socket.on('updateKoZnaZnaPoints', (user) => {
+    console.log("UPDATE POINTS KOZNAZNA");
     let pointsField = document.querySelector('#' + user.username + '-game5-score');
+    let pointsFieldTotal = document.querySelector('#' + user.username + '-game7-score');
     pointsField.innerText = user.pointsKoZnaZna;
+    pointsFieldTotal.innerText = user.points;
+    isGameInProggress = false;
+});
+
+socket.on('gameOver', (winner) => {
+    const gamesContainer = document.querySelector('.games-container');
+    userReady = false;
+
+    if(!winner){
+        gamesContainer.innerHTML = "<h1>Nerešeno!</h1>";
+    }else{
+        gamesContainer.innerHTML = "<h1>Pobednik je: <strong>" + winner.username + 
+            "</strong> sa osvojenih <strong>" + winner.points + "</strong> poena!</h1>";
+    }
+
+    gamesContainer.innerHTML += "<br><br><button type='button' class='btn btn-outline-danger btn-large ready-btn'>Spreman <i class='fas fa-times'></i></button>\
+    \
+    <p id='timer'></p>";
+
+    readyBtn = document.querySelector('.ready-btn');
+
+    readyBtn.addEventListener('click', () => {
+        if(!userReady){
+            userReady = true;
+            readyBtn.classList.remove("btn-outline-danger");
+            readyBtn.classList.add("btn-outline-success");
+            readyBtn.innerHTML = "Spreman <i class='fas fa-check'></i>";
+            socket.emit('userReady', socket.id);
+        }else{
+            userReady = false;
+            readyBtn.classList.remove("btn-outline-success");
+            readyBtn.classList.add("btn-outline-danger");
+            readyBtn.innerHTML = "Spreman <i class='fas fa-times'></i>";
+            socket.emit('userNotReady', socket.id);
+        }
+    });
+
+
 });
 
 function setTimer(){
@@ -553,7 +611,7 @@ function setTimer(){
             timerP.innerHTML = timeLeft;
             timeLeft--;
         }else{            
-            socket.emit('timeIsUp', currentGame)
+            socket.emit('timeIsUp', currentGame);
             // clearInterval(timeleftInterval);
         }
     
@@ -572,7 +630,6 @@ function setTimer2(information){
             timeLeft--;
         }else{            
             let answerValue = information.answerInput.value;
-            console.log(answerValue);
 
             if(answerValue == information.helpArrayValues[information.counter]){
                 information.infoKoZnaZna.correctAnswers++;
@@ -589,8 +646,6 @@ function setTimer2(information){
                 socket.emit('finishedKoZnaZna', information.infoKoZnaZna);
                 information.sendAnswerBtn.disabled = true;
                 information.answerInput.disabled = true;
-                console.log(information.infoKoZnaZna.correctAnswers)
-                console.log(information.infoKoZnaZna.wrongAnswers)
                 information.gamesContainer.innerHTML = "";
             }
         }
@@ -599,3 +654,14 @@ function setTimer2(information){
 
     return timeleftInterval;
 }
+
+function validateInput(input){
+    // Create a new div element
+    let temporalDivElement = document.createElement("div");
+    // Set the HTML content with the providen
+    temporalDivElement.innerHTML = input.value;
+  
+    input.value = temporalDivElement.textContent || temporalDivElement.innerText || "";
+  
+    return input
+  }

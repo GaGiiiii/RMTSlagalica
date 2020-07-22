@@ -1,9 +1,9 @@
-1*. Ako u isto vreme kliknu join moze da se joinuje 5 igraca
-2*. Kada kuca slova i rec je retardirana input je crven i pise da nije dobra rec, kada ukuca rec koja je ok input je success.
-3*. Trebalo bi da se izabera jedna rec iz baze reci i da se njena slova iskoriste i ostatak doda random.
+1*. Kada kuca slova i rec je retardirana input je crven i pise da nije dobra rec, kada ukuca rec koja je ok input je success.
+2*. Trebalo bi da se izabera jedna rec iz baze reci i da se njena slova iskoriste i ostatak doda random.
 
+3. FORA SA ISTEKLO VREME U 3. PARTIJI
+4. Reload u sred game
 
-4. Kada gameInProgress postaje false, kada se diskonektuju svi ili kada dodje do kraja igre
-5. Skloni igra je u toku iz pInfo kada se zavrsi igra.
-6. Predji na sledecu igru dugme
-7. Na kraju svake igre koliko je poena osvoji, na kraju game ko je pobedio.
+MOZDA NEKADA: 
+    - Ako u isto vreme kliknu join moze da se joinuje 5 igraca
+    - Predji na sledecu igru dugme
