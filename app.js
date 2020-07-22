@@ -98,7 +98,10 @@ io.on('connection', (socket) => {
   socket.on('userReady', (id) => {
     let users = getJoinedUsers();
     let user = users.find(user => user.id === id);
-    user.ready = true;
+
+    if(user){
+      user.ready = true;
+    }
 
     for(let i = 0; i < users.length; i++){
       if(!users[i].ready){
@@ -118,10 +121,10 @@ io.on('connection', (socket) => {
       user.finishedGame = false;
     })
 
-    let usersInfo = {
-      users: users,
-      user: user
-    }
+    // let usersInfo = {
+    //   users: users,
+    //   user: user
+    // }
 
     gameInProgress = true;
 
@@ -329,7 +332,7 @@ function dataForSpojnice(){
   let array = [];
   array.push(data, data2);
 
-  return array[Math.floor(Math.random() * 2)];
+  return array[Math.floor(Math.random() * 1.99)]; // ????????????????
 }
 
 function dataForKoZnaZna(){
