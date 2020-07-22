@@ -336,7 +336,7 @@ function startSlagalica(gamesContainer, lettersArray){
         }
     });
 
-    socket.on('timeIsUpSlagalica', () => {
+    socket.once('timeIsUpSlagalica', () => {
         if(!confirmedWord){ // Ako je vreme isteklo a nije confirmovao rec uradi sve ovo
             confirmedWord = true; // Ovo mora da ne bi bio infinite loop
             let word = wordInput.value;
@@ -457,7 +457,7 @@ function startSpojnice(gamesContainer, data){
 
     }
 
-    socket.on('timeIsUpSpojnice', () => {
+    socket.once('timeIsUpSpojnice', () => {
         if(!finishedAll){
             console.log("ISTEKLO VREME\n");
             clearInterval(timer);
@@ -549,7 +549,7 @@ function startKoZnaZna(gamesContainer, data){
     });
 }
 
-socket.on('updateSlagalicaPoints', (user) => {
+socket.once('updateSlagalicaPoints', (user) => {
     console.log("UPDATE POINTS SLAGALICA\n");
     let pointsField = document.querySelector('#' + user.username + '-game1-score');
     let pointsFieldTotal = document.querySelector('#' + user.username + '-game7-score');
@@ -557,7 +557,7 @@ socket.on('updateSlagalicaPoints', (user) => {
     pointsFieldTotal.innerText = user.points;
 });
 
-socket.on('updateSpojnicePoints', (user) => {
+socket.once('updateSpojnicePoints', (user) => {
     console.log("UPDATE POINTS SPOJNICE\n");
     let pointsField = document.querySelector('#' + user.username + '-game3-score');
     let pointsFieldTotal = document.querySelector('#' + user.username + '-game7-score');
@@ -565,7 +565,7 @@ socket.on('updateSpojnicePoints', (user) => {
     pointsFieldTotal.innerText = user.points;
 });
 
-socket.on('updateKoZnaZnaPoints', (user) => {
+socket.once('updateKoZnaZnaPoints', (user) => {
     console.log("UPDATE POINTS KOZNAZNA\n");
     let pointsField = document.querySelector('#' + user.username + '-game5-score');
     let pointsFieldTotal = document.querySelector('#' + user.username + '-game7-score');
@@ -574,7 +574,7 @@ socket.on('updateKoZnaZnaPoints', (user) => {
     isGameInProggress = false;
 });
 
-socket.on('gameOver', (winner) => {
+socket.once('gameOver', (winner) => {
     const gamesContainer = document.querySelector('.games-container');
     userReady = false;
 
