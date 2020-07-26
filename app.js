@@ -1,19 +1,15 @@
 /* ********** DEPENDENCIES ********** */
 
-const express = require('express');
-const socketio = require('socket.io');
-const bodyParser = require('body-parser');
-const http = require('http');
-const path = require('path');
-const expressHandlebars = require('express-handlebars');
-const formatMessage = require('./utils/messages');
-const {userJoins, getCurrentUser, userLeaves, getJoinedUsers} = require('./utils/users');
+const express = require('express'); // Express
+const socketio = require('socket.io'); // SocketIO
+const bodyParser = require('body-parser'); // BodyParser
+const http = require('http'); // HTTP
+const path = require('path'); // PATH
+const expressHandlebars = require('express-handlebars'); // HandleBars
+const formatMessage = require('./utils/messages'); // Messages
+const {userJoins, getCurrentUser, userLeaves, getJoinedUsers} = require('./utils/users'); // Users methods
 
-let timeout;
-
-
-let gameInProgress = false;
-
+let gameInProgress = false; // Is game in progress
 
 /* ********** INITIALIZE EXPRESS APP ********** */
 
@@ -57,6 +53,8 @@ app.set('view engine', '.hbs');
 
 app.use('/', globalRoutes);
 app.use('/', gamesRoutes);
+
+// Database for words
 
 let words = [
   "host",
@@ -120,7 +118,7 @@ let words = [
 
 /* ********** SOCKET COMMUNICATION ********** */
 
-io.on('connection', (socket) => {
+io.on('connection', (socket) => { // Socket connected on server
   console.log("New Socket Connection.");
 
   let object = { // Object that holds all users when new user connects and hold info if the game already started
@@ -131,8 +129,9 @@ io.on('connection', (socket) => {
   io.emit('userJoinedOnServer', object);
 
   socket.on('userJoinedInGame', (username) => {
-      const user = userJoins(socket.id, username);
+      const user = userJoins(socket.id, username); // Add user to users array
 
+      // If game is in progress and user joins server redirect him and return
       if(gameInProgress){
         let redirectInfo = {
           username: username,
@@ -145,26 +144,24 @@ io.on('connection', (socket) => {
       }
 
       // Welcome current user
-
       socket.emit('message', formatMessage('Admin', 'Uspešno ste se konektovali.'));
 
       // Broadcast when user connects
-
       socket.broadcast.emit('message', formatMessage('Admin', `${user.username} se konektovao.`));
 
       // Send users and room info
-
       io.emit('connectedUsersInfo', getJoinedUsers());
   });
 
-  socket.on('userReady', (id) => {
-    let users = getJoinedUsers();
-    let user = users.find(user => user.id === id);
+  socket.on('userReady', (id) => { // User clicked ready btn
+    let users = getJoinedUsers(); // Get all users 
+    let user = users.find(user => user.id === id); // Find user that clicked ready
 
     if(user){
       user.ready = true;
     }
 
+    // If there are users that are not ready don't start the game
     for(let i = 0; i < users.length; i++){
       if(!users[i].ready){
           io.emit('userReady', user);
@@ -175,20 +172,16 @@ io.on('connection', (socket) => {
 
     // ALL USERS READY GAME CAN START NOW
 
+    // Set default values for users
     users.forEach((user) => {
       user.pointsSlagalica = 0;
       user.pointsSpojnice = 0;
       user.pointsKoZnaZna = 0;
       user.points = 0;
       user.finishedGame = false;
-    })
+    });
 
-    // let usersInfo = {
-    //   users: users,
-    //   user: user
-    // }
-
-    gameInProgress = true;
+    gameInProgress = true; // Game starts now
 
     io.emit('userReady', user);
     io.emit("allUsersReady", generateLetters());
@@ -203,7 +196,7 @@ io.on('connection', (socket) => {
   });
 
   socket.on('timeIsUp', (currentGame) => {
-    socket.emit('timeIsUp' + currentGame);
+    socket.emit('timeIsUp' + currentGame); // Time is up for specific game
   });
 
   socket.on('finishedSlagalicaGiveDataForSpojnice', (word) => {
@@ -213,6 +206,7 @@ io.on('connection', (socket) => {
       return;
     }
 
+    // If word exists in database give him a score
     if(isCorrectWord(word)){
       user.pointsSlagalica = word.length * 2;
       user.points += user.pointsSlagalica;
@@ -248,6 +242,7 @@ io.on('connection', (socket) => {
     user.finishedGame = true;
     user.ready = false;
 
+    // Find if everyone finished
     for(let i = 0; i < users.length; i++){
       if(!users[i].finishedGame){
         everyoneFinished = false;
@@ -256,6 +251,7 @@ io.on('connection', (socket) => {
       }
     }
 
+    // If everyone finished game is over, find winner
     if(everyoneFinished){
       let winner = users[0];
       let draw = false;
@@ -276,14 +272,13 @@ io.on('connection', (socket) => {
       }
 
 
-      io.emit('gameOverForMain');
-      io.emit('gameOver', winner);
+      io.emit('gameOverForMain'); // On page main now we can allow other users to join game if there is space
+      io.emit('gameOver', winner); // Tell to clients who is winner and that game is over
     }
     // socket.emit('startKoZnaZna', dataForKoZnaZna());
   });
 
   // Listen for chatMessage
-
   socket.on('chatMessage', (msg) => {
       const user = getCurrentUser(socket.id);
 
@@ -291,22 +286,21 @@ io.on('connection', (socket) => {
   });
 
   // Runs when client disconnects
-
   socket.on('disconnect', () => {
       console.log("Socket disconnects.");
 
-      const user = userLeaves(socket.id);
+      const user = userLeaves(socket.id); // Find user that left
 
       if(user){
-          io.emit('message', formatMessage('Admin', `${user.username} se diskonektovao.`));
+          io.emit('message', formatMessage('Admin', `${user.username} se diskonektovao.`)); // Tell other users who left
 
+          // If everyone disconnected tell that to cliends on main page
           if(getJoinedUsers() == 0){
             io.emit('allUsersDisconnected');
             gameInProgress = false;
           }
       
           // Send users and room info
-
           io.emit('usersInfoAfterDisconnect', {
             users: getJoinedUsers(),
             user: user
@@ -314,6 +308,11 @@ io.on('connection', (socket) => {
       }
   });
 });
+
+
+
+/* ********** FUNCTIONS ********** */
+
 
 
 function generateLetters(){
@@ -398,6 +397,7 @@ function isVowel(char){
   return false;
 }
 
+// Gives data for Spojnice
 function dataForSpojnice(){
   let data = {
     "PORUKA": "POVEŽITE ODGOVARAJUĆE PORTOVE",
@@ -422,11 +422,12 @@ function dataForSpojnice(){
   let array = [];
   array.push(data, data2);
 
-  return array[Math.floor(Math.random() * 1.99)]; // ????????????????
+  return array[Math.floor(Math.random() * 1.99)]; // Gives random element from array
 }
 
+// Gives data for KoZnaZna
 function dataForKoZnaZna(){
-  let dataTotal = {
+  let dataTotal = { // All questions
     "DNS radi na portu: ": '53',
     "Sa kojim transportnim protokolom je u vezi DHCP ?": 'UDP',
     "Kod uspostavljanja TCP veze, koji su flegovi oznaceni na 1 u prvom segmentu koji se šalje ?": 'SYN',
@@ -454,29 +455,30 @@ function dataForKoZnaZna(){
     "Protokol koji računaru iza NAT rutera omogućava da održava dvosmernu komunikaciju sa računarima u mreži od kojih ga deli NAT ruter naziva se: ": 'UnPn',
   }
 
-  let helpArrayKeys = Object.keys(dataTotal);
-  let helpArrayValues = Object.values(dataTotal);
-  let usedQuestions = [];
-  let questionNumber = 0;
+  let helpArrayKeys = Object.keys(dataTotal); // Array holding all the keys from dataTotal object
+  let helpArrayValues = Object.values(dataTotal); // Array holding all the values from dataTotal object
+  let usedQuestions = []; // Array holding already used questions
+  let questionNumber = 0; // Question number
   let data = {
-    
+    // Here we will store our final 10 chosen questions, for now its empty object
   };
 
   for(let i = 0; i < 10; i++){
-    questionNumber = Math.floor(Math.random() * (helpArrayKeys.length - 1));
+    questionNumber = Math.floor(Math.random() * (helpArrayKeys.length - 1)); // Random number from 0 to number of questions in database
 
-    while(usedQuestions.includes(questionNumber)){
+    while(usedQuestions.includes(questionNumber)){ // If question is already used choose another random number
       questionNumber = Math.floor(Math.random() * (helpArrayKeys.length - 1));
     }
 
-    usedQuestions.push(questionNumber);
-    data[helpArrayKeys[questionNumber]] = helpArrayValues[questionNumber];
+    usedQuestions.push(questionNumber); // When we use question add it to used questions array
+    data[helpArrayKeys[questionNumber]] = helpArrayValues[questionNumber]; // Add choosen question to final data array
     // data.helpArrayKeys[questionNumber] = helpArrayValues[questionNumber]; Mozda se pitate zasto ovo dole ne moze ? Zato sto Javascript.
   }
 
   return data;
 }
 
+// Checks if word exists in database of words
 function isCorrectWord(word){
   for(let i = 0; i < words.length; i++){
     if(word.toUpperCase() == words[i].toUpperCase()){
