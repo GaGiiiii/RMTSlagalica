@@ -449,7 +449,7 @@ function dataForKoZnaZna(){
     "Kako se drugačije naziva krajnji sistem ?": 'Host',
     "Bežični LAN pristup zasnovan je na IEEE ?": '802.11',
     "Na kom sloju radi HTTP ?": 'Aplikativnom',
-    "TCP i UDO pripadaju kom sloju: ": 'Transportnom',
+    "TCP i UDP pripadaju kom sloju: ": 'Transportnom',
     "IP Adresa pripada kom sloju: ": 'Mrežnom',
     "Virus sakriven unutar nekog korisnog programa naziva se: ": 'Trojanski konj',
     "ICMP protokol koristi: ": 'IP pakete',
