@@ -1,0 +1,23 @@
+    // Ako ima 4 samoglasnika neka bude na svakoj trecoj poziciji
+
+    // if(totalNumberOfVowels <= 4){
+    //   if(i % 3 === 0){
+    //     if(vowels.length === vowelsCounter){
+    //       generatedLetters.push(nonVowels[nonVowelsCounter++]);
+    //     }else{
+    //       generatedLetters.push(vowels[vowelsCounter++]);
+    //     }
+    //   }else{
+    //     generatedLetters.push(nonVowels[nonVowelsCounter++]);
+    //   }
+    // }else if(totalNumberOfVowels > 4){ // Ako ima 5 ili 6 samoglasnika neka budu na svakoj drugoj poziciji
+    //   if(i % 2 === 0){
+    //     if(vowels.length === vowelsCounter){
+    //       generatedLetters.push(nonVowels[nonVowelsCounter++]);
+    //     }else{
+    //       generatedLetters.push(vowels[vowelsCounter++]);
+    //     }
+    //   }else{
+    //     generatedLetters.push(nonVowels[nonVowelsCounter++]);
+    //   }
+    // }

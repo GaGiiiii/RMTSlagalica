@@ -111,6 +111,10 @@ let words = [
   "pretraživač",
   "sistem",
   "port",
+  "aplikativni",
+  "transportni",
+  "mrežni",
+  "fizički",
 ];
 
 /* ********** SOCKET COMMUNICATION ********** */
@@ -239,9 +243,6 @@ io.on('connection', (socket) => {
     user.pointsKoZnaZna += infoKoZnaZna.wrongAnswers * -5;
     user.points += user.pointsKoZnaZna;
 
-    console.log(infoKoZnaZna.correctAnswers);
-    console.log(infoKoZnaZna.wrongAnswers);
-
     io.emit('updateKoZnaZnaPoints', user);
     user.finishedGame = true;
     user.ready = false;
@@ -315,76 +316,57 @@ io.on('connection', (socket) => {
 
 
 function generateLetters(){
-  let generatedLetters = [];
-  let numberOfVowels = Math.floor(Math.random() * 6);
-  let numberOfVowelsWord = 0;
-  let vowels = [];
-  let vowelsCounter = 0;
-  let nonVowels = [];
-  let nonVowelsCounter = 0;
-  let totalNumberOfVowels = 0;
+  let generatedLetters = []; // Final array with random effect
+  let vowels = []; // Vowels, we don't use this
+  let nonVowels = []; // NonVowels, we don't use this
+  let allLetters = []; // Vowels + NonVowels
 
-  let word = words[Math.floor(Math.random() * (words.length - 1))].toUpperCase();
-
+  let word = words[Math.floor(Math.random() * (words.length - 1))].toUpperCase(); // Chosen word
+  let numberOfVowelsInChosenWord = 0; // Number of vowels in chosen word
+  let numberOfNonVowelsInChosenWord = 0; // Number of nonVowels in chosen word
   console.log(word);
 
+  // Loop through whole word and add letters to corresponding array, increase counters
   for(let i = 0; i < word.length; i++){
     if(isVowel(word[i])){
-      numberOfVowelsWord++;
       vowels.push(word[i]);
+      allLetters.push(word[i]);
+      numberOfVowelsInChosenWord++;
     }else{
       nonVowels.push(word[i]);
+      allLetters.push(word[i]);
+      numberOfNonVowelsInChosenWord++;
     }
   }
 
-  if(numberOfVowelsWord > numberOfVowels){
-    numberOfVowels = numberOfVowelsWord;
-    totalNumberOfVowels = numberOfVowels;
-  }else{
-    totalNumberOfVowels = numberOfVowels + numberOfVowelsWord;
+  // Minimum is numberofvowels in chosen word, max is 6, see w3school on Math.random()
+  let allowedNumberOfVowels = Math.floor(Math.random() * (7 - numberOfVowelsInChosenWord)) + numberOfVowelsInChosenWord;
 
-    for(let i = 0; i < numberOfVowels; i++){
-      vowels.push(randomVowel());
+  // If allowednumberofVowels is 6 and there are 3 vowels in chosen word, chose another 3 vowels
+  if(allowedNumberOfVowels > numberOfVowelsInChosenWord){    
+    for(let i = 0; i < allowedNumberOfVowels - numberOfVowelsInChosenWord; i++){
+      let vowel = randomVowel();
+      vowels.push(vowel);
+      allLetters.push(vowel);
     }
   }
-
-  for(let i = 0; i < 12 - totalNumberOfVowels; i++){
-    nonVowels.push(randomLetter());
+  
+  // Find remaining nonVowels
+  for(let i = 0; i < 12 - allowedNumberOfVowels - numberOfNonVowelsInChosenWord; i++){
+    let nonVowel = randomLetter();
+    nonVowels.push(nonVowel);
+    allLetters.push(nonVowel);
   }
 
+  // Add random effect to letters
   for(let i = 0; i < 12; i++){
-
-    // Ako ima 4 samoglasnika neka bude na svakoj trecoj poziciji
-
-    if(totalNumberOfVowels <= 4){
-      if(i % 3 === 0){
-        if(vowels.length === vowelsCounter){
-          generatedLetters.push(nonVowels[nonVowelsCounter++]);
-        }else{
-          generatedLetters.push(vowels[vowelsCounter++]);
-        }
-      }else{
-        generatedLetters.push(nonVowels[nonVowelsCounter++]);
-      }
-    }else if(totalNumberOfVowels > 4){ // Ako ima 5 ili 6 samoglasnika neka budu na svakoj drugoj poziciji
-      if(i % 2 === 0){
-        if(vowels.length === vowelsCounter){
-          generatedLetters.push(nonVowels[nonVowelsCounter++]);
-        }else{
-          generatedLetters.push(vowels[vowelsCounter++]);
-        }
-      }else{
-        generatedLetters.push(nonVowels[nonVowelsCounter++]);
-      }
-    }
+    let index = Math.floor(Math.random() * (allLetters.length - 1)); // Random number from 0 to 11
+    generatedLetters.push(allLetters[index]); // Get letter
+    allLetters.splice(index, 1); // Delete letter so I don't get it again
   }
-
-  // console.log(vowels);
-  // console.log(nonVowels);
-  // console.log(generatedLetters);
 
   let object = {
-    words: words,
+    words: words, // database for words
     generatedLetters: generatedLetters
   }
 
@@ -392,13 +374,14 @@ function generateLetters(){
 };
 
 function randomLetter() {
-  let characters = 'BVGDĐŽZJKLMNPRSTFHCČŠ'; // LJ NJ DZ
+  let characters = 'BVGDĐŽZJKLMNPRSTFHCČŠ'; // LJ NJ DZ missing
 
   return characters.charAt(Math.floor(Math.random() * characters.length));
 }
 
 function randomVowel(){
   let characters = 'AEIOU';
+  
   return characters.charAt(Math.floor(Math.random() * characters.length));
 }
 
