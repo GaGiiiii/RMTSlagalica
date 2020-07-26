@@ -39,7 +39,7 @@ socket.on('userJoinedOnServer', (object) => {
 
 socket.on('gameOverForMain', () => {
   joinButton.disabled = false;
-  pInfo.innerHTML = pInfo.innerHTML.substring(0, pInfo.innerHTML.length - 18);
+  pInfo.innerHTML = pInfo.innerHTML.substring(0, pInfo.innerHTML.length - 17);
 });
 
 // Info about users in game
@@ -65,7 +65,13 @@ socket.on('gameStartedDisableJoins', () => {
 
 socket.on('allUsersDisconnected', () => {
   joinButton.disabled = false;
-  pInfo.innerHTML = pInfo.innerHTML.substring(0, pInfo.innerHTML.length - 18);
+
+  if(pInfo.innerHTML.substring(pInfo.innerHTML.length - 18, pInfo.innerHTML.length) == ' (Igra je u toku).'){
+    pInfo.innerHTML = pInfo.innerHTML.substring(0, pInfo.innerHTML.length - 18);
+  }else{
+    pInfo.innerHTML = pInfo.innerHTML.substring(0, pInfo.innerHTML.length);
+  }
+
   span = document.getElementById('numberOfConnected'); // Moramo opet uzeti span jer se u DOMu napravio novi kada smo innerHTML uradili
   if(span){
     span.innerText = 0;
@@ -74,7 +80,8 @@ socket.on('allUsersDisconnected', () => {
 
 function checkNicknameForm(){
   const lengthError = document.getElementById('length-error');
-  const takenNicknameError = document.getElementById('taken-nickname-error')
+  const takenNicknameError = document.getElementById('taken-nickname-error');
+  const hasSpacesNicknameError = document.getElementById('has-spaces-nickname-error');
   // Create a new div element
   let temporalDivElement = document.createElement("div");
   let nickname = document.getElementById('nickname');
@@ -83,26 +90,50 @@ function checkNicknameForm(){
 
   nickname.value = temporalDivElement.textContent || temporalDivElement.innerText || "";
 
-  if(isValidNicknameLength(nickname.value)){
-
-    if(nicknameTaken(nickname.value)){
-      nickname.classList.add('is-invalid');
-
-      lengthError.style.display = "none";
-      takenNicknameError.style.display = "block";
-
-      return false;
-    }
-
-    return true;
-  }else{
+  if(hasSpaces(nickname.value)){
     nickname.classList.add('is-invalid');
-
-    lengthError.style.display = "block";
+    hasSpacesNicknameError.style.display = "block";
+    lengthError.style.display = "none";
     takenNicknameError.style.display = "none";
 
     return false;
+  }else{
+    if(isValidNicknameLength(nickname.value)){
+
+      if(nicknameTaken(nickname.value)){
+        nickname.classList.add('is-invalid');
+  
+        lengthError.style.display = "none";
+        hasSpacesNicknameError.style.display = "none";
+        takenNicknameError.style.display = "block";
+  
+        return false;
+      }
+  
+      return true;
+    }else{
+      nickname.classList.add('is-invalid');
+  
+      lengthError.style.display = "block";
+      hasSpacesNicknameError.style.display = "none";
+      takenNicknameError.style.display = "none";
+  
+      return false;
+    }
   }
+}
+
+function hasSpaces(nickname){
+
+// https://stackoverflow.com/questions/17616624/detect-if-string-contains-any-spaces
+
+  if (/\s/.test(nickname)) {
+    // It has any kind of whitespace
+
+    return true;
+  }
+
+  return false;
 }
 
 function nicknameTaken(nickname){
