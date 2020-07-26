@@ -115,6 +115,7 @@ let words = [
   "transportni",
   "mrežni",
   "fizički",
+  "protok",
 ];
 
 /* ********** SOCKET COMMUNICATION ********** */
@@ -381,7 +382,7 @@ function randomLetter() {
 
 function randomVowel(){
   let characters = 'AEIOU';
-  
+
   return characters.charAt(Math.floor(Math.random() * characters.length));
 }
 

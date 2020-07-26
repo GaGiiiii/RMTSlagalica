@@ -1,5 +1,5 @@
-1. Kada u slagalici redja slova da ne bude onako obvious, dodati random efekat
-2. Kada zavrse i igraju opet bagovi ???
+1. Kada zavrse i igraju opet bagovi ???
+2. Ne racuna poene nekada kada su 2 igraca
 
 MOZDA NEKADA: 
     - Ako u isto vreme kliknu join moze da se joinuje 5 igraca

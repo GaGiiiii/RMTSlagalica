@@ -461,19 +461,20 @@ function startSpojnice(gamesContainer, data){
         spojniceBtns[i].addEventListener('click', (event) => {
 
             valueValue = event.target.innerHTML; // Take key value and value value looool
-            event.target.disabled = true; // Disable selected value button so he can't choose it again
+            //event.target.disabled = true; // Disable selected value button so he can't choose it again
             counter++; // Raise counter so next key gets highlighted
 
             if(data[keyValue.innerText] == valueValue){
                 // Changes color to green if answer is correct
 
+                event.target.disabled = true; // Disable selected value button so he can't choose it again
                 event.target.style.backgroundColor = "#5cb85c";
                 spojniceBtns[counter - 1].style.backgroundColor = "#5cb85c";
                 correctAnswers++;
             }else{
                 // Changes color to red if answer is wrong
 
-                event.target.style.backgroundColor = "#d9534f";
+                // event.target.style.backgroundColor = "#d9534f";
                 spojniceBtns[counter - 1].style.backgroundColor = "#d9534f";
             }
 
@@ -488,6 +489,11 @@ function startSpojnice(gamesContainer, data){
                 // spojniceBtns[counter - 1].style.color = "#000";
             }else{
                 // Game is over
+
+                for(let j = 5; j < spojniceBtns.length; j++){
+                    spojniceBtns[j].disabled = true;
+                }
+
                 finishedAll = true;
                 clearInterval(timer);
                 socket.emit('finishedSpojniceGiveDataForKoZnaZna', correctAnswers);
