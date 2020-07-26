@@ -147,8 +147,12 @@ io.on('connection', (socket) => {
   socket.on('finishedSlagalicaGiveDataForSpojnice', (word) => {
     let user = getCurrentUser(socket.id);
 
-    user.pointsSlagalica = 5;
-    user.points += 5;
+    if(!user){
+      return;
+    }
+
+    user.pointsSlagalica = word.length * 2;
+    user.points += user.pointsSlagalica;
     io.emit('updateSlagalicaPoints', user);
     socket.emit('startSpojnice', dataForSpojnice());
   });
@@ -166,10 +170,18 @@ io.on('connection', (socket) => {
     let user = getCurrentUser(socket.id);
     let users = getJoinedUsers();
     let everyoneFinished = true;
+    
+    if(!user){
+      return;
+    }
 
     user.pointsKoZnaZna = infoKoZnaZna.correctAnswers * 10;
     user.pointsKoZnaZna += infoKoZnaZna.wrongAnswers * -5;
     user.points += user.pointsKoZnaZna;
+
+    console.log(infoKoZnaZna.correctAnswers);
+    console.log(infoKoZnaZna.wrongAnswers);
+
     io.emit('updateKoZnaZnaPoints', user);
     user.finishedGame = true;
     user.ready = false;
@@ -243,59 +255,136 @@ io.on('connection', (socket) => {
 
 
 function generateLetters(){
+
+  let words = [
+    "host",
+    "računar",
+    "kompjuter",
+    "laptop",
+    "kabl",	
+    "ruter",
+    "svič",
+    "hab",
+    "tcp",
+    "ip",
+    "adresa",
+    "klijent",
+    "server",
+    "protokol",
+    "host",
+    "lan",
+    "medijum",
+    "signal",
+    "paket",
+    "mreža",
+    "multiplekser",
+    "http",
+    "udp",
+    "get",
+    "put",
+    "post",
+    "delete",
+    "update",
+    "zahtev",
+    "konekcija",
+    "ftp",
+    "email",	
+    "soket",
+    "proces",
+    "torent",
+    "dns",
+    "korisnik",
+    "softver",
+    "trojan",
+    "crv",
+    "eternet",
+    "internet",
+    "kolo",
+    "satelit",
+    "radio",
+    "kanal",
+    "program",
+    "aplikacija",
+    "virus",
+    "pretraživač",
+    "sistem",
+    "port",
+  ];
+
   let generatedLetters = [];
-  let numberOfVocals = Math.floor(Math.random() * 6);
-  let vocals = [];
-  let vocalsCounter = 0;
-  let nonVocals = [];
-  let nonVocalsCounter = 0;
+  let numberOfVowels = Math.floor(Math.random() * 6);
+  let numberOfVowelsWord = 0;
+  let vowels = [];
+  let vowelsCounter = 0;
+  let nonVowels = [];
+  let nonVowelsCounter = 0;
+  let totalNumberOfVowels = 0;
 
-  if(numberOfVocals < 2){
-    numberOfVocals = 2;
+  let word = words[Math.floor(Math.random() * (words.length - 1))].toUpperCase();
+
+  console.log(word);
+
+  for(let i = 0; i < word.length; i++){
+    if(isVowel(word[i])){
+      numberOfVowelsWord++;
+      vowels.push(word[i]);
+    }else{
+      nonVowels.push(word[i]);
+    }
   }
 
-  // console.log(numberOfVocals);
+  if(numberOfVowelsWord > numberOfVowels){
+    numberOfVowels = numberOfVowelsWord;
+    totalNumberOfVowels = numberOfVowels;
+  }else{
+    totalNumberOfVowels = numberOfVowels + numberOfVowelsWord;
 
-  for(let i = 0; i < numberOfVocals; i++){
-    vocals.push(randomVocal());
+    for(let i = 0; i < numberOfVowels; i++){
+      vowels.push(randomVowel());
+    }
   }
 
-  for(let i = 0; i < 12 - numberOfVocals; i++){
-    nonVocals.push(randomLetter());
+  for(let i = 0; i < 12 - totalNumberOfVowels; i++){
+    nonVowels.push(randomLetter());
   }
 
   for(let i = 0; i < 12; i++){
 
     // Ako ima 4 samoglasnika neka bude na svakoj trecoj poziciji
 
-    if(numberOfVocals <= 4){
+    if(totalNumberOfVowels <= 4){
       if(i % 3 === 0){
-        if(vocals.length === vocalsCounter){
-          generatedLetters.push(nonVocals[nonVocalsCounter++]);
+        if(vowels.length === vowelsCounter){
+          generatedLetters.push(nonVowels[nonVowelsCounter++]);
         }else{
-          generatedLetters.push(vocals[vocalsCounter++]);
+          generatedLetters.push(vowels[vowelsCounter++]);
         }
       }else{
-        generatedLetters.push(nonVocals[nonVocalsCounter++]);
+        generatedLetters.push(nonVowels[nonVowelsCounter++]);
       }
-    }else if(numberOfVocals > 4){ // Ako ima 5 ili 6 samoglasnika neka budu na svakoj drugoj poziciji
+    }else if(totalNumberOfVowels > 4){ // Ako ima 5 ili 6 samoglasnika neka budu na svakoj drugoj poziciji
       if(i % 2 === 0){
-        if(vocals.length === vocalsCounter){
-          generatedLetters.push(nonVocals[nonVocalsCounter++]);
+        if(vowels.length === vowelsCounter){
+          generatedLetters.push(nonVowels[nonVowelsCounter++]);
         }else{
-          generatedLetters.push(vocals[vocalsCounter++]);
+          generatedLetters.push(vowels[vowelsCounter++]);
         }
       }else{
-        generatedLetters.push(nonVocals[nonVocalsCounter++]);
+        generatedLetters.push(nonVowels[nonVowelsCounter++]);
       }
     }
   }
 
-  // console.log(vocals);
-  // console.log(nonVocals);
+  // console.log(vowels);
+  // console.log(nonVowels);
   // console.log(generatedLetters);
 
-  return generatedLetters;
+  let object = {
+    words: words,
+    generatedLetters: generatedLetters
+  }
+
+  return object;
 };
 
 function randomLetter() {
@@ -304,29 +393,42 @@ function randomLetter() {
   return characters.charAt(Math.floor(Math.random() * characters.length));
 }
 
-function randomVocal(){
-  let characters = 'AEIOU'; // LJ NJ DZ
-
+function randomVowel(){
+  let characters = 'AEIOU';
   return characters.charAt(Math.floor(Math.random() * characters.length));
+}
+
+function isVowel(char){
+  let vowels = 'AEIOU';
+
+  for(let i = 0; i < vowels.length; i++){
+    if(vowels[i] == char){
+      return true;
+    }
+  }
+
+  return false;
 }
 
 function dataForSpojnice(){
   let data = {
-    kljuc1: 'value3',
-    kljuc2: 'value6',
-    kljuc6: 'value4',
-    kljuc4: 'value1',
-    kljuc3: 'value2',
-    kljuc5: 'value5',
+    "PORUKA": "POVEŽITE ODGOVARAJUĆE PORTOVE",
+    "WEB SERVER": '80',
+    "E-POŠTA": '23',
+    "DNS": '53',
+    "FTP KONTROLNA VEZA": '21',
+    "FTP VEZA PODATAKA": '20',
+    "POP3": '110',
   }
 
   let data2 = {
-    kljuc2: 'value3',
-    kljuc1: 'value6',
-    kljuc3: 'value4',
-    kljuc5: 'value1',
-    kljuc6: 'value2',
-    kljuc4: 'value5',
+    "PORUKA": "POVEŽITE STATUSNE KODOVE SA ODGOVARAJUĆIM ODGOVOROM",
+    "OK": '200',
+    "MOVED PERMANENTLY": '301',
+    "NOT MODIFIED": '304',
+    "BAD REQUEST": '400',
+    "NOT FOUND": '404',
+    "HTTP VERSION NOT SUPPORTED": '505',
   }
 
   let array = [];
@@ -337,31 +439,31 @@ function dataForSpojnice(){
 
 function dataForKoZnaZna(){
   let dataTotal = {
-    "pitanje1 sklj": 'odgovor1',
-    "pitanje2 sklj": 'odgovor2',
-    "pitanje3 sklj": 'odgovor3',
-    "pitanje4 sklj": 'odgovor4',
-    "pitanje5 sklj": 'odgovor5',
-    "pitanje6 sklj": 'odgovor6',
-    "pitanje7 sklj": 'odgovor7',
-    "pitanje8 sklj": 'odgovor8',
-    "pitanje9 sklj": 'odgovor9',
-    "pitanje10 skljm": 'odgovor10',
-    "pitanje11 skljm": 'odgovor11',
-    "pitanje12 skljm": 'odgovor12',
-    "pitanje13 skljm": 'odgovor13',
-    "pitanje14 skljm": 'odgovor14',
-    "pitanje15 skljm": 'odgovor15',
-    "pitanje16 skljm": 'odgovor16',
-    "pitanje17 skljm": 'odgovor17',
-    "pitanje18 skljm": 'odgovor18',
-    "pitanje19 skljm": 'odgovor19',
-    "pitanje20 skljm": 'odgovor20',
-    "pitanje21 skljm": 'odgovor21',
-    "pitanje22 skljm": 'odgovor22',
-    "pitanje23 skljm": 'odgovor23',
-    "pitanje24 skljm": 'odgovor24',
-    "pitanje25 skljm": 'odgovor25',
+    "DNS radi na portu: ": '53',
+    "Sa kojim transportnim protokolom je u vezi DHCP ?": 'UDP',
+    "Kod uspostavljanja TCP veze, koji su flegovi oznaceni na 1 u prvom segmentu koji se šalje ?": 'SYN',
+    "Kako se drugačije naziva krajnji sistem ?": 'Host',
+    "Bežični LAN pristup zasnovan je na IEEE ?": '802.11',
+    "Na kom sloju radi HTTP ?": 'Aplikativnom',
+    "TCP i UDO pripadaju kom sloju: ": 'Transportnom',
+    "IP Adresa pripada kom sloju: ": 'Mrežnom',
+    "Virus sakriven unutar nekog korisnog programa naziva se: ": 'Trojanski konj',
+    "ICMP protokol koristi: ": 'IP pakete',
+    "Kada UDP segment stigne do hosta, da bi poslao segment na odgovarajući socket OS koristi: ": 'Broj dolaznog porta',
+    "HTTP Status kod kada je sve u redu je broj: ": '200',
+    "Šta se koristi kako bi se utvrdilo da li su bitovi unutar UDP segmenta promenjeni ?": 'Kontrolni Zbir',
+    "Koliki je IPv6 adresni prostor (broj na broj) ?": '2 na 128',
+    "Koliki je IPv4 adresni prostor (broj na broj) ?": '2 na 32',
+    "Koliko je veliki MAC adresni prostor (broj na broj) ?": '2 na 48',
+    "Komanda u FTP Protokolu koja se koristi za preuzimanje datoteke iz tekućeg direktorijuma na udaljenom računaru je: ": 'RETR',
+    "Sposobnost ubacivanja paketa na internet sa lažnom izvorišnom adresom uz pomoć čega korisnik može da se maskira kao neko drugi naziva se: ": 'IP spoofing',
+    "Veb server radi na portu: ": '80',
+    "Da li se propusni opseg ADSL konekcije deli (da / ne) ?": 'Ne',
+    "Uslugu kontrole toka i kontrole zagusenja nudi protokol: ": 'TCP',
+    "Niz komunikacionih linkova i komutatora paketa kojima prolaze paketi od polaznog do odredišnog krajnjeg sistema naziva se: ": 'Ruta',
+    "DNS se na transportnom sloju oslanja na TCP protokol (T / N) ?": 'N',
+    "Standardi za Ethernet i WiFi su IEEE (broj)": '802',
+    "Protokol koji računaru iza NAT rutera omogućava da održava dvosmernu komunikaciju sa računarima u mreži od kojih ga deli NAT ruter naziva se: ": 'UnPn',
   }
 
   let helpArrayKeys = Object.keys(dataTotal);

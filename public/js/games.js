@@ -12,6 +12,7 @@ const socket = io(origin + '/');
 let isGameInProggress = false;
 let userReady = false;
 let currentGame = '';
+let words = [];
 
 // User joined game, tell server
 
@@ -58,11 +59,11 @@ socket.on('userReady', (user) => {
 
 // When all users are ready game can start
 
-socket.on('allUsersReady', (lettersArray) => {
+socket.on('allUsersReady', (wordsAndLetters) => {
     // First game can start now 
 
     isGameInProggress = true;
-    startGame(lettersArray);
+    startGame(wordsAndLetters);
 });
 
 socket.on('userNotReady', (object) => {
@@ -216,7 +217,7 @@ function cleanInput(input){
     return temporalDivElement.textContent || temporalDivElement.innerText || "";
 }
 
-function startGame(lettersArray){
+function startGame(wordsAndLetters){
     const gamesContainer = document.querySelector('.games-container');
     const scores = document.querySelectorAll('.scoreboard-games td');
 
@@ -237,13 +238,13 @@ function startGame(lettersArray){
         ths[i].innerHTML = thsHTML.substring(0,thsHTML.length - 12);
     }
 
-    startSlagalica(gamesContainer, lettersArray);
+    startSlagalica(gamesContainer, wordsAndLetters);
 }
 
-function startSlagalica(gamesContainer, lettersArray){
-    console.log("START SLAGALICA\n")
+function startSlagalica(gamesContainer, wordsAndLetters){
     let confirmedWord = false;
     currentGame = 'Slagalica';
+    words = wordsAndLetters.words;
 
     gamesContainer.innerHTML = "<p id='timer'>60</p><h1 id='game-name-header'>SLAGALICA</h1>\
     <button class='btn btn-outline-primary letter-btn'>A</button>\
@@ -285,19 +286,40 @@ function startSlagalica(gamesContainer, lettersArray){
 
     letters.forEach((letter) => {
         if(letter.value == ""){
-            letter.innerHTML = lettersArray[lettersArrayCounter];
-            letter.value = lettersArray[lettersArrayCounter++];
+            letter.innerHTML = wordsAndLetters.generatedLetters[lettersArrayCounter];
+            letter.value = wordsAndLetters.generatedLetters[lettersArrayCounter++];
         }
 
         letter.addEventListener('click', (event) => {
             wordInput.value += event.target.value;
             letter.disabled = true;
+
+            if(isCorrectWord(wordInput.value)){
+                wordInput.classList.remove("is-invalid");
+                wordInput.classList.add("is-valid");
+            }else{
+                wordInput.classList.remove("is-valid");
+                wordInput.classList.add('is-invalid');
+            }
         });
     });
 
     deleteLetterBtn.addEventListener('click', () => {
         let char =  wordInput.value[wordInput.value.length -1];
         wordInput.value = wordInput.value.substring(0, wordInput.value.length - 1);
+
+        if(wordInput.value == ""){
+            wordInput.classList.remove("is-invalid");
+            wordInput.classList.remove("is-valid");
+        }else{
+            if(isCorrectWord(wordInput.value)){
+                wordInput.classList.remove("is-invalid");
+                wordInput.classList.add("is-valid");
+            }else{
+                wordInput.classList.remove("is-valid");
+                wordInput.classList.add('is-invalid');
+            }
+        }
 
         for(let i = 0; i < letters.length; i++){
             if(letters[i].value === char){
@@ -325,13 +347,10 @@ function startSlagalica(gamesContainer, lettersArray){
 
         socket.emit('finishedSlagalicaGiveDataForSpojnice', word);
         clearInterval(timer);
-        console.log("BEFORE");
     });
 
     socket.once('startSpojnice', (data) => {
         if(currentGame != "Spojnice"){
-            console.log(currentGame)
-            console.log("START SPOJNICE1"); // Zasto ovaj zahtev primi 3x
             setTimeout(() => startSpojnice(gamesContainer, data), 3000);
         }
     });
@@ -340,8 +359,6 @@ function startSlagalica(gamesContainer, lettersArray){
         if(!confirmedWord){ // Ako je vreme isteklo a nije confirmovao rec uradi sve ovo
             confirmedWord = true; // Ovo mora da ne bi bio infinite loop
             let word = wordInput.value;
-
-            console.log("ISTEKLO SLAGALICA\n")
 
             letters.forEach((letter) => {
                 letter.disabled = true;
@@ -353,21 +370,37 @@ function startSlagalica(gamesContainer, lettersArray){
             socket.emit('finishedSlagalicaGiveDataForSpojnice', word);
             clearInterval(timer);
             socket.once('startSpojnice', (data) => {
-                console.log("START SPOJNICE2");
                 setTimeout(() => startSpojnice(gamesContainer, data), 3000);
             });
         }
     });
 }
 
+function isCorrectWord(word){
+
+    for(let i = 0; i < words.length; i++){
+
+        if(word.toUpperCase() == words[i].toUpperCase()){
+
+            return true;
+        }
+    }
+
+    return false;
+}
+
 function startSpojnice(gamesContainer, data){
-    console.log("START SPOJNICE\n")
     let correctAnswers = 0;
     let helpArrayKeys = Object.keys(data);
     let helpArrayValues = Object.values(data);
     currentGame = 'Spojnice';
 
+    let message = helpArrayValues[0]; // Take message from Object
+    helpArrayKeys.splice(0, 1); // Delete message from arrays so it doesn't show in answers
+    helpArrayValues.splice(0, 1); // Delete message from arrays so it doesn't show in answers
+
     gamesContainer.innerHTML = "<p id='timer'>60</p><h1 id='game-name-header'>SPOJNICE</h1>\
+    <p>" + message + "</p>\
     <div class='container-fluid'>\
       <div class='row'>\
         <div class='col-md-6'>\
@@ -378,7 +411,7 @@ function startSpojnice(gamesContainer, data){
           <button class='btn btn-outline-primary spojnice-btn spojnice-btn-key' disabled>A</button> \
           <button class='btn btn-outline-primary spojnice-btn spojnice-btn-key' disabled>A</button> \
         </div>\
-        <div class='col-md-6'>\
+        <div class='col-md-6' style='margin-top: 3rem;'>\
           <button class='btn btn-outline-primary spojnice-btn'>A</button>\
           <button class='btn btn-outline-primary spojnice-btn'>A</button>\
           <button class='btn btn-outline-primary spojnice-btn'>A</button>\
@@ -432,7 +465,16 @@ function startSpojnice(gamesContainer, data){
             counter++; // Raise counter so next key gets highlighted
 
             if(data[keyValue.innerText] == valueValue){
+                // Changes color to green if answer is correct
+
+                event.target.style.backgroundColor = "#5cb85c";
+                spojniceBtns[counter - 1].style.backgroundColor = "#5cb85c";
                 correctAnswers++;
+            }else{
+                // Changes color to red if answer is wrong
+
+                event.target.style.backgroundColor = "#d9534f";
+                spojniceBtns[counter - 1].style.backgroundColor = "#d9534f";
             }
 
             if(counter < 6){ // Do that only if there is left keys
@@ -442,8 +484,8 @@ function startSpojnice(gamesContainer, data){
 
                 spojniceBtns[counter].style.backgroundColor = "#333";
                 spojniceBtns[counter].style.color = "#fff";
-                spojniceBtns[counter - 1].style.backgroundColor = "#fff";
-                spojniceBtns[counter - 1].style.color = "#000";
+                // spojniceBtns[counter - 1].style.backgroundColor = "#fff";
+                // spojniceBtns[counter - 1].style.color = "#000";
             }else{
                 // Game is over
                 finishedAll = true;
@@ -459,7 +501,6 @@ function startSpojnice(gamesContainer, data){
 
     socket.once('timeIsUpSpojnice', () => {
         if(!finishedAll){
-            console.log("ISTEKLO VREME\n");
             clearInterval(timer);
             for(let i = 5; i < spojniceBtns.length; i++){
                 spojniceBtns[i].disabled = true;
@@ -507,7 +548,7 @@ function startKoZnaZna(gamesContainer, data){
     const answerInput = document.getElementById('answer-input');
     const sendAnswerBtn = document.getElementById('send-answer-button'); // Pazi sta ces mu dozvoliti da unosi ovde !!!!
     const questionNumberSpan = document.getElementById('question-number');
-    questionContainer.innerHTML = helpArrayKeys[0]; // povecaj counter
+    questionContainer.innerHTML = helpArrayKeys[0].toUpperCase(); // povecaj counter
 
     // TIMER
 
@@ -526,31 +567,45 @@ function startKoZnaZna(gamesContainer, data){
     let timeleftInterval = setTimer2(information);
 
     sendAnswerBtn.addEventListener('click', (event) => {
-        let answerValue = answerInput.value;
+        let answerValue = answerInput.value.toUpperCase();
+        sendAnswerBtn.disabled = true;
 
-        if(answerValue == helpArrayValues[information.counter]){
+        if(answerValue == helpArrayValues[information.counter].toUpperCase()){
             information.infoKoZnaZna.correctAnswers++;
+            information.answerInput.classList.add('is-valid');
+            information.answerInput.classList.remove('is-invalid');
         }else{
             information.infoKoZnaZna.wrongAnswers++;
+            information.answerInput.classList.add('is-invalid');
+            information.answerInput.classList.remove('is-valid');
         }
 
         if(information.counter < 9){
             clearInterval(timeleftInterval);
-            timeleftInterval = setTimer2(information);
-            questionContainer.innerHTML = helpArrayKeys[++information.counter];
-            questionNumberSpan.innerText = information.counter + 1;
+            
+            setTimeout(() => {
+                timeleftInterval = setTimer2(information);
+                information.answerInput.classList.remove('is-valid');
+                information.answerInput.classList.remove('is-invalid');
+                questionContainer.innerHTML = helpArrayKeys[++information.counter].toUpperCase();
+                questionNumberSpan.innerText = information.counter + 1;
+                answerInput.value = "";
+                sendAnswerBtn.disabled = false;
+            }, 2000);
         }else{
             clearInterval(timeleftInterval);
-            socket.emit('finishedKoZnaZna', information.infoKoZnaZna);
             sendAnswerBtn.disabled = true;
             answerInput.disabled = true;
-            information.gamesContainer.innerHTML = "";
+
+            setTimeout(() => {
+                socket.emit('finishedKoZnaZna', information.infoKoZnaZna);
+                information.gamesContainer.innerHTML = "";
+            }, 2000);
         }
     });
 }
 
 socket.on('updateSlagalicaPoints', (user) => {
-    console.log("UPDATE POINTS SLAGALICA\n");
     let pointsField = document.querySelector('#' + user.username + '-game1-score');
     let pointsFieldTotal = document.querySelector('#' + user.username + '-game7-score');
     pointsField.innerText = user.pointsSlagalica;
@@ -558,7 +613,6 @@ socket.on('updateSlagalicaPoints', (user) => {
 });
 
 socket.on('updateSpojnicePoints', (user) => {
-    console.log("UPDATE POINTS SPOJNICE\n");
     let pointsField = document.querySelector('#' + user.username + '-game3-score');
     let pointsFieldTotal = document.querySelector('#' + user.username + '-game7-score');
     pointsField.innerText = user.pointsSpojnice;
@@ -566,7 +620,6 @@ socket.on('updateSpojnicePoints', (user) => {
 });
 
 socket.on('updateKoZnaZnaPoints', (user) => {
-    console.log("UPDATE POINTS KOZNAZNA\n");
     let pointsField = document.querySelector('#' + user.username + '-game5-score');
     let pointsFieldTotal = document.querySelector('#' + user.username + '-game7-score');
     pointsField.innerText = user.pointsKoZnaZna;
@@ -613,7 +666,6 @@ socket.on('gameOver', (winner) => {
 function setTimer(){
     const timerP = document.getElementById('timer');
     let timeLeft = 60;
-    console.log("U NAMA TECE PLAVA KRV\n");
 
     let timeleftInterval = setInterval(() => {
         if(timeLeft >= 0){
@@ -630,35 +682,56 @@ function setTimer(){
 }
 
 function setTimer2(information){
+    console.log("C");
     const timerP = document.getElementById('timer');
-    let timeLeft = 5;
+    let timeLeft = 15;
+    timerP.innerHTML = timeLeft;
 
     let timeleftInterval = setInterval(() => {
         if(timeLeft >= 0){
-            timerP.innerHTML = timeLeft;
+            if(timeLeft <= 15){
+                timerP.innerHTML = timeLeft;
+            }
+
             timeLeft--;
         }else{            
-            let answerValue = information.answerInput.value;
+            let answerValue = information.answerInput.value.toUpperCase();
+            information.sendAnswerBtn.disabled = true;
 
-            if(answerValue == information.helpArrayValues[information.counter]){
+            if(answerValue == information.helpArrayValues[information.counter].toUpperCase()){
                 information.infoKoZnaZna.correctAnswers++;
+                information.answerInput.classList.add('is-valid');
+                information.answerInput.classList.remove('is-invalid');
             }else{
                 information.infoKoZnaZna.wrongAnswers++;
+                information.answerInput.classList.add('is-invalid');
+                information.answerInput.classList.remove('is-valid');
             }
 
             if(information.counter < 9){
-                information.questionContainer.innerHTML = information.helpArrayKeys[++information.counter];
-                timeLeft = 5;
-                information.questionNumberSpan.innerText = information.counter + 1;
+                console.log("B");
+                timeLeft = 17;
+                setTimeout(() => {
+                    console.log("A");
+                    information.answerInput.classList.remove('is-valid');
+                    information.answerInput.classList.remove('is-invalid');
+                    information.questionContainer.innerHTML = information.helpArrayKeys[++information.counter].toUpperCase();
+                    information.questionNumberSpan.innerText = information.counter + 1;
+                    timerP.innerHTML = timeLeft;
+                    information.answerInput.value = "";
+                    information.sendAnswerBtn.disabled = false;
+                }, 2000);
             }else{
                 clearInterval(timeleftInterval);
-                socket.emit('finishedKoZnaZna', information.infoKoZnaZna);
                 information.sendAnswerBtn.disabled = true;
                 information.answerInput.disabled = true;
-                information.gamesContainer.innerHTML = "";
+
+                setTimeout(() => {
+                    socket.emit('finishedKoZnaZna', information.infoKoZnaZna);
+                    information.gamesContainer.innerHTML = "";
+                }, 2000);
             }
         }
-    
     }, 1000);
 
     return timeleftInterval;
