@@ -57,9 +57,20 @@ td{
     margin-top: 1rem;
 }
 
+@media only screen and (max-width: 767px){
+    .spojnice-btn-container{
+        margin-top: 3rem;
+    }
+}
+
+
 @media only screen and (max-width: 360px){
     .confirm-button{
         margin-left: 0;
     }
-  }
+}
+
+
+
+
   

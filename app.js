@@ -58,6 +58,61 @@ app.set('view engine', '.hbs');
 app.use('/', globalRoutes);
 app.use('/', gamesRoutes);
 
+let words = [
+  "host",
+  "računar",
+  "kompjuter",
+  "laptop",
+  "kabl",	
+  "ruter",
+  "svič",
+  "hab",
+  "tcp",
+  "ip",
+  "adresa",
+  "klijent",
+  "server",
+  "protokol",
+  "host",
+  "lan",
+  "medijum",
+  "signal",
+  "paket",
+  "mreža",
+  "multiplekser",
+  "http",
+  "udp",
+  "get",
+  "put",
+  "post",
+  "delete",
+  "update",
+  "zahtev",
+  "konekcija",
+  "ftp",
+  "email",	
+  "soket",
+  "proces",
+  "torent",
+  "dns",
+  "korisnik",
+  "softver",
+  "trojan",
+  "crv",
+  "eternet",
+  "internet",
+  "kolo",
+  "satelit",
+  "radio",
+  "kanal",
+  "program",
+  "aplikacija",
+  "virus",
+  "pretraživač",
+  "sistem",
+  "port",
+];
+
 /* ********** SOCKET COMMUNICATION ********** */
 
 io.on('connection', (socket) => {
@@ -80,6 +135,8 @@ io.on('connection', (socket) => {
         }
 
         io.emit('redirect', redirectInfo);
+
+        return;
       }
 
       // Welcome current user
@@ -151,8 +208,11 @@ io.on('connection', (socket) => {
       return;
     }
 
-    user.pointsSlagalica = word.length * 2;
-    user.points += user.pointsSlagalica;
+    if(isCorrectWord(word)){
+      user.pointsSlagalica = word.length * 2;
+      user.points += user.pointsSlagalica;
+    }
+
     io.emit('updateSlagalicaPoints', user);
     socket.emit('startSpojnice', dataForSpojnice());
   });
@@ -255,62 +315,6 @@ io.on('connection', (socket) => {
 
 
 function generateLetters(){
-
-  let words = [
-    "host",
-    "računar",
-    "kompjuter",
-    "laptop",
-    "kabl",	
-    "ruter",
-    "svič",
-    "hab",
-    "tcp",
-    "ip",
-    "adresa",
-    "klijent",
-    "server",
-    "protokol",
-    "host",
-    "lan",
-    "medijum",
-    "signal",
-    "paket",
-    "mreža",
-    "multiplekser",
-    "http",
-    "udp",
-    "get",
-    "put",
-    "post",
-    "delete",
-    "update",
-    "zahtev",
-    "konekcija",
-    "ftp",
-    "email",	
-    "soket",
-    "proces",
-    "torent",
-    "dns",
-    "korisnik",
-    "softver",
-    "trojan",
-    "crv",
-    "eternet",
-    "internet",
-    "kolo",
-    "satelit",
-    "radio",
-    "kanal",
-    "program",
-    "aplikacija",
-    "virus",
-    "pretraživač",
-    "sistem",
-    "port",
-  ];
-
   let generatedLetters = [];
   let numberOfVowels = Math.floor(Math.random() * 6);
   let numberOfVowelsWord = 0;
@@ -487,6 +491,16 @@ function dataForKoZnaZna(){
   }
 
   return data;
+}
+
+function isCorrectWord(word){
+  for(let i = 0; i < words.length; i++){
+    if(word.toUpperCase() == words[i].toUpperCase()){
+      return true;
+    }
+  }
+
+  return false;
 }
 
 /* ********** SERVER START ********** */

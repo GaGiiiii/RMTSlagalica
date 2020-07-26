@@ -411,7 +411,7 @@ function startSpojnice(gamesContainer, data){
           <button class='btn btn-outline-primary spojnice-btn spojnice-btn-key' disabled>A</button> \
           <button class='btn btn-outline-primary spojnice-btn spojnice-btn-key' disabled>A</button> \
         </div>\
-        <div class='col-md-6' style='margin-top: 3rem;'>\
+        <div class='col-md-6 spojnice-btn-container'>\
           <button class='btn btn-outline-primary spojnice-btn'>A</button>\
           <button class='btn btn-outline-primary spojnice-btn'>A</button>\
           <button class='btn btn-outline-primary spojnice-btn'>A</button>\
