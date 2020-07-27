@@ -20,7 +20,6 @@ function checkUsers(users){
 
 socket.on('userJoinedOnServer', (object) => {
     checkUsers(object.users);
-    usersFront = object.users;
 
     /*
       let object = { // Object that holds all users when new user connects and hold info if the game already started
@@ -30,12 +29,14 @@ socket.on('userJoinedOnServer', (object) => {
     */
 
     // If game is in progress block the join button, say that game started.
-    
+
     if(object.gameInProgress){
       joinButton.disabled = true;
       pInfo.innerHTML += " (Igra je u toku).";
     }
 });
+
+// When game is over allow users to join game and delete igra je u toku from paragraph.
 
 socket.on('gameOverForMain', () => {
   joinButton.disabled = false;
@@ -66,6 +67,8 @@ socket.on('gameStartedDisableJoins', () => {
 socket.on('allUsersDisconnected', () => {
   joinButton.disabled = false;
 
+  // There is difference if user leaves in the middle of the game or at the end of the game
+  // At the end of the game there is no (igra je u toku) so we don't need - 18.
   if(pInfo.innerHTML.substring(pInfo.innerHTML.length - 18, pInfo.innerHTML.length) == ' (Igra je u toku).'){
     pInfo.innerHTML = pInfo.innerHTML.substring(0, pInfo.innerHTML.length - 18);
   }else{
@@ -79,9 +82,12 @@ socket.on('allUsersDisconnected', () => {
 });
 
 function checkNicknameForm(){
-  const lengthError = document.getElementById('length-error');
-  const takenNicknameError = document.getElementById('taken-nickname-error');
-  const hasSpacesNicknameError = document.getElementById('has-spaces-nickname-error');
+  const lengthError = document.getElementById('length-error'); // Lenght error div
+  const takenNicknameError = document.getElementById('taken-nickname-error'); // Taken error div
+  const hasSpacesNicknameError = document.getElementById('has-spaces-nickname-error'); // Spaces error div
+
+  // Removes html code from input and scripts
+
   // Create a new div element
   let temporalDivElement = document.createElement("div");
   let nickname = document.getElementById('nickname');
@@ -90,7 +96,7 @@ function checkNicknameForm(){
 
   nickname.value = temporalDivElement.textContent || temporalDivElement.innerText || "";
 
-  if(hasSpaces(nickname.value)){
+  if(hasSpaces(nickname.value)){ // If there are spaces in name show only spaces error and return false
     nickname.classList.add('is-invalid');
     hasSpacesNicknameError.style.display = "block";
     lengthError.style.display = "none";
@@ -98,9 +104,9 @@ function checkNicknameForm(){
 
     return false;
   }else{
-    if(isValidNicknameLength(nickname.value)){
+    if(isValidNicknameLength(nickname.value)){ // If lenght is not valid
 
-      if(nicknameTaken(nickname.value)){
+      if(nicknameTaken(nickname.value)){ // If nickname is taken 
         nickname.classList.add('is-invalid');
   
         lengthError.style.display = "none";
