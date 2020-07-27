@@ -116,9 +116,9 @@ let words = [
   "protok",
 ];
 
-let wordsAndLetters = generateLetters();
-let dataForSpojniceP = dataForSpojnice();
-let dataForKoZnaZnaP = dataForKoZnaZna();
+let wordsAndLetters;
+let dataForSpojniceP;
+let dataForKoZnaZnaP;
 
 /* ********** SOCKET COMMUNICATION ********** */
 
@@ -186,6 +186,10 @@ io.on('connection', (socket) => { // Socket connected on server
     });
 
     gameInProgress = true; // Game starts now
+
+    wordsAndLetters = generateLetters();
+    dataForSpojniceP = dataForSpojnice();
+    dataForKoZnaZnaP = dataForKoZnaZna();
 
     io.emit('userReady', user);
     io.emit("allUsersReady", wordsAndLetters);
