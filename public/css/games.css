@@ -44,13 +44,15 @@ td{
 .spojnice-btn, .spojnice-btn-key{
     display: block;
     margin: 0 auto;
-    width: 300px;
+    width: 90%;
     margin-top: .5rem;
 }
 
 .spojnice-btn:focus,.spojnice-btn:active {
     outline: none !important;
     box-shadow: none;
+    background-color: #fff;
+    color: #000;
  }
 
 .question-header{
@@ -63,10 +65,6 @@ td{
 }
 
 @media only screen and (max-width: 767px){
-    .spojnice-btn-container{
-        margin-top: 3rem;
-    }
-
     .letter-btn{
         padding: 1rem 1.5rem;
         margin: .1rem;

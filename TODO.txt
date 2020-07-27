@@ -1,5 +1,4 @@
-1. Kada zavrse i igraju opet bagovi ???
-2. Ne racuna poene nekada kada su 2 igraca
+1. Spojnice tacni odgovori i ko zna zna tacni odgovori
 
 MOZDA NEKADA: 
     - Ako u isto vreme kliknu join moze da se joinuje 5 igraca

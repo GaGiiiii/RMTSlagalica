@@ -529,7 +529,7 @@ function outputSpojniceHTML(message){
     <p>" + message + "</p>\
     <div class='container-fluid'>\
       <div class='row'>\
-        <div class='col-md-6'>\
+        <div class='col-md-6 col-sm-6 col-6'>\
           <button class='btn btn-outline-primary spojnice-btn spojnice-btn-key' disabled>A</button>\
           <button class='btn btn-outline-primary spojnice-btn spojnice-btn-key' disabled>A</button>\
           <button class='btn btn-outline-primary spojnice-btn spojnice-btn-key' disabled>A</button>\
@@ -537,7 +537,7 @@ function outputSpojniceHTML(message){
           <button class='btn btn-outline-primary spojnice-btn spojnice-btn-key' disabled>A</button> \
           <button class='btn btn-outline-primary spojnice-btn spojnice-btn-key' disabled>A</button> \
         </div>\
-        <div class='col-md-6 spojnice-btn-container'>\
+        <div class='col-md-6 col-sm-6 col-6 spojnice-btn-container'>\
           <button class='btn btn-outline-primary spojnice-btn'>A</button>\
           <button class='btn btn-outline-primary spojnice-btn'>A</button>\
           <button class='btn btn-outline-primary spojnice-btn'>A</button>\
