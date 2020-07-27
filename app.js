@@ -114,6 +114,8 @@ let words = [
   "mrežni",
   "fizički",
   "protok",
+  "ažurira",
+  "ažurirati"
 ];
 
 let wordsAndLetters;

@@ -175,7 +175,25 @@ function outputUsersOnConnect(users){
             td = document.createElement('td');
             td.classList.add('td');
             td.setAttribute("id", `${user.username}-game${counter++}-score`);
-            td.innerHTML = "0";
+
+            switch(counter - 1){
+                case 1: 
+                    td.innerHTML = user.pointsSlagalica;
+                    break;
+                case 3: 
+                    td.innerHTML = user.pointsSpojnice;
+                    break;
+                case 5:
+                    td.innerHTML = user.pointsKoZnaZna;
+                    break;
+                case 7:
+                    td.innerHTML = user.points;
+                    break;
+                default: 
+                    td.innerHTML = "0";
+            }
+
+            // td.innerHTML = "0";
             scoreboardGame.appendChild(td);
         });
     });
