@@ -259,6 +259,7 @@ function startSlagalica(wordsAndLetters){
     const wordInput = document.querySelector('#word-input'); // Get word input
     const deleteLetterBtn = document.querySelector('.delete-letter-btn'); // Get delete btn
     const confirmButton = document.querySelector('.confirm-button'); // Get confirm btn
+    const chosenWord = document.getElementById('chosen-word'); // Chosen word by computer
     let lettersArrayCounter = 0; // Counter for letters array
 
     // Populate letters with generated letters
@@ -328,6 +329,7 @@ function startSlagalica(wordsAndLetters){
         deleteLetterBtn.disabled = true; // Disable delete btn
         confirmButton.disabled = true; // Disable confirm btn
         confirmedWord = true; // User now confirmed word
+        chosenWord.innerHTML = "Naša reč je: <strong>\"" + wordsAndLetters.word + "\"</strong>"; // Show chosen word to user
 
         socket.emit('finishedSlagalicaGiveDataForSpojnice', word); // Tell server that user finished slagalica and send word that he found
         clearInterval(timer); // Stop the timer
@@ -352,6 +354,7 @@ function startSlagalica(wordsAndLetters){
 
             deleteLetterBtn.disabled = true; // Disable delete btn
             confirmButton.disabled = true; // DIsable confirm btn
+            chosenWord.innerHTML = "Naša reč je: <strong>\"" + wordsAndLetters.word + "\"</strong>"; // Show chosen word to user
 
             socket.emit('finishedSlagalicaGiveDataForSpojnice', word); // Tell server that user finished slagalica and send word that he found
             clearInterval(timer); // Stop the timer
@@ -381,6 +384,7 @@ function outputSlagalicaHTML(){
     <button class='btn btn-outline-primary letter-btn'>A</button> \
     <button class='btn btn-outline-primary letter-btn'>A</button> \
 \
+    <p id='chosen-word'></p>\
     <br>\
     <br>\
 \
@@ -561,6 +565,7 @@ function startKoZnaZna(data){
     let helpArrayValues = Object.values(data); // Array holding all the VALUES from data object, ANSWERS
     currentGame = 'KoZnaZna'; // Set current game to KoZnaZna
 
+    const correctAnswerP = document.getElementById('correct-answer'); // Get correct answer paragraph
     const questionContainer = document.getElementById('question'); // Get question container
     const answerInput = document.getElementById('answer-input'); // Get answer inpput
     const sendAnswerBtn = document.getElementById('send-answer-button'); // Get send answer button
@@ -577,6 +582,7 @@ function startKoZnaZna(data){
         infoKoZnaZna: infoKoZnaZna,
         sendAnswerBtn: sendAnswerBtn,
         gamesContainer: gamesContainer,
+        correctAnswerP: correctAnswerP
     }
 
     // Timer for KoZnaZna
@@ -596,6 +602,8 @@ function startKoZnaZna(data){
             information.infoKoZnaZna.wrongAnswers++;
             information.answerInput.classList.add('is-invalid');
             information.answerInput.classList.remove('is-valid');
+            // Tell user what is correct answer if hes wrong
+            correctAnswerP.innerHTML = "Tačan odgovor je: <strong>\"" + helpArrayValues[information.counter].toUpperCase() + "\".</strong>";
         }
 
         if(information.counter < 9){ // If there are left questions
@@ -610,6 +618,7 @@ function startKoZnaZna(data){
                 questionNumberSpan.innerText = information.counter + 1; // Change question number
                 answerInput.value = ""; // Empty answer input
                 sendAnswerBtn.disabled = false; // Allow him to send next answer
+                correctAnswerP.innerHTML = ""; // Empty correct answer paragraph
             }, 2000);
         }else{ // There are no questions left
             clearInterval(timeleftInterval); // Stop the timer
@@ -629,7 +638,7 @@ function outputKoZnaZnaHTML(){
     <div class='container-fluid'>\
       <div class='row'>\
         <div class='col-md-12'>\
-          <div class='jumbotron'>\
+          <div class='jumbotron jumbotron-custom'>\
             <p id='timer'>15</p>\
             <h3 class='display-3 question-header'><span id='question-number'>1</span>. PITANJE</h3>\
             <p class='lead' id='question'>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Architecto velit \
@@ -638,8 +647,9 @@ function outputKoZnaZnaHTML(){
             nihil est natus tempore dicta!</p>\
             <hr class='my-4'>\
            <div class='form-group has-success'>\
-            <input type='text' placeholder='Unesite Odgovor' class='form-control' id='answer-input' maxlength='20'>\
+              <input type='text' placeholder='Unesite Odgovor' class='form-control' id='answer-input' maxlength='20'>\
               <button class='btn btn-primary btn-lg' id='send-answer-button' role='button'>Pošalji</button>\
+              <p id='correct-answer'></p>\
           </div>\
           </div>\
         </div>\
@@ -753,6 +763,8 @@ function setTimer2(information){
                 information.infoKoZnaZna.wrongAnswers++;
                 information.answerInput.classList.add('is-invalid');
                 information.answerInput.classList.remove('is-valid');
+                // Tell user what is correct answer if hes wrong
+                information.correctAnswerP.innerHTML = "Tačan odgovor je: <strong>\"" + information.helpArrayValues[information.counter].toUpperCase() + "\".</strong>";
             }
 
             // If there are left questions
@@ -766,6 +778,7 @@ function setTimer2(information){
                     timerP.innerHTML = timeLeft;
                     information.answerInput.value = "";
                     information.sendAnswerBtn.disabled = false;
+                    information.correctAnswerP.innerHTML = ""; // Empty correct answer paragraph
                 }, 2000);
             }else{ // There are no left questions
                 clearInterval(timeleftInterval); // Stop the timer

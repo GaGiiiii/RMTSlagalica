@@ -375,7 +375,8 @@ function generateLetters(){
 
   let object = {
     words: words, // database for words
-    generatedLetters: generatedLetters
+    generatedLetters: generatedLetters,
+    word: word
   }
 
   return object;

@@ -29,6 +29,12 @@ td{
     margin-top: 1rem;
 }
 
+#chosen-word{
+    font-size: 1.5rem;
+    margin-top: 2rem;
+    margin-bottom: 0;
+}
+
 #word-input{
     display: inline-block;
     width: 80%;
@@ -62,6 +68,16 @@ td{
 #send-answer-button{
     width: 100%;
     margin-top: 1rem;
+}
+
+#correct-answer{
+    font-size: 1.5rem;
+    margin-top: 2rem;
+    margin-bottom: 0;
+}
+
+.jumbotron-custom{
+    padding: 1rem 2rem;
 }
 
 @media only screen and (max-width: 767px){
