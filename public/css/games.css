@@ -66,6 +66,18 @@ td{
     .spojnice-btn-container{
         margin-top: 3rem;
     }
+
+    .letter-btn{
+        padding: 1rem 1.5rem;
+        margin: .1rem;
+    }
+}
+
+@media only screen and (max-width: 448px){
+    .letter-btn{
+        padding: .5rem .9rem;
+        margin: .1rem;
+    }
 }
 
 
