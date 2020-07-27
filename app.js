@@ -116,6 +116,10 @@ let words = [
   "protok",
 ];
 
+let wordsAndLetters = generateLetters();
+let dataForSpojniceP = dataForSpojnice();
+let dataForKoZnaZnaP = dataForKoZnaZna();
+
 /* ********** SOCKET COMMUNICATION ********** */
 
 io.on('connection', (socket) => { // Socket connected on server
@@ -184,7 +188,7 @@ io.on('connection', (socket) => { // Socket connected on server
     gameInProgress = true; // Game starts now
 
     io.emit('userReady', user);
-    io.emit("allUsersReady", generateLetters());
+    io.emit("allUsersReady", wordsAndLetters);
     io.emit("gameStartedDisableJoins");
   });
 
@@ -213,7 +217,7 @@ io.on('connection', (socket) => { // Socket connected on server
     }
 
     io.emit('updateSlagalicaPoints', user);
-    socket.emit('startSpojnice', dataForSpojnice());
+    socket.emit('startSpojnice', dataForSpojniceP);
   });
 
   socket.on('finishedSpojniceGiveDataForKoZnaZna', (correctAnswers) => {
@@ -222,7 +226,7 @@ io.on('connection', (socket) => { // Socket connected on server
     user.pointsSpojnice = correctAnswers * 5;
     user.points += user.pointsSpojnice;
     io.emit('updateSpojnicePoints', user);
-    socket.emit('startKoZnaZna', dataForKoZnaZna());
+    socket.emit('startKoZnaZna', dataForKoZnaZnaP);
   });
 
   socket.on('finishedKoZnaZna', (infoKoZnaZna) => {
