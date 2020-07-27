@@ -430,10 +430,22 @@ function dataForSpojnice(){
     "HTTP VERSION NOT SUPPORTED": '505',
   }
 
-  let array = [];
-  array.push(data, data2);
+  let data3 = {
+    "PORUKA": "POVEŽITE NAREDBE U PROGRAMSKOM JEZIKU JAVA SA ODGOVARAJUĆIM ZAHTEVOM",
+    "PRIHVATA ZAHTEV I USPOSTAVLJA NOVU TCP KONEKCIJU": 'Socket socket = server.accept();',
+    "INICIJALIZUJE TCP SERVERSKI SOKET": 'ServerSocket socket = new ServerSocket(6789);',
+    "INSTANCIRA TCP KLIJENTSKI SOKET": 'Socket socket = new Socket(\"localhost\", 6789);',
+    "PRIPREMA UDP SOKET ZA PRIJEM PODATAKA": 'DatagramSocket serverSocket = new DatagramSocket(9876);',
+    "VRAĆA BROJ PORTA NA KOME SE NALAZI SOKET": ' Socket socket = new Socket(); socket.getPort();',
+    "ŠALJE PAKET PREKO UDP PROTOKOLA": 'DatagramSocket socket = new datagramSocket(); DatagramPacket packet; socket.send(packet);',
+  }
 
-  return array[Math.floor(Math.random() * 1.99)]; // Gives random element from array
+  let array = [];
+  array.push(data, data2, data3);
+
+  let randomIndex = Math.floor(Math.random() * (array.length - 1 + 0.5));
+
+  return array[randomIndex]; // Gives random element from array
 }
 
 // Gives data for KoZnaZna
