@@ -419,6 +419,8 @@ function startSpojnice(data){
     let correctAnswers = 0; // Number of correct answers
     let helpArrayKeys = Object.keys(data); // Array containing all the keys from data object
     let helpArrayValues = Object.values(data); // Array containing all the values from data object
+    let correctAnswersArray = []; // Here we will store all the answers that he answered correctly
+    let wrongAnswersArray = []; // Here we will store wrong answers
     currentGame = 'Spojnice'; // Set current game to Spojnice
 
     let message = helpArrayValues[0]; // Take message from Object
@@ -429,6 +431,7 @@ function startSpojnice(data){
 
     const spojniceBtns = document.querySelectorAll('.spojnice-btn'); // Take all the btns
     let counter = 0; // Set counter to 0
+    let counterHelper = 0; // This is help counter that we use when we show user all correct answers
 
     // Go through all the btns, first 6 are going to have KEYS Values and other 6 will have VALUES values
     spojniceBtns.forEach((spojniceBtn) => {
@@ -468,22 +471,34 @@ function startSpojnice(data){
 
         spojniceBtns[i].addEventListener('click', (event) => {
 
-            valueValue = event.target.innerHTML; // Take key value and value value looool
-            //event.target.disabled = true; // Disable selected value button so he can't choose it again
+            valueValue = event.target.innerHTML; // Take value that he clicked
             counter++; // Raise counter so next key gets highlighted
 
-            if(data[keyValue.innerText] == valueValue){
-                // Changes color to green if answer is correct
+            if(data[keyValue.innerText] == valueValue){ // data[keyValue.innerText] goes to data object and gives back VALUE PAIR where the key is keyValue.innerText
 
                 event.target.disabled = true; // Disable selected value button so he can't choose it again
-                event.target.style.backgroundColor = "#5cb85c";
-                spojniceBtns[counter - 1].style.backgroundColor = "#5cb85c";
-                correctAnswers++;
-            }else{
-                // Changes color to red if answer is wrong
+                event.target.style.backgroundColor = "#5cb85c"; // Change color of clicked value to green
+                spojniceBtns[counter - 1].style.backgroundColor = "#5cb85c"; // Change color of key to green
 
-                // event.target.style.backgroundColor = "#d9534f";
-                spojniceBtns[counter - 1].style.backgroundColor = "#d9534f";
+                // Create help object where we will store question and answer for correctAnswersArray
+                let helpObject = {
+                    question: spojniceBtns[counter - 1].innerText,
+                    answer: valueValue
+                }
+
+                correctAnswersArray.push(helpObject); // Insert in correct answers array
+                correctAnswers++; // Increase correct answers
+            }else{
+
+                spojniceBtns[counter - 1].style.backgroundColor = "#d9534f"; // Change color of key to red
+
+                // Create help object where we will store question and answer for wrongAnswersArray
+                let helpObject = {
+                    question: spojniceBtns[counter - 1].innerText,
+                    answer: data[keyValue.innerText]
+                }
+
+                wrongAnswersArray.push(helpObject); // Insert in wrong answers array
             }
 
             if(counter < 6){ // Do that only if there is left keys
@@ -493,8 +508,6 @@ function startSpojnice(data){
 
                 spojniceBtns[counter].style.backgroundColor = "#333";
                 spojniceBtns[counter].style.color = "#fff";
-                // spojniceBtns[counter - 1].style.backgroundColor = "#fff";
-                // spojniceBtns[counter - 1].style.color = "#000";
             }else{
                 // Game is over
 
@@ -502,11 +515,13 @@ function startSpojnice(data){
                     spojniceBtns[j].disabled = true;
                 }
 
+                showCorrectAnswersSpojnice(correctAnswersArray, spojniceBtns, counterHelper, wrongAnswersArray); // Show correct answers to user
+
                 finishedAll = true; // He now finished Spojnice
                 clearInterval(timer); // Stop the timer
                 socket.emit('finishedSpojniceGiveDataForKoZnaZna', correctAnswers); // Send to server number of correct answers
                 socket.once('startKoZnaZna', (data) => { // Start KoZnaZna after 3 seconds
-                    setTimeout(() => startKoZnaZna(data), 3000);
+                    setTimeout(() => startKoZnaZna(data), 5000);
                 });
             }
         });
@@ -516,15 +531,57 @@ function startSpojnice(data){
     // Time is up for spojnice
     socket.once('timeIsUpSpojnice', () => {
         if(!finishedAll){
+            finishedAll = true;
             clearInterval(timer);
-            for(let i = 5; i < spojniceBtns.length; i++){
+            for(let i = 5; i < spojniceBtns.length; i++){ // Disable all buttons
                 spojniceBtns[i].disabled = true;
             }
+
+            // Time is up, add every quesiton that he didn't answer to wrong array
+            for(let i = counter; i < 6; i++){
+                let helpObject = {
+                    question: spojniceBtns[i].innerText,
+                    answer: data[spojniceBtns[i].innerText]
+                }
+
+                wrongAnswersArray.push(helpObject); // Insert in wrong answers array
+            }
+
+            showCorrectAnswersSpojnice(correctAnswersArray, spojniceBtns, counterHelper, wrongAnswersArray); // Show correct answers to user
+
             socket.emit('finishedSpojniceGiveDataForKoZnaZna', correctAnswers);
             socket.once('startKoZnaZna', (data) => {
-                setTimeout(() => startKoZnaZna(data), 3000);
+                setTimeout(() => startKoZnaZna(data), 5000);
             });
         }
+    });
+}
+
+function showCorrectAnswersSpojnice(correctAnswersArray, spojniceBtns, counterHelper, wrongAnswersArray){
+
+    /*
+        First we loop through all correct answers if there are any, then we print KEY AND HIS VALUE PAIR and color them in green,
+        then we do the same with wrong answers but we color them in red.
+    */
+
+    correctAnswersArray.forEach((correctAnswer) => {
+        spojniceBtns[counterHelper].innerText = correctAnswer.question; // Print KEY
+        spojniceBtns[counterHelper + 6].innerText = correctAnswer.answer; // Print VALUE
+        spojniceBtns[counterHelper].style.backgroundColor = "#5cb85c"; // Change KEY background
+        spojniceBtns[counterHelper + 6].style.backgroundColor = "#5cb85c"; // Change VALUE PAIR background
+        spojniceBtns[counterHelper].style.color = "#fff"; // Change KEY color
+        spojniceBtns[counterHelper + 6].style.color = "#fff"; // Change VALUE PAIR color
+        counterHelper++; // Go to next button
+    });
+
+    wrongAnswersArray.forEach((wrongAnswer) => {
+        spojniceBtns[counterHelper].innerText = wrongAnswer.question; // Print KEY
+        spojniceBtns[counterHelper + 6].innerText = wrongAnswer.answer; // Print VALUE
+        spojniceBtns[counterHelper].style.backgroundColor = "#d9534f"; // Change KEY background
+        spojniceBtns[counterHelper + 6].style.backgroundColor = "#d9534f"; // Change VALUE PAIR background
+        spojniceBtns[counterHelper].style.color = "#fff"; // Change KEY color 
+        spojniceBtns[counterHelper + 6].style.color = "#fff"; // Change VALUE PAIR color
+        counterHelper++; // Go to next button
     });
 }
 
