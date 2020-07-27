@@ -440,7 +440,7 @@ function dataForKoZnaZna(){
     "Sa kojim transportnim protokolom je u vezi DHCP ?": 'UDP',
     "Kod uspostavljanja TCP veze, koji su flegovi oznaceni na 1 u prvom segmentu koji se šalje ?": 'SYN',
     "Kako se drugačije naziva krajnji sistem ?": 'Host',
-    "Bežični LAN pristup zasnovan je na IEEE ?": '802.11',
+    "Bežični LAN pristup zasnovan je na IEEE (xxx.xx) ?": '802.11',
     "Na kom sloju radi HTTP ?": 'Aplikativnom',
     "TCP i UDP pripadaju kom sloju: ": 'Transportnom',
     "IP Adresa pripada kom sloju: ": 'Mrežnom',
