@@ -1,5 +1,6 @@
 1. Dodati skocka i asocijacije.
 2. Poboljsati baze
+3. Kada zavrsi red disable da ne moze da obrise
 
 MOZDA NEKADA: 
     - Ako u isto vreme kliknu join moze da se joinuje 5 igraca

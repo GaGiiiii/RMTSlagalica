@@ -628,6 +628,305 @@ function outputSpojniceHTML(message){
     </div>";
 }
 
+startSkocko();
+
+function startSkocko(){
+    // Create constants containing HTML for icons
+    const chromeHTML = "<i class='fab fa-chrome'></i>";
+    const fireFoxHTML = "<i class='fab fa-firefox'></i>";
+    const operaHTML = "<i class='fab fa-opera'></i>";
+    const safariHTML = "<i class='fab fa-safari'></i>";
+    const edgeHTML = "<i class='fab fa-edge'></i>";
+    const ieHTML = "<i class='fab fa-internet-explorer'></i>";
+
+    let attemptsleft = 6; // At the beginning user has 6 attemts
+    currentGame = 'Skocko'; // Set current game to slagalica
+
+    outputSkockoHTML(); // Output HTML
+
+    const skockoBtns = document.querySelectorAll(".skocko-btn"); // Get all the skocko btns (google, safari, opera etc.)
+    const guessContainerBtns = document.querySelectorAll('.guess-container-btn'); // These are the buttons where we put icons that user selected
+    const guessContainerQuestionBtns = document.querySelectorAll('.guess-container-btn-question'); // These are question marks, user submits answer by clicking them
+    let answersArray = []; // Array holding users answer for that row
+
+    /* 
+        When user clicks icon, check in which row is he, then print clicked icon if possible
+    */
+
+    skockoBtns.forEach((skockoBtn) => {
+        skockoBtn.addEventListener('click', (event) => {
+            // Take clicked icon
+            let clickedIcon = event.currentTarget.value; // MORA CURRENT TARGET JER AKO KLIKNE NA IKONICU BUDE UNDEFINED LOOOOL
+            switch(attemptsleft){ // We need to know in which row we are currently
+                case 6: 
+                    printClickedIcon(0, guessContainerBtns, clickedIcon,
+                        chromeHTML, fireFoxHTML, operaHTML, safariHTML, edgeHTML, ieHTML);
+
+                    break;
+                case 5: 
+                    printClickedIcon(4, guessContainerBtns, clickedIcon,
+                        chromeHTML, fireFoxHTML, operaHTML, safariHTML, edgeHTML, ieHTML);
+
+                    break;
+                case 4:
+                    printClickedIcon(8, guessContainerBtns, clickedIcon,
+                        chromeHTML, fireFoxHTML, operaHTML, safariHTML, edgeHTML, ieHTML);
+
+                    break;
+                case 3:
+                    printClickedIcon(12, guessContainerBtns, clickedIcon,
+                        chromeHTML, fireFoxHTML, operaHTML, safariHTML, edgeHTML, ieHTML);
+
+                    break;
+                case 2:
+                    printClickedIcon(16, guessContainerBtns, clickedIco,
+                        chromeHTML, fireFoxHTML, operaHTML, safariHTML, edgeHTML, ieHTMLn)
+                        ;               
+                    break;
+                case 1:
+                    printClickedIcon(20, guessContainerBtns, clickedIcon,
+                        chromeHTML, fireFoxHTML, operaHTML, safariHTML, edgeHTML, ieHTML);
+
+                    break;
+            }
+        });
+    });
+
+    /* 
+        When user clicks on icon that he selected he deletes it from container 
+    */
+
+    guessContainerBtns.forEach((guessContainerBtn) => {
+        guessContainerBtn.addEventListener('click', (event) => {
+            let clickedIcon = event.currentTarget;
+
+            // Delete icon only if he clicked icon
+            if(clickedIcon.value != ""){
+                clickedIcon.innerHTML = "";
+                clickedIcon.value = "";
+            }
+        });
+    });
+
+    /* 
+        When user clicks question mark submit answers
+    */
+
+    guessContainerQuestionBtns.forEach((guessContainerQuestionBtn) => {
+        guessContainerQuestionBtn.addEventListener('click', (event) => {
+
+            // We need to know which question mark he clicked
+            let indexOfClickedQuestionBtn = event.currentTarget.value;
+
+            // If he clicked wrong question mark do nothing
+            if(indexOfClickedQuestionBtn != attemptsleft){
+                return;
+            }
+
+            // If he clicked correct question mark submit answers
+            switch(attemptsleft){
+                case 6:
+                    getAnswer(0, answersArray, guessContainerBtns);
+                    attemptsleft--;
+                    break;
+                case 5: 
+                    getAnswer(4, answersArray, guessContainerBtns);
+                    attemptsleft--;
+                    break;
+                case 4:
+                    getAnswer(8, answersArray, guessContainerBtns);
+                    attemptsleft--;
+                    break;
+                case 3:
+                    getAnswer(12, answersArray, guessContainerBtns);
+                    attemptsleft--;
+                    break;
+                case 2:
+                    getAnswer(16, answersArray, guessContainerBtns);
+                    attemptsleft--;
+                    break;
+                case 1:
+                    getAnswer(20, answersArray, guessContainerBtns);
+                    attemptsleft--;
+                    break;
+            }
+        });
+    });
+
+
+
+
+
+
+    // const wordInput = document.querySelector('#word-input'); // Get word input
+    // const deleteLetterBtn = document.querySelector('.delete-letter-btn'); // Get delete btn
+    // const confirmButton = document.querySelector('.confirm-button'); // Get confirm btn
+    // const chosenWord = document.getElementById('chosen-word'); // Chosen word by computer
+    // let lettersArrayCounter = 0; // Counter for letters array
+
+    // // Populate letters with generated letters
+    // letters.forEach((letter) => {
+    //     if(letter.value == ""){
+    //         letter.innerHTML = wordsAndLetters.generatedLetters[lettersArrayCounter];
+    //         letter.value = wordsAndLetters.generatedLetters[lettersArrayCounter++];
+    //     }
+
+    //     // Add clicke event on every letter
+    //     letter.addEventListener('click', (event) => {
+    //         wordInput.value += event.target.value; // Add letter to the word input
+    //         letter.disabled = true; // Disable used letter
+
+    //         // If word exists in database color the word input in green, otherwise in red
+    //         if(isCorrectWord(wordInput.value)){
+    //             wordInput.classList.remove("is-invalid");
+    //             wordInput.classList.add("is-valid");
+    //         }else{
+    //             wordInput.classList.remove("is-valid");
+    //             wordInput.classList.add('is-invalid');
+    //         }
+    //     });
+    // });
+
+    // // Add click event on delete button
+    // deleteLetterBtn.addEventListener('click', () => {
+    //     let char =  wordInput.value[wordInput.value.length -1]; // Take last char from word input
+    //     wordInput.value = wordInput.value.substring(0, wordInput.value.length - 1); // Remove last char
+
+    //     // If word input is now empty change its color to grey, if not check if word exists in database and color it properly
+    //     if(wordInput.value == ""){
+    //         wordInput.classList.remove("is-invalid");
+    //         wordInput.classList.remove("is-valid");
+    //     }else{
+    //         if(isCorrectWord(wordInput.value)){
+    //             wordInput.classList.remove("is-invalid");
+    //             wordInput.classList.add("is-valid");
+    //         }else{
+    //             wordInput.classList.remove("is-valid");
+    //             wordInput.classList.add('is-invalid');
+    //         }
+    //     }
+
+    //     // When user deletes last char we need to enable that letter so he can now use it again
+    //     for(let i = 0; i < letters.length; i++){
+    //         if(letters[i].value === char){
+    //             if(letters[i].disabled){
+    //                 letters[i].disabled = false;
+
+    //                 break;
+    //             }
+    //         }
+    //     }
+    // });
+
+    // // TIMER 
+
+    // let timer = setTimer(); // Start the timer
+
+    // // Add click event on confirm button
+    // confirmButton.addEventListener('click', (event) => {
+    //     let word = wordInput.value; // Take typed word
+    //     letters.forEach((letter) => { // Disable all letters
+    //         letter.disabled = true;
+    //     });
+    //     deleteLetterBtn.disabled = true; // Disable delete btn
+    //     confirmButton.disabled = true; // Disable confirm btn
+    //     confirmedWord = true; // User now confirmed word
+    //     chosenWord.innerHTML = "Naša reč je: <strong>\"" + wordsAndLetters.word + "\"</strong>"; // Show chosen word to user
+
+    //     socket.emit('finishedSlagalicaGiveDataForSpojnice', word); // Tell server that user finished slagalica and send word that he found
+    //     clearInterval(timer); // Stop the timer
+    // });
+
+    // // Start spojnice after 3 seconds
+    // socket.once('startSpojnice', (data) => {
+    //     if(currentGame != "Spojnice"){
+    //         setTimeout(() => startSpojnice(data), 3000);
+    //     }
+    // });
+
+    // // If time is up and user didn't confirm word
+    // socket.once('timeIsUpSlagalica', () => {
+    //     if(!confirmedWord){ // Ako je vreme isteklo a nije confirmovao rec uradi sve ovo
+    //         confirmedWord = true; // Ovo mora da ne bi bio infinite loop
+    //         let word = wordInput.value; // Take typed word
+
+    //         letters.forEach((letter) => { // Disable all letters
+    //             letter.disabled = true;
+    //         });
+
+    //         deleteLetterBtn.disabled = true; // Disable delete btn
+    //         confirmButton.disabled = true; // DIsable confirm btn
+    //         chosenWord.innerHTML = "Naša reč je: <strong>\"" + wordsAndLetters.word + "\"</strong>"; // Show chosen word to user
+
+    //         socket.emit('finishedSlagalicaGiveDataForSpojnice', word); // Tell server that user finished slagalica and send word that he found
+    //         clearInterval(timer); // Stop the timer
+    //         // Start spojnice after 3 seconds
+    //         socket.once('startSpojnice', (data) => {
+    //             setTimeout(() => startSpojnice(data), 3000);
+    //         });
+    //     }
+    // });
+}
+
+function getAnswer(indexStart, answersArray, guessContainerBtns){
+    answersArray = []; // Empty the array
+
+    // Push current values to array
+    for(let i = indexStart; i < indexStart + 4; i++){
+        answersArray.push(guessContainerBtns[i].value);                      
+    }
+
+    console.log(answersArray);
+}
+
+function printClickedIcon(indexStart, guessContainerBtns, clickedIcon,
+    chromeHTML, fireFoxHTML, operaHTML, safariHTML, edgeHTML, ieHTML){
+
+    for(let i = indexStart; i < indexStart + 4; i++){
+
+        let button = guessContainerBtns[i]; // Take current button (1 of 4) and check if its empty
+
+        // If button is empty add selected icon
+        if(button.innerHTML == ""){
+ 
+            switch(clickedIcon){ // SWITCH 2 START
+
+                case "chrome":
+                    button.innerHTML = chromeHTML;
+                    button.value = "chrome";
+                    break;
+                case "firefox":
+                    button.innerHTML = fireFoxHTML;
+                    button.value = "firefox";
+                    break;
+                case "opera":
+                    button.innerHTML = operaHTML;
+                    button.value = "opera";
+                    break;
+                case "safari":
+                    button.innerHTML = safariHTML;
+                    button.value = "safari";
+                    break;
+                case "edge":
+                    button.innerHTML = edgeHTML;
+                    button.value = "edge";
+                    break;
+                case "ie":
+                    button.innerHTML = ieHTML;
+                    button.value = "ie";
+                    break;
+
+            } // SWITCH 2 END 
+      
+            break; // Break after printing icon, we only want to print it once
+        }
+    }
+}
+
+function outputSkockoHTML(){
+
+}
+
 function startKoZnaZna(data){
     let infoKoZnaZna = { // Object holding number of correct and wrong answers
         correctAnswers: 0,

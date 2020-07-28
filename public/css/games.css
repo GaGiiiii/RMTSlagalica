@@ -80,6 +80,28 @@ td{
     padding: 1rem 2rem;
 }
 
+.guessed-div{
+    display: inline-block;
+    border: 1px solid #000;
+    border-radius: 50%;
+    padding: 1.8rem 1.8rem;
+    margin: .7rem .2rem;
+}
+
+.guess-container-btn, .guess-container-btn-question{
+    padding: .5rem 1rem;
+    margin: 1rem .2rem 0 .2rem;
+    font-size: 2rem;
+    min-height: 70px;
+    min-width: 70px;
+}
+
+.skocko-btn{
+    font-size: 2rem;
+    min-height: 70px;
+    min-width: 70px;
+}
+
 @media only screen and (max-width: 767px){
     .letter-btn{
         padding: 1rem 1.5rem;
