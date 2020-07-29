@@ -637,11 +637,12 @@ function startSkocko(data){
     const edgeHTML = "<i class='fab fa-edge'></i>";
     const ieHTML = "<i class='fab fa-internet-explorer'></i>";
 
-    let attemptsleft = 6; // At the beginning user has 6 attemts
+    let attemptsLeft = 6; // At the beginning user has 6 attemts
     currentGame = 'Skocko'; // Set current game to slagalica
 
     outputSkockoHTML(); // Output HTML
 
+    const correctAnswer = document.getElementById('correct-answer');
     const skockoBtns = document.querySelectorAll(".skocko-btn"); // Get all the skocko btns (google, safari, opera etc.)
     const guessContainerBtns = document.querySelectorAll('.guess-container-btn'); // These are the buttons where we put icons that user selected
     const guessContainerQuestionBtns = document.querySelectorAll('.guess-container-btn-question'); // These are question marks, user submits answer by clicking them
@@ -650,7 +651,7 @@ function startSkocko(data){
     let infoAboutAnswers = {
         numberOfCorrectSignsAndPlace: 0,
         numberOfCorrectSigns: 0,
-        attemptsleft: attemptsleft
+        attemptsLeft: attemptsLeft
     }
     let finished = false;
 
@@ -662,7 +663,7 @@ function startSkocko(data){
         skockoBtn.addEventListener('click', (event) => {
             // Take clicked icon
             let clickedIcon = event.currentTarget.value; // MORA CURRENT TARGET JER AKO KLIKNE NA IKONICU BUDE UNDEFINED LOOOOL
-            switch(infoAboutAnswers.attemptsleft){ // We need to know in which row we are currently
+            switch(infoAboutAnswers.attemptsLeft){ // We need to know in which row we are currently
                 case 6: 
                     printClickedIcon(0, guessContainerBtns, clickedIcon,
                         chromeHTML, fireFoxHTML, operaHTML, safariHTML, edgeHTML, ieHTML);
@@ -728,47 +729,59 @@ function startSkocko(data){
             let indexOfClickedQuestionBtn = event.currentTarget.value;
 
             // If he clicked wrong question mark do nothing
-            if(indexOfClickedQuestionBtn != infoAboutAnswers.attemptsleft){
+            if(indexOfClickedQuestionBtn != infoAboutAnswers.attemptsLeft){
                 return;
             }
 
             // If he clicked correct question mark submit answers
-            switch(infoAboutAnswers.attemptsleft){
+            switch(infoAboutAnswers.attemptsLeft){
                 case 6:
                     getAnswerAndCheckThem(0, answersArray, guessContainerBtns, data, infoAboutAnswers, guessedDivs,
-                        guessContainerQuestionBtns, skockoBtns, timer); // Populate array with users answers
+                        guessContainerQuestionBtns, skockoBtns, timer, correctAnswer, 
+                        chromeHTML, fireFoxHTML, operaHTML, safariHTML, edgeHTML, ieHTML); // Populate array with users answers
+
                     event.currentTarget.disabled = true; // Disables question mark
-                    infoAboutAnswers.attemptsleft--; // Decrease attempts left
+                    infoAboutAnswers.attemptsLeft--; // Decrease attempts left
                     break;
                 case 5: 
                     getAnswerAndCheckThem(4, answersArray, guessContainerBtns, data, infoAboutAnswers, guessedDivs,
-                        guessContainerQuestionBtns, skockoBtns, timer); // Populate array with users answers
+                        guessContainerQuestionBtns, skockoBtns, timer, correctAnswer, 
+                        chromeHTML, fireFoxHTML, operaHTML, safariHTML, edgeHTML, ieHTML); // Populate array with users answers
+
                     event.currentTarget.disabled = true; // Disables question mark
-                    infoAboutAnswers.attemptsleft--; // Decrease attempts left
+                    infoAboutAnswers.attemptsLeft--; // Decrease attempts left
                     break;
                 case 4:
                     getAnswerAndCheckThem(8, answersArray, guessContainerBtns, data, infoAboutAnswers, guessedDivs,
-                        guessContainerQuestionBtns, skockoBtns, timer); // Populate array with users answers
+                        guessContainerQuestionBtns, skockoBtns, timer, correctAnswer, 
+                        chromeHTML, fireFoxHTML, operaHTML, safariHTML, edgeHTML, ieHTML); // Populate array with users answers
+
                     event.currentTarget.disabled = true; // Disables question mark
-                    infoAboutAnswers.attemptsleft--; // Decrease attempts left
+                    infoAboutAnswers.attemptsLeft--; // Decrease attempts left
                     break;
                 case 3:
                     getAnswerAndCheckThem(12, answersArray, guessContainerBtns, data, infoAboutAnswers, guessedDivs,
-                        guessContainerQuestionBtns, skockoBtns, timer); // Populate array with users answers
+                        guessContainerQuestionBtns, skockoBtns, timer, correctAnswer, 
+                        chromeHTML, fireFoxHTML, operaHTML, safariHTML, edgeHTML, ieHTML); // Populate array with users answers
+
                     event.currentTarget.disabled = true; // Disables question mark
-                    infoAboutAnswers.attemptsleft--; // Decrease attempts left
+                    infoAboutAnswers.attemptsLeft--; // Decrease attempts left
                     break;
                 case 2:
                     getAnswerAndCheckThem(16, answersArray, guessContainerBtns, data, infoAboutAnswers, guessedDivs,
-                        guessContainerQuestionBtns, skockoBtns, timer); // Populate array with users answers
+                        guessContainerQuestionBtns, skockoBtns, timer, correctAnswer, 
+                        chromeHTML, fireFoxHTML, operaHTML, safariHTML, edgeHTML, ieHTML); // Populate array with users answers
+
                     event.currentTarget.disabled = true; // Disables question mark
-                    infoAboutAnswers.attemptsleft--; // Decrease attempts left
+                    infoAboutAnswers.attemptsLeft--; // Decrease attempts left
                     break;
                 case 1:
                     getAnswerAndCheckThem(20, answersArray, guessContainerBtns, data, infoAboutAnswers, guessedDivs,
-                        guessContainerQuestionBtns, skockoBtns, timer); // Populate array with users answers
+                        guessContainerQuestionBtns, skockoBtns, timer, correctAnswer, 
+                        chromeHTML, fireFoxHTML, operaHTML, safariHTML, edgeHTML, ieHTML); // Populate array with users answers
+
                     event.currentTarget.disabled = true; // Disables question mark
-                    infoAboutAnswers.attemptsleft--; // Decrease attempts left
+                    infoAboutAnswers.attemptsLeft--; // Decrease attempts left
                     break;
             }
         });
@@ -790,13 +803,47 @@ function startSkocko(data){
                 guessContainerQuestionBtn.disabled = true;
             });
     
-            skockoBtns.forEach((skockoBtn) => {
-                skockoBtn.disabled = true;
-            });
-    
             guessContainerBtns.forEach((guessContainerBtn) => {
                 guessContainerBtn.disabled = true;
             });
+
+            let index = 0;
+            skockoBtns.forEach((skockoBtn) => {
+                skockoBtn.disabled = true;
+
+                if(index < 4){
+                    switch(data[index]){
+                        case "chrome":
+                            skockoBtns[index].innerHTML = chromeHTML;
+                            break;
+                        case "firefox":
+                            skockoBtns[index].innerHTML = fireFoxHTML;
+                            break;
+                        case "opera":
+                            skockoBtns[index].innerHTML = operaHTML;
+                            break;
+                        case "safari":
+                            skockoBtns[index].innerHTML = safariHTML;
+                            break;
+                        case "edge":
+                            skockoBtns[index].innerHTML = edgeHTML;
+                            break;
+                        case "ie":
+                            skockoBtns[index].innerHTML = ieHTML;
+                            break;
+                    }
+                }
+                
+                if(index > 3){
+                    skockoBtns[index].style.display = "none";
+                }
+
+                index++;
+            });
+
+            correctAnswer.innerHTML = "Rešenje: ";
+
+            infoAboutAnswers.attemptsLeft = 0; // Time is up, set this to 0 so he gets 0 points
             
             socket.emit('finishedSkockoGiveDataForKoZnaZna', infoAboutAnswers); // Tell server that user finished slagalica and send word that he found
             clearInterval(timer); // Stop the timer
@@ -911,6 +958,10 @@ function outputSkockoHTML(){
 \
     <br>\
 \
+    <p id='correct-answer'></p>\
+    \
+    <br>\
+\
     <button value='chrome' class='btn btn-outline-primary skocko-btn'><i class='fab fa-chrome'></i></button>\
     <button value='firefox' class='btn btn-outline-primary skocko-btn'><i class='fab fa-firefox'></i></button>\
     <button value='opera' class='btn btn-outline-primary skocko-btn'><i class='fab fa-opera'></i></button>\
@@ -920,7 +971,8 @@ function outputSkockoHTML(){
 }
 
 function getAnswerAndCheckThem(indexStart, answersArray, guessContainerBtns, data, infoAboutAnswers, guessedDivs,
-    guessContainerQuestionBtns, skockoBtns, timer){
+    guessContainerQuestionBtns, skockoBtns, timer, correctAnswer, chromeHTML, fireFoxHTML,
+    operaHTML, safariHTML, edgeHTML, ieHTML){
 
     answersArray = []; // Empty the array
 
@@ -949,7 +1001,50 @@ function getAnswerAndCheckThem(indexStart, answersArray, guessContainerBtns, dat
 
         socket.emit('finishedSkockoGiveDataForKoZnaZna', infoAboutAnswers); // Tell server that user finished slagalica and send word that he found
         clearInterval(timer); // Stop the timer
-    };
+    }else{ // If he didn't finish, check if he has left attemts
+        if(infoAboutAnswers.attemptsLeft == 1){ 
+            infoAboutAnswers.attemptsLeft--; // Decrease so he gets 0 points insead of 5 
+            finished = true;
+            clearInterval(timer);
+            let index = 0;
+            skockoBtns.forEach((skockoBtn) => {
+                skockoBtn.disabled = true;
+
+                if(index < 4){
+                    switch(data[index]){
+                        case "chrome":
+                            skockoBtns[index].innerHTML = chromeHTML;
+                            break;
+                        case "firefox":
+                            skockoBtns[index].innerHTML = fireFoxHTML;
+                            break;
+                        case "opera":
+                            skockoBtns[index].innerHTML = operaHTML;
+                            break;
+                        case "safari":
+                            skockoBtns[index].innerHTML = safariHTML;
+                            break;
+                        case "edge":
+                            skockoBtns[index].innerHTML = edgeHTML;
+                            break;
+                        case "ie":
+                            skockoBtns[index].innerHTML = ieHTML;
+                            break;
+                    }
+                }
+                
+                if(index > 3){
+                    skockoBtns[index].style.display = "none";
+                }
+
+                index++;
+            });
+
+            correctAnswer.innerHTML = "Rešenje: ";
+
+            socket.emit('finishedSkockoGiveDataForKoZnaZna', infoAboutAnswers); // Tell server that user finished slagalica and send word that he found
+        }
+    }
 }
 
 function checkIfHeFinished(indexStart, answersArray, data, infoAboutAnswers, guessedDivs){
@@ -1169,7 +1264,7 @@ socket.on('updateSkockoPoints', (user) => {
     let pointsFieldTotal = document.querySelector('#' + user.username + '-game7-score');
     pointsField.innerText = user.pointsSkocko;
     pointsFieldTotal.innerText = user.points;
-    isGameInProggress = false; // THIS IS THE LAST GAME SO GAME IS OVER NOW
+    console.log(user)
 });
 
 // Update points for koznazna, update for koznazna field and total field

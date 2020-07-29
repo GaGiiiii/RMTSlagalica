@@ -1,7 +1,5 @@
 1. Dodati asocijacije.
 2. Poboljsati baze
-4. Bodovi skocko
-5. Tacno resenje skocko 
 6. Enter ko zna zna
 
 MOZDA NEKADA: 

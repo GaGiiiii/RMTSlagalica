@@ -245,8 +245,9 @@ io.on('connection', (socket) => { // Socket connected on server
     let user = getCurrentUser(socket.id);
     
     if(user){
-      user.pointsSkocko = 5;
+      user.pointsSkocko = info.attemptsLeft * 5;
       user.points += user.pointsSkocko;
+      console.log(info)
     }
 
     io.emit('updateSkockoPoints', user);
