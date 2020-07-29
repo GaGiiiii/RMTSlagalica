@@ -81,6 +81,7 @@ td{
 }
 
 .guessed-div{
+    box-sizing: border-box;
     display: inline-block;
     border: 1px solid #000;
     border-radius: 50%;
@@ -94,18 +95,78 @@ td{
     font-size: 2rem;
     min-height: 70px;
     min-width: 70px;
+    box-sizing: border-box;
 }
 
 .skocko-btn{
     font-size: 2rem;
     min-height: 70px;
     min-width: 70px;
+    box-sizing: border-box;
 }
+
+@media only screen and (max-width: 991px){
+    .guess-container-btn, .guess-container-btn-question, .skocko-btn{
+        font-size: 1.1rem;
+        min-height: 50px;
+        min-width: 50px;
+    }
+
+    .guessed-div{
+        padding: 1.5rem 1.5rem;
+        margin: .35rem .2rem;
+    }
+}
+
+
+
 
 @media only screen and (max-width: 767px){
     .letter-btn{
         padding: 1rem 1.5rem;
         margin: .1rem;
+    }
+
+    .guess-container-btn, .guess-container-btn-question, .skocko-btn{
+        font-size: .9rem;
+        min-height: 35px;
+        min-width: 40px;
+        margin: 1rem 0 0 0;
+        padding: .3rem .7rem;
+    }
+
+    .guessed-div{
+        padding: 1rem 1rem;
+        margin: .4rem 0.1rem;
+    }
+
+    .skocko-btn{
+        padding: .5rem 1rem;
+    }
+}
+
+@media only screen and (max-width: 520px){
+    .letter-btn{
+        padding: 1rem 1.5rem;
+        margin: .1rem;
+    }
+
+    .guess-container-btn, .guess-container-btn-question, .skocko-btn{
+        font-size: .5rem;
+        min-height: 25px;
+        min-width: 20px;
+        margin: 1rem 0 0 0;
+        padding: .3rem .7rem;
+    }
+
+    .guessed-div{
+        padding: .8rem .8rem;
+        margin: .3rem 0.1rem;
+    }
+
+    .skocko-btn{
+        padding: .5rem 1rem;
+        font-size: .7rem;
     }
 }
 
@@ -113,6 +174,24 @@ td{
     .letter-btn{
         padding: .5rem .9rem;
         margin: .1rem;
+    }
+
+    .guess-container-btn, .guess-container-btn-question, .skocko-btn{
+        font-size: .5rem;
+        min-height: 25px;
+        min-width: 20px;
+        margin: 1rem 0 0 0;
+        padding: .3rem .7rem;
+    }
+
+    .guessed-div{
+        padding: .8rem .8rem;
+        margin: .3rem 0.1rem;
+    }
+
+    .skocko-btn{
+        padding: .5rem 1rem;
+        font-size: .7rem;
     }
 }
 
