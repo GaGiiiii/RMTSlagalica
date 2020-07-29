@@ -121,6 +121,7 @@ let words = [
 let wordsAndLetters;
 let dataForSpojniceP;
 let dataForKoZnaZnaP;
+let dataForSkockoP;
 
 /* ********** SOCKET COMMUNICATION ********** */
 
@@ -182,6 +183,7 @@ io.on('connection', (socket) => { // Socket connected on server
     users.forEach((user) => {
       user.pointsSlagalica = 0;
       user.pointsSpojnice = 0;
+      user.pointsSkocko = 0;
       user.pointsKoZnaZna = 0;
       user.points = 0;
       user.finishedGame = false;
@@ -192,6 +194,7 @@ io.on('connection', (socket) => { // Socket connected on server
     wordsAndLetters = generateLetters();
     dataForSpojniceP = dataForSpojnice();
     dataForKoZnaZnaP = dataForKoZnaZna();
+    dataForSkockoP = dataForSkocko();
 
     io.emit('userReady', user);
     io.emit("allUsersReady", wordsAndLetters);
@@ -226,12 +229,27 @@ io.on('connection', (socket) => { // Socket connected on server
     socket.emit('startSpojnice', dataForSpojniceP);
   });
 
-  socket.on('finishedSpojniceGiveDataForKoZnaZna', (correctAnswers) => {
+  socket.on('finishedSpojniceGiveDataForSkocko', (correctAnswers) => {
     let user = getCurrentUser(socket.id);
 
-    user.pointsSpojnice = correctAnswers * 5;
-    user.points += user.pointsSpojnice;
+    if(user){
+      user.pointsSpojnice = correctAnswers * 5;
+      user.points += user.pointsSpojnice;
+    }
+
     io.emit('updateSpojnicePoints', user);
+    socket.emit('startSkocko', dataForSkockoP);
+  });
+
+  socket.on('finishedSkockoGiveDataForKoZnaZna', (info) => {
+    let user = getCurrentUser(socket.id);
+    
+    if(user){
+      user.pointsSkocko = 5;
+      user.points += user.pointsSkocko;
+    }
+
+    io.emit('updateSkockoPoints', user);
     socket.emit('startKoZnaZna', dataForKoZnaZnaP);
   });
 
@@ -446,6 +464,18 @@ function dataForSpojnice(){
   let randomIndex = Math.floor(Math.random() * (array.length - 1 + 0.5));
 
   return array[randomIndex]; // Gives random element from array
+}
+
+// Gives data for Skocko
+function dataForSkocko(){
+  const options = ['chrome', 'firefox', 'opera', 'safari', 'edge', 'ie'];
+  let data = [];
+
+  for(let i = 0; i < 4; i++){
+    data.push(options[Math.floor(Math.random() * (options.length - 1 + 0.5))]);
+  }
+
+  return data;
 }
 
 // Gives data for KoZnaZna

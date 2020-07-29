@@ -537,9 +537,9 @@ function startSpojnice(data){
 
                 finishedAll = true; // He now finished Spojnice
                 clearInterval(timer); // Stop the timer
-                socket.emit('finishedSpojniceGiveDataForKoZnaZna', correctAnswers); // Send to server number of correct answers
-                socket.once('startKoZnaZna', (data) => { // Start KoZnaZna after 3 seconds
-                    setTimeout(() => startKoZnaZna(data), 5000);
+                socket.emit('finishedSpojniceGiveDataForSkocko', correctAnswers); // Send to server number of correct answers
+                socket.once('startSkocko', (data) => { // Start Skocko after 3 seconds
+                    setTimeout(() => startSkocko(data), 5000);
                 });
             }
         });
@@ -567,9 +567,9 @@ function startSpojnice(data){
 
             showCorrectAnswersSpojnice(correctAnswersArray, spojniceBtns, counterHelper, wrongAnswersArray); // Show correct answers to user
 
-            socket.emit('finishedSpojniceGiveDataForKoZnaZna', correctAnswers);
-            socket.once('startKoZnaZna', (data) => {
-                setTimeout(() => startKoZnaZna(data), 5000);
+            socket.emit('finishedSpojniceGiveDataForSkocko', correctAnswers);
+            socket.once('startSkocko', (data) => {
+                setTimeout(() => startSkocko(data), 5000);
             });
         }
     });
@@ -628,9 +628,7 @@ function outputSpojniceHTML(message){
     </div>";
 }
 
-startSkocko();
-
-function startSkocko(){
+function startSkocko(data){
     // Create constants containing HTML for icons
     const chromeHTML = "<i class='fab fa-chrome'></i>";
     const fireFoxHTML = "<i class='fab fa-firefox'></i>";
@@ -647,7 +645,14 @@ function startSkocko(){
     const skockoBtns = document.querySelectorAll(".skocko-btn"); // Get all the skocko btns (google, safari, opera etc.)
     const guessContainerBtns = document.querySelectorAll('.guess-container-btn'); // These are the buttons where we put icons that user selected
     const guessContainerQuestionBtns = document.querySelectorAll('.guess-container-btn-question'); // These are question marks, user submits answer by clicking them
+    const guessedDivs = document.querySelectorAll('.guessed-div');
     let answersArray = []; // Array holding users answer for that row
+    let infoAboutAnswers = {
+        numberOfCorrectSignsAndPlace: 0,
+        numberOfCorrectSigns: 0,
+        attemptsleft: attemptsleft
+    }
+    let finished = false;
 
     /* 
         When user clicks icon, check in which row is he, then print clicked icon if possible
@@ -657,7 +662,7 @@ function startSkocko(){
         skockoBtn.addEventListener('click', (event) => {
             // Take clicked icon
             let clickedIcon = event.currentTarget.value; // MORA CURRENT TARGET JER AKO KLIKNE NA IKONICU BUDE UNDEFINED LOOOOL
-            switch(attemptsleft){ // We need to know in which row we are currently
+            switch(infoAboutAnswers.attemptsleft){ // We need to know in which row we are currently
                 case 6: 
                     printClickedIcon(0, guessContainerBtns, clickedIcon,
                         chromeHTML, fireFoxHTML, operaHTML, safariHTML, edgeHTML, ieHTML);
@@ -679,8 +684,8 @@ function startSkocko(){
 
                     break;
                 case 2:
-                    printClickedIcon(16, guessContainerBtns, clickedIco,
-                        chromeHTML, fireFoxHTML, operaHTML, safariHTML, edgeHTML, ieHTMLn)
+                    printClickedIcon(16, guessContainerBtns, clickedIcon,
+                        chromeHTML, fireFoxHTML, operaHTML, safariHTML, edgeHTML, ieHTML)
                         ;               
                     break;
                 case 1:
@@ -708,6 +713,10 @@ function startSkocko(){
         });
     });
 
+    // TIMER 
+
+    let timer = setTimer(); // Start the timer
+
     /* 
         When user clicks question mark submit answers
     */
@@ -719,164 +728,275 @@ function startSkocko(){
             let indexOfClickedQuestionBtn = event.currentTarget.value;
 
             // If he clicked wrong question mark do nothing
-            if(indexOfClickedQuestionBtn != attemptsleft){
+            if(indexOfClickedQuestionBtn != infoAboutAnswers.attemptsleft){
                 return;
             }
 
             // If he clicked correct question mark submit answers
-            switch(attemptsleft){
+            switch(infoAboutAnswers.attemptsleft){
                 case 6:
-                    getAnswer(0, answersArray, guessContainerBtns);
-                    attemptsleft--;
+                    getAnswerAndCheckThem(0, answersArray, guessContainerBtns, data, infoAboutAnswers, guessedDivs,
+                        guessContainerQuestionBtns, skockoBtns, timer); // Populate array with users answers
+                    event.currentTarget.disabled = true; // Disables question mark
+                    infoAboutAnswers.attemptsleft--; // Decrease attempts left
                     break;
                 case 5: 
-                    getAnswer(4, answersArray, guessContainerBtns);
-                    attemptsleft--;
+                    getAnswerAndCheckThem(4, answersArray, guessContainerBtns, data, infoAboutAnswers, guessedDivs,
+                        guessContainerQuestionBtns, skockoBtns, timer); // Populate array with users answers
+                    event.currentTarget.disabled = true; // Disables question mark
+                    infoAboutAnswers.attemptsleft--; // Decrease attempts left
                     break;
                 case 4:
-                    getAnswer(8, answersArray, guessContainerBtns);
-                    attemptsleft--;
+                    getAnswerAndCheckThem(8, answersArray, guessContainerBtns, data, infoAboutAnswers, guessedDivs,
+                        guessContainerQuestionBtns, skockoBtns, timer); // Populate array with users answers
+                    event.currentTarget.disabled = true; // Disables question mark
+                    infoAboutAnswers.attemptsleft--; // Decrease attempts left
                     break;
                 case 3:
-                    getAnswer(12, answersArray, guessContainerBtns);
-                    attemptsleft--;
+                    getAnswerAndCheckThem(12, answersArray, guessContainerBtns, data, infoAboutAnswers, guessedDivs,
+                        guessContainerQuestionBtns, skockoBtns, timer); // Populate array with users answers
+                    event.currentTarget.disabled = true; // Disables question mark
+                    infoAboutAnswers.attemptsleft--; // Decrease attempts left
                     break;
                 case 2:
-                    getAnswer(16, answersArray, guessContainerBtns);
-                    attemptsleft--;
+                    getAnswerAndCheckThem(16, answersArray, guessContainerBtns, data, infoAboutAnswers, guessedDivs,
+                        guessContainerQuestionBtns, skockoBtns, timer); // Populate array with users answers
+                    event.currentTarget.disabled = true; // Disables question mark
+                    infoAboutAnswers.attemptsleft--; // Decrease attempts left
                     break;
                 case 1:
-                    getAnswer(20, answersArray, guessContainerBtns);
-                    attemptsleft--;
+                    getAnswerAndCheckThem(20, answersArray, guessContainerBtns, data, infoAboutAnswers, guessedDivs,
+                        guessContainerQuestionBtns, skockoBtns, timer); // Populate array with users answers
+                    event.currentTarget.disabled = true; // Disables question mark
+                    infoAboutAnswers.attemptsleft--; // Decrease attempts left
                     break;
             }
         });
     });
 
+    // Start KoZnaZna after 3 seconds
+    socket.once('startKoZnaZna', (data) => {
+        if(currentGame != "KoZnaZna"){
+            setTimeout(() => startKoZnaZna(data), 4000);
+        }
+    });
 
+    // If time is up and user didn't find combination
+    socket.once('timeIsUpSkocko', () => {
+        if(!finished){ // Ako je vreme isteklo a nije confirmovao rec uradi sve ovo
+            finished = true; // Ovo mora da ne bi bio infinite loop
 
-
-
-
-    // const wordInput = document.querySelector('#word-input'); // Get word input
-    // const deleteLetterBtn = document.querySelector('.delete-letter-btn'); // Get delete btn
-    // const confirmButton = document.querySelector('.confirm-button'); // Get confirm btn
-    // const chosenWord = document.getElementById('chosen-word'); // Chosen word by computer
-    // let lettersArrayCounter = 0; // Counter for letters array
-
-    // // Populate letters with generated letters
-    // letters.forEach((letter) => {
-    //     if(letter.value == ""){
-    //         letter.innerHTML = wordsAndLetters.generatedLetters[lettersArrayCounter];
-    //         letter.value = wordsAndLetters.generatedLetters[lettersArrayCounter++];
-    //     }
-
-    //     // Add clicke event on every letter
-    //     letter.addEventListener('click', (event) => {
-    //         wordInput.value += event.target.value; // Add letter to the word input
-    //         letter.disabled = true; // Disable used letter
-
-    //         // If word exists in database color the word input in green, otherwise in red
-    //         if(isCorrectWord(wordInput.value)){
-    //             wordInput.classList.remove("is-invalid");
-    //             wordInput.classList.add("is-valid");
-    //         }else{
-    //             wordInput.classList.remove("is-valid");
-    //             wordInput.classList.add('is-invalid');
-    //         }
-    //     });
-    // });
-
-    // // Add click event on delete button
-    // deleteLetterBtn.addEventListener('click', () => {
-    //     let char =  wordInput.value[wordInput.value.length -1]; // Take last char from word input
-    //     wordInput.value = wordInput.value.substring(0, wordInput.value.length - 1); // Remove last char
-
-    //     // If word input is now empty change its color to grey, if not check if word exists in database and color it properly
-    //     if(wordInput.value == ""){
-    //         wordInput.classList.remove("is-invalid");
-    //         wordInput.classList.remove("is-valid");
-    //     }else{
-    //         if(isCorrectWord(wordInput.value)){
-    //             wordInput.classList.remove("is-invalid");
-    //             wordInput.classList.add("is-valid");
-    //         }else{
-    //             wordInput.classList.remove("is-valid");
-    //             wordInput.classList.add('is-invalid');
-    //         }
-    //     }
-
-    //     // When user deletes last char we need to enable that letter so he can now use it again
-    //     for(let i = 0; i < letters.length; i++){
-    //         if(letters[i].value === char){
-    //             if(letters[i].disabled){
-    //                 letters[i].disabled = false;
-
-    //                 break;
-    //             }
-    //         }
-    //     }
-    // });
-
-    // // TIMER 
-
-    // let timer = setTimer(); // Start the timer
-
-    // // Add click event on confirm button
-    // confirmButton.addEventListener('click', (event) => {
-    //     let word = wordInput.value; // Take typed word
-    //     letters.forEach((letter) => { // Disable all letters
-    //         letter.disabled = true;
-    //     });
-    //     deleteLetterBtn.disabled = true; // Disable delete btn
-    //     confirmButton.disabled = true; // Disable confirm btn
-    //     confirmedWord = true; // User now confirmed word
-    //     chosenWord.innerHTML = "Naša reč je: <strong>\"" + wordsAndLetters.word + "\"</strong>"; // Show chosen word to user
-
-    //     socket.emit('finishedSlagalicaGiveDataForSpojnice', word); // Tell server that user finished slagalica and send word that he found
-    //     clearInterval(timer); // Stop the timer
-    // });
-
-    // // Start spojnice after 3 seconds
-    // socket.once('startSpojnice', (data) => {
-    //     if(currentGame != "Spojnice"){
-    //         setTimeout(() => startSpojnice(data), 3000);
-    //     }
-    // });
-
-    // // If time is up and user didn't confirm word
-    // socket.once('timeIsUpSlagalica', () => {
-    //     if(!confirmedWord){ // Ako je vreme isteklo a nije confirmovao rec uradi sve ovo
-    //         confirmedWord = true; // Ovo mora da ne bi bio infinite loop
-    //         let word = wordInput.value; // Take typed word
-
-    //         letters.forEach((letter) => { // Disable all letters
-    //             letter.disabled = true;
-    //         });
-
-    //         deleteLetterBtn.disabled = true; // Disable delete btn
-    //         confirmButton.disabled = true; // DIsable confirm btn
-    //         chosenWord.innerHTML = "Naša reč je: <strong>\"" + wordsAndLetters.word + "\"</strong>"; // Show chosen word to user
-
-    //         socket.emit('finishedSlagalicaGiveDataForSpojnice', word); // Tell server that user finished slagalica and send word that he found
-    //         clearInterval(timer); // Stop the timer
-    //         // Start spojnice after 3 seconds
-    //         socket.once('startSpojnice', (data) => {
-    //             setTimeout(() => startSpojnice(data), 3000);
-    //         });
-    //     }
-    // });
+            guessContainerQuestionBtns.forEach((guessContainerQuestionBtn) => {
+                guessContainerQuestionBtn.disabled = true;
+            });
+    
+            skockoBtns.forEach((skockoBtn) => {
+                skockoBtn.disabled = true;
+            });
+    
+            guessContainerBtns.forEach((guessContainerBtn) => {
+                guessContainerBtn.disabled = true;
+            });
+            
+            socket.emit('finishedSkockoGiveDataForKoZnaZna', infoAboutAnswers); // Tell server that user finished slagalica and send word that he found
+            clearInterval(timer); // Stop the timer
+            // Start spojnice after 3 seconds
+            socket.once('startKoZnaZna', (data) => {
+                if(currentGame != "KoZnaZna"){
+                    setTimeout(() => startKoZnaZna(data), 4000);
+                }
+            });
+        }
+    });
 }
 
-function getAnswer(indexStart, answersArray, guessContainerBtns){
+
+function outputSkockoHTML(){
+    gamesContainer.innerHTML = "<p id='timer'>60</p><h1 id='game-name-header'>SKOČKO</h1>\
+    <div class='container-fluid'>\
+      <div class='row'>\
+\
+        <div class='col-md-6 col-sm-6 col-6'>\
+          <button class='btn btn-outline-primary guess-container-btn'></i></button>\
+          <button class='btn btn-outline-primary guess-container-btn'></button>\
+          <button class='btn btn-outline-primary guess-container-btn'></button>\
+          <button class='btn btn-outline-primary guess-container-btn'></button>\
+          <button value='6' class='btn btn-outline-primary guess-container-btn-question'><i class='fas fa-question'></i></button>\
+\
+          <br>\
+\
+          <button class='btn btn-outline-primary guess-container-btn'></i></button>\
+          <button class='btn btn-outline-primary guess-container-btn'></i></button>\
+          <button class='btn btn-outline-primary guess-container-btn'></i></button>\
+          <button class='btn btn-outline-primary guess-container-btn'></button>\
+          <button value='5' class='btn btn-outline-primary guess-container-btn-question'><i class='fas fa-question'></i></button>\
+\
+          <br>\
+\
+          <button class='btn btn-outline-primary guess-container-btn'></i></button>\
+          <button class='btn btn-outline-primary guess-container-btn'></i></button>\
+          <button class='btn btn-outline-primary guess-container-btn'></i></button>\
+          <button class='btn btn-outline-primary guess-container-btn'></button>\
+          <button value='4' class='btn btn-outline-primary guess-container-btn-question'><i class='fas fa-question'></i></button>\
+\
+          <br>\
+\
+          <button class='btn btn-outline-primary guess-container-btn'></i></button>\
+          <button class='btn btn-outline-primary guess-container-btn'></i></button>\
+          <button class='btn btn-outline-primary guess-container-btn'></i></button>\
+          <button class='btn btn-outline-primary guess-container-btn'></button>\
+          <button value='3' class='btn btn-outline-primary guess-container-btn-question'><i class='fas fa-question'></i></button>\
+\
+          <br>\
+\
+          <button class='btn btn-outline-primary guess-container-btn'></i></button>\
+          <button class='btn btn-outline-primary guess-container-btn'></i></button>\
+          <button class='btn btn-outline-primary guess-container-btn'></i></button>\
+          <button class='btn btn-outline-primary guess-container-btn'></button>\
+          <button value='2' class='btn btn-outline-primary guess-container-btn-question'><i class='fas fa-question'></i></button>\
+\
+          <br>\
+\
+          <button class='btn btn-outline-primary guess-container-btn'></i></button>\
+          <button class='btn btn-outline-primary guess-container-btn'></i></button>\
+          <button class='btn btn-outline-primary guess-container-btn'></i></button>\
+          <button class='btn btn-outline-primary guess-container-btn'></button>\
+          <button value='1' class='btn btn-outline-primary guess-container-btn-question'><i class='fas fa-question'></i></button>\
+        </div>\
+\
+        <div class='col-md-6 col-sm-6 col-6'> \
+          <div class='guessed-div'></div> \
+          <div class='guessed-div'></div> \
+          <div class='guessed-div'></div> \
+          <div class='guessed-div'></div> \
+\
+          <br>\
+\
+          <div class='guessed-div'></div> \
+          <div class='guessed-div'></div> \
+          <div class='guessed-div'></div> \
+          <div class='guessed-div'></div> \
+\
+          <br>\
+\
+          <div class='guessed-div'></div> \
+          <div class='guessed-div'></div> \
+          <div class='guessed-div'></div> \
+          <div class='guessed-div'></div> \
+\
+          <br>\
+\
+          <div class='guessed-div'></div> \
+          <div class='guessed-div'></div> \
+          <div class='guessed-div'></div> \
+          <div class='guessed-div'></div> \
+\
+          <br>\
+\
+          <div class='guessed-div'></div>\
+          <div class='guessed-div'></div>\
+          <div class='guessed-div'></div>\
+          <div class='guessed-div'></div>\
+\
+          <br>\
+\
+          <div class='guessed-div'></div> \
+          <div class='guessed-div'></div> \
+          <div class='guessed-div'></div> \
+          <div class='guessed-div'></div> \
+        </div>\
+\
+      </div>\
+    </div>\
+\
+    <br>\
+\
+    <button value='chrome' class='btn btn-outline-primary skocko-btn'><i class='fab fa-chrome'></i></button>\
+    <button value='firefox' class='btn btn-outline-primary skocko-btn'><i class='fab fa-firefox'></i></button>\
+    <button value='opera' class='btn btn-outline-primary skocko-btn'><i class='fab fa-opera'></i></button>\
+    <button value='safari' class='btn btn-outline-primary skocko-btn'><i class='fab fa-safari'></i></button>\
+    <button value='edge' class='btn btn-outline-primary skocko-btn'><i class='fab fa-edge'></i></button>\
+    <button value='ie' class='btn btn-outline-primary skocko-btn'><i class='fab fa-internet-explorer'></i></button>";
+}
+
+function getAnswerAndCheckThem(indexStart, answersArray, guessContainerBtns, data, infoAboutAnswers, guessedDivs,
+    guessContainerQuestionBtns, skockoBtns, timer){
+
     answersArray = []; // Empty the array
 
     // Push current values to array
     for(let i = indexStart; i < indexStart + 4; i++){
-        answersArray.push(guessContainerBtns[i].value);                      
+        answersArray.push(guessContainerBtns[i].value);
+        guessContainerBtns[i].disabled = true;             
     }
 
+    if(checkIfHeFinished(indexStart, answersArray, data, infoAboutAnswers, guessedDivs)){
+        // Finished
+
+        finished = true;
+
+        guessContainerQuestionBtns.forEach((guessContainerQuestionBtn) => {
+            guessContainerQuestionBtn.disabled = true;
+        });
+
+        skockoBtns.forEach((skockoBtn) => {
+            skockoBtn.disabled = true;
+        });
+
+        guessContainerBtns.forEach((guessContainerBtn) => {
+            guessContainerBtn.disabled = true;
+        });
+
+        socket.emit('finishedSkockoGiveDataForKoZnaZna', infoAboutAnswers); // Tell server that user finished slagalica and send word that he found
+        clearInterval(timer); // Stop the timer
+    };
+}
+
+function checkIfHeFinished(indexStart, answersArray, data, infoAboutAnswers, guessedDivs){
+    infoAboutAnswers.numberOfCorrectSignsAndPlace = 0;
+    infoAboutAnswers.numberOfCorrectSigns = 0;
+
+    let usedIndexesA = []; // Used indexes answers
+    let usedIndexesD = []; // Used indexes data
+
     console.log(answersArray);
+    console.log(data);
+
+    for(let i = 0; i < 4; i++){
+        if(answersArray[i] == data[i]){
+            infoAboutAnswers.numberOfCorrectSignsAndPlace++;
+            usedIndexesA.push(i);
+            usedIndexesD.push(i);
+        }
+    }
+
+    for(let i = 0; i < answersArray.length; i++){
+        for(let j = 0; j < data.length; j++){
+            if(answersArray[i] == data[j] && !usedIndexesA.includes(i) && !usedIndexesD.includes(j)){
+                usedIndexesA.push(i);
+                usedIndexesD.push(j);
+                infoAboutAnswers.numberOfCorrectSigns++;
+                i++;
+                j = -1;
+
+                continue; // This will increase j to 0
+            }
+        }
+    }
+
+    for(let i = 0; i < infoAboutAnswers.numberOfCorrectSignsAndPlace; i++){
+        guessedDivs[indexStart++].style.backgroundColor = "red";
+    }
+
+    for(let i = 0; i < infoAboutAnswers.numberOfCorrectSigns; i++){
+        guessedDivs[indexStart++].style.backgroundColor = "yellow";
+    }
+
+    if(infoAboutAnswers.numberOfCorrectSignsAndPlace == 4){
+        return true;
+    }
+
+    return false
 }
 
 function printClickedIcon(indexStart, guessContainerBtns, clickedIcon,
@@ -921,10 +1041,6 @@ function printClickedIcon(indexStart, guessContainerBtns, clickedIcon,
             break; // Break after printing icon, we only want to print it once
         }
     }
-}
-
-function outputSkockoHTML(){
-
 }
 
 function startKoZnaZna(data){
@@ -1045,6 +1161,15 @@ socket.on('updateSpojnicePoints', (user) => {
     let pointsFieldTotal = document.querySelector('#' + user.username + '-game7-score');
     pointsField.innerText = user.pointsSpojnice;
     pointsFieldTotal.innerText = user.points;
+});
+
+// Update points for koznazna, update for koznazna field and total field
+socket.on('updateSkockoPoints', (user) => {
+    let pointsField = document.querySelector('#' + user.username + '-game4-score');
+    let pointsFieldTotal = document.querySelector('#' + user.username + '-game7-score');
+    pointsField.innerText = user.pointsSkocko;
+    pointsFieldTotal.innerText = user.points;
+    isGameInProggress = false; // THIS IS THE LAST GAME SO GAME IS OVER NOW
 });
 
 // Update points for koznazna, update for koznazna field and total field
