@@ -6,6 +6,10 @@
       --success-color: #5cb85c;
       --error-color: #d9534f;
   }
+
+  *, h1{
+    font-family: 'Pangolin', cursive;
+  }
   
   #chat-message-input{
     border-color: #000;

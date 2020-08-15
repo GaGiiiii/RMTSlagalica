@@ -1,3 +1,7 @@
+*, h3{
+    font-family: 'Pangolin', cursive;
+}
+
 td{
     font-weight: 400;
 }
@@ -105,6 +109,37 @@ td{
     box-sizing: border-box;
 }
 
+
+.associations-btn{
+    display: block;
+    width: 400px;
+    margin: 1rem auto 0 auto;
+}
+
+.associations-btn:active, .associations-btn:focus{
+    outline: none !important;
+    box-shadow: none;
+    background-color: #fff;
+    color: #000;
+}
+
+.column-final-input{
+    width: 400px;
+    margin: 1rem auto 0 auto;
+}
+
+.final-input{
+    width: 700px;
+    margin: 2rem auto 1rem auto;
+}
+
+.column-final-input::placeholder, .final-input::placeholder{
+    text-align: center;
+}
+
+
+
+
 @media only screen and (max-width: 991px){
     .guess-container-btn, .guess-container-btn-question, .skocko-btn{
         font-size: 1.1rem;
@@ -115,6 +150,18 @@ td{
     .guessed-div{
         padding: 1.5rem 1.5rem;
         margin: .35rem .2rem;
+    }
+
+    .associations-btn{
+        width: 250px;
+    }
+    
+    .column-final-input{
+        width: 250px;
+    }
+
+    .final-input{
+        width: 400px;
     }
 }
 
@@ -142,6 +189,18 @@ td{
 
     .skocko-btn{
         padding: .5rem 1rem;
+    }
+
+    .associations-btn{
+        width: 200px;
+    }
+    
+    .column-final-input{
+        width: 200px;
+    }
+
+    .final-input{
+        width: 300px;
     }
 }
 
@@ -192,6 +251,18 @@ td{
     .skocko-btn{
         padding: .5rem 1rem;
         font-size: .7rem;
+    }
+
+    .associations-btn{
+        width: 160px;
+    }
+    
+    .column-final-input{
+        width: 160px;
+    }
+
+    .final-input{
+        width: 250px;
     }
 }
 

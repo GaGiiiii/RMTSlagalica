@@ -1400,3 +1400,101 @@ function validateInput(input){
   
     return input
   }
+
+
+
+
+
+
+
+
+
+
+
+  socket.on('startAsocijacije', (data) => {
+      let associationsBtns = document.querySelectorAll('.associations-btn');
+      let columFinalInputs = document.querySelectorAll('.column-final-input');
+      let finalInput = document.getElementById('answer-input-final');
+
+      let counterA = 1;
+      let counterB = 1;
+      let counterC = 1;
+      let counterD = 1;
+
+      // Popunjavanje Valuesa
+
+      associationsBtns.forEach((associationsBtn) => {
+        switch(associationsBtn.innerHTML.substring(0, 1)){
+            case 'A':
+                associationsBtn.value = data['A'][counterA++];
+                break;
+            case 'B':
+                associationsBtn.value = data['B'][counterB++];
+                break;
+            case 'C':
+                associationsBtn.value = data['C'][counterC++];
+                break;
+            case 'D':
+                associationsBtn.value = data['D'][counterD++];
+                break;
+        }
+      });
+
+
+      // Add event listenera
+
+      associationsBtns.forEach((associationsBtn) => {
+        associationsBtn.addEventListener('click', (event) => {
+            event.target.innerHTML = event.target.value;
+        });
+      });
+
+      columFinalInputs.forEach((columFinalInput) => {
+        columFinalInput.addEventListener('keyup', (event) => {
+
+            let column = event.target.getAttribute('data-value');
+            let value = event.target.value;
+
+            if(value == ""){
+                event.target.classList.remove('is-invalid');
+            }
+
+            if(value.toUpperCase() == data[column][0].toUpperCase()){
+                event.target.disabled = true;
+                event.target.classList.remove('is-invalid');
+                event.target.classList.add('is-valid');
+            }else{
+                event.target.classList.add('is-invalid');
+            }
+ 
+          });
+      });
+
+      // ISTO I ZA KONACNO
+
+      finalInput.addEventListener('keyup', (event) =>{
+        let value = event.target.value;
+        counter = 0;
+
+        console.log(value)
+
+        if(value == ""){
+
+            event.target.classList.remove('is-invalid');
+            console.log(event.target.classList)
+
+        }
+
+        if(data['KONACNO'].find((element) => element.toUpperCase() == value.toUpperCase())){
+            event.target.disabled = true;
+            event.target.classList.remove('is-invalid');
+            event.target.classList.add('is-valid');            
+        }else{
+            event.target.classList.add('is-invalid');
+        }
+
+      });
+
+      console.log(data)
+
+  });
