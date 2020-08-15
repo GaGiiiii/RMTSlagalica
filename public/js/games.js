@@ -1457,16 +1457,19 @@ function validateInput(input){
 
             if(value == ""){
                 event.target.classList.remove('is-invalid');
-            }
-
-            if(value.toUpperCase() == data[column][0].toUpperCase()){
-                event.target.disabled = true;
-                event.target.classList.remove('is-invalid');
-                event.target.classList.add('is-valid');
             }else{
-                event.target.classList.add('is-invalid');
+
+                if(value.toUpperCase() == data[column][0].toUpperCase()){
+                    event.target.disabled = true;
+                    event.target.classList.remove('is-invalid');
+                    event.target.classList.add('is-valid');
+
+                    // Prikazi i otvori preostala polja
+                }else{
+                    event.target.classList.add('is-invalid');
+                }
+
             }
- 
           });
       });
 
@@ -1476,23 +1479,22 @@ function validateInput(input){
         let value = event.target.value;
         counter = 0;
 
-        console.log(value)
-
         if(value == ""){
-
             event.target.classList.remove('is-invalid');
             console.log(event.target.classList)
-
-        }
-
-        if(data['KONACNO'].find((element) => element.toUpperCase() == value.toUpperCase())){
-            event.target.disabled = true;
-            event.target.classList.remove('is-invalid');
-            event.target.classList.add('is-valid');            
         }else{
-            event.target.classList.add('is-invalid');
-        }
 
+            if(data['KONACNO'].find((element) => element.toUpperCase() == value.toUpperCase())){
+                event.target.disabled = true;
+                event.target.classList.remove('is-invalid');
+                event.target.classList.add('is-valid');     
+                
+                // PRikazi sva polja i otvori ih
+            }else{
+                event.target.classList.add('is-invalid');
+            }
+
+        }
       });
 
       console.log(data)
