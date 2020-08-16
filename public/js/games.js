@@ -376,10 +376,13 @@ function startSlagalica(wordsAndLetters){
 
             socket.emit('finishedSlagalicaGiveDataForSpojnice', word); // Tell server that user finished slagalica and send word that he found
             clearInterval(timer); // Stop the timer
-            // Start spojnice after 3 seconds
-            socket.once('startSpojnice', (data) => {
-                setTimeout(() => startSpojnice(data), 3000);
-            });
+            // Start spojnice after 3 seconds WE DONT NEED THIS CUZ WE HAVE THIS SAME CODE UP 10 ROWS AND IT WILL START SPOJNICE 2 TIMES
+
+            // socket.once('startSpojnice', (data) => {
+            //     if(currentGame != 'Spojnice'){
+            //         setTimeout(() => startSpojnice(data), 3000);
+            //     }
+            // });
         }
     });
 }
@@ -848,11 +851,11 @@ function startSkocko(data){
             socket.emit('finishedSkockoGiveDataForKoZnaZna', infoAboutAnswers); // Tell server that user finished slagalica and send word that he found
             clearInterval(timer); // Stop the timer
             // Start spojnice after 3 seconds
-            socket.once('startKoZnaZna', (data) => {
-                if(currentGame != "KoZnaZna"){
-                    setTimeout(() => startKoZnaZna(data), 4000);
-                }
-            });
+            // socket.once('startKoZnaZna', (data) => {
+            //     if(currentGame != "KoZnaZna"){
+            //         setTimeout(() => startKoZnaZna(data), 4000);
+            //     }
+            // });
         }
     });
 }
@@ -1210,12 +1213,16 @@ function startKoZnaZna(data){
             sendAnswerBtn.disabled = true; // Disable answer button
             answerInput.disabled = true; // Disable input 
 
-            setTimeout(() => { // Finish the game after 2 seconds
-                socket.emit('finishedKoZnaZna', information.infoKoZnaZna);
-                information.gamesContainer.innerHTML = "";
-            }, 2000);
+            socket.emit('finishedKoZnaZna', information.infoKoZnaZna);
         }
     });
+
+        // Start asocijacije after 3 seconds
+        socket.once('startAsocijacije', (data) => {
+            if(currentGame != "Asocijacije"){
+                setTimeout(() => startAsocijacije(data), 3000);
+            }
+        });
 }
 
 function outputKoZnaZnaHTML(){
@@ -1242,6 +1249,251 @@ function outputKoZnaZnaHTML(){
     </div>";
 }
 
+function startAsocijacije(data){
+    outputAsocijacije();
+    currentGame = 'Asocijacije'; // Set current game to Asocijacije
+
+    let points = 0;
+    let numberOfOpenFields = 0
+    let guessedColumns = 0;
+    let associationsBtns = document.querySelectorAll('.associations-btn');
+    let columFinalInputs = document.querySelectorAll('.column-final-input');
+    let finalInput = document.getElementById('answer-input-final');
+
+    let counterA = 1;
+    let counterB = 1;
+    let counterC = 1;
+    let counterD = 1;
+
+    // Popunjavanje Valuesa
+
+    associationsBtns.forEach((associationsBtn) => {
+    switch(associationsBtn.innerHTML.substring(0, 1)){
+        case 'A':
+            associationsBtn.value = data['A'][counterA++];
+            break;
+        case 'B':
+            associationsBtn.value = data['B'][counterB++];
+            break;
+        case 'C':
+            associationsBtn.value = data['C'][counterC++];
+            break;
+        case 'D':
+            associationsBtn.value = data['D'][counterD++];
+            break;
+    }
+    });
+
+    let timer = setTimer(); // Start the timer
+
+    // Add event listenera
+
+    associationsBtns.forEach((associationsBtn) => {
+        associationsBtn.addEventListener('click', (event) => {
+            event.target.innerHTML = event.target.value;
+        });
+    });
+
+    columFinalInputs.forEach((columFinalInput) => {
+        columFinalInput.addEventListener('keyup', (event) => {
+
+            let column = event.target.getAttribute('data-value');
+            let value = event.target.value;
+
+            if(value == ""){
+                event.target.classList.remove('is-invalid');
+            }else{
+
+                if(value.toUpperCase() == data[column][0].toUpperCase()){
+                    event.target.disabled = true;
+                    event.target.classList.remove('is-invalid');
+                    event.target.classList.add('is-valid');
+                    numberOfOpenFields = 0;
+
+                    // Prikazi i otvori preostala polja
+
+                    associationsBtns.forEach((associationsBtn) => {
+                        if(associationsBtn.innerHTML.substring(0, 1) == column){
+                            numberOfOpenFields++;
+                            associationsBtn.innerHTML = associationsBtn.value;
+                        }
+                    });
+
+                    numberOfOpenFields = 4 - numberOfOpenFields;
+
+                    // POINTS
+
+                    switch(numberOfOpenFields){
+                        case 1:
+                            points += 8;
+                            break;
+                        case 2:
+                            points += 7;
+                            break;
+                        case 3:
+                            points += 6;
+                            break;
+                        case 4:
+                            points += 5;
+                            break;
+                        case 0:
+                            points += 10
+                            break;
+                    }
+                }else{
+                    event.target.classList.add('is-invalid');
+                }
+
+            }
+        });
+    });
+
+    // ISTO I ZA KONACNO
+
+    finalInput.addEventListener('keyup', (event) =>{
+        let value = event.target.value;
+        counter = 0;
+
+        if(value == ""){
+            event.target.classList.remove('is-invalid');
+        }else{
+
+            if(data['KONACNO'].find((element) => element.toUpperCase() == value.toUpperCase())){
+                event.target.disabled = true;
+                event.target.classList.remove('is-invalid');
+                event.target.classList.add('is-valid'); 
+                
+                // PRikazi sva polja i otvori ih
+                associationsBtns.forEach((associationsBtn) => {
+                    associationsBtn.innerHTML = associationsBtn.value;
+                });
+
+                columFinalInputs.forEach((columFinalInput) => {
+                    if(columFinalInput.value != ''){
+                        guessedColumns++;
+                    }
+
+                    columFinalInput.disabled = true;
+                    let column = columFinalInput.getAttribute('data-value');
+                    columFinalInput.value = data[column][0].toUpperCase();
+                });
+
+                // POINTS
+
+                switch(guessedColumns){
+                    case 0:
+                        points += 40;
+                        break;
+                    case 1:
+                        points += 20;
+                        break;
+                    case 2:
+                        points += 15;
+                        break;
+                    case 3:
+                        points += 10;
+                        break;
+                    case 4:
+                        points += 5;
+                        break;
+                }
+
+                clearInterval(timer); // Stop the timer
+
+                setTimeout(() => { // Tell server that user finished KoZnaZna
+                    socket.emit('finishedAsocijacije', points);
+                    gamesContainer.innerHTML = ""; // There is no next game so we empty games container
+                }, 7000);
+            }else{
+                event.target.classList.add('is-invalid');
+            }
+
+        }
+    });
+
+    // If time is up and user didn't confirm word
+    socket.once('timeIsUpAsocijacije', () => {
+        associationsBtns.forEach((associationsBtn) => {
+            associationsBtn.innerHTML = associationsBtn.value;
+        });
+
+        finalInput.value = data["KONACNO"][0];
+        finalInput.disabled = true;
+
+        columFinalInputs.forEach((columFinalInput) => {
+            if(columFinalInput.value != ''){
+                guessedColumns++;
+            }
+
+            columFinalInput.disabled = true;
+            let column = columFinalInput.getAttribute('data-value');
+            columFinalInput.value = data[column][0].toUpperCase();
+        });
+
+        clearInterval(timer); // Stop the timer   
+        
+        setTimeout(() => { // Tell server that user finished KoZnaZna
+            socket.emit('finishedAsocijacije', points);
+            gamesContainer.innerHTML = ""; // There is no next game so we empty games container
+        }, 7000);
+    });
+}
+
+function outputAsocijacije(){
+    gamesContainer.innerHTML = `<p id='timer'>60</p><h1 id='game-name-header'>ASOCIJACIJE</h1>
+    <div class="container-fluid">
+      <div class="row">
+        <div class="col-md-12">
+
+          <div class="container-fluid">
+
+            <div class="row">
+              <div class="col-md-6 col-sm-6 col-6">
+                <button class="btn btn-outline-primary btn-lg associations-btn" role="button">A1</button>
+                <button class="btn btn-outline-primary btn-lg associations-btn" role="button">A2</button>
+                <button class="btn btn-outline-primary btn-lg associations-btn" role="button">A3</button>
+                <button class="btn btn-outline-primary btn-lg associations-btn" role="button">A4</button>
+                <input type="text" placeholder="Konačno A" class="form-control column-final-input" data-value="A" id="answer-input-a">
+              </div>
+              <div class="col-md-6 col-sm-6 col-6">
+                <button class="btn btn-outline-primary btn-lg associations-btn" role="button">B1</button>
+                <button class="btn btn-outline-primary btn-lg associations-btn" role="button">B2</button>
+                <button class="btn btn-outline-primary btn-lg associations-btn" role="button">B3</button>
+                <button class="btn btn-outline-primary btn-lg associations-btn" role="button">B4</button>
+                <input type="text" placeholder="Konačno B" class="form-control column-final-input" data-value="B" id="answer-input-b">
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-12">
+                <input type="text" placeholder="Konačno" class="form-control final-input" data-value="K" id="answer-input-final">
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-6 col-sm-6 col-6">
+                <input type="text" placeholder="Konačno C" class="form-control column-final-input" data-value="C" id="answer-input-c">
+                <button class="btn btn-outline-primary btn-lg associations-btn" role="button">C1</button>
+                <button class="btn btn-outline-primary btn-lg associations-btn" role="button">C2</button>
+                <button class="btn btn-outline-primary btn-lg associations-btn" role="button">C3</button>
+                <button class="btn btn-outline-primary btn-lg associations-btn" role="button">C4</button>
+              </div>
+              <div class="col-md-6 col-sm-6 col-6">
+                <input type="text" placeholder="Konačno D" class="form-control column-final-input" data-value="D" id="answer-input-d">
+                <button class="btn btn-outline-primary btn-lg associations-btn" role="button">D1</button>
+                <button class="btn btn-outline-primary btn-lg associations-btn" role="button">D2</button>
+                <button class="btn btn-outline-primary btn-lg associations-btn" role="button">D3</button>
+                <button class="btn btn-outline-primary btn-lg associations-btn" role="button">D4</button>
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+      </div>
+    </div>`;
+}
+
 // Update points for slagalica, update for slagalica field and total field
 socket.on('updateSlagalicaPoints', (user) => {
     let pointsField = document.querySelector('#' + user.username + '-game1-score');
@@ -1264,7 +1516,6 @@ socket.on('updateSkockoPoints', (user) => {
     let pointsFieldTotal = document.querySelector('#' + user.username + '-game7-score');
     pointsField.innerText = user.pointsSkocko;
     pointsFieldTotal.innerText = user.points;
-    console.log(user)
 });
 
 // Update points for koznazna, update for koznazna field and total field
@@ -1272,6 +1523,13 @@ socket.on('updateKoZnaZnaPoints', (user) => {
     let pointsField = document.querySelector('#' + user.username + '-game5-score');
     let pointsFieldTotal = document.querySelector('#' + user.username + '-game7-score');
     pointsField.innerText = user.pointsKoZnaZna;
+    pointsFieldTotal.innerText = user.points;
+});
+
+socket.on('updateAsocijacijePoints', (user) => {
+    let pointsField = document.querySelector('#' + user.username + '-game6-score');
+    let pointsFieldTotal = document.querySelector('#' + user.username + '-game7-score');
+    pointsField.innerText = user.pointsAsocijacije;
     pointsFieldTotal.innerText = user.points;
     isGameInProggress = false; // THIS IS THE LAST GAME SO GAME IS OVER NOW
 });
@@ -1379,10 +1637,13 @@ function setTimer2(information){
                 information.sendAnswerBtn.disabled = true; // Disable send button
                 information.answerInput.disabled = true; // Disable answer input
 
-                setTimeout(() => { // Tell server that user finished KoZnaZna
-                    socket.emit('finishedKoZnaZna', information.infoKoZnaZna);
-                    information.gamesContainer.innerHTML = ""; // There is no next game so we empty games container
-                }, 2000);
+                socket.emit('finishedKoZnaZna', information.infoKoZnaZna);
+
+                socket.once('startAsocijacije', (data) => {
+                    if(currentGame != "Asocijacije"){
+                        setTimeout(() => startAsocijacije(data), 3000);
+                    }
+                });
             }
         }
     }, 1000);
@@ -1400,103 +1661,3 @@ function validateInput(input){
   
     return input
   }
-
-
-
-
-
-
-
-
-
-
-
-  socket.on('startAsocijacije', (data) => {
-      let associationsBtns = document.querySelectorAll('.associations-btn');
-      let columFinalInputs = document.querySelectorAll('.column-final-input');
-      let finalInput = document.getElementById('answer-input-final');
-
-      let counterA = 1;
-      let counterB = 1;
-      let counterC = 1;
-      let counterD = 1;
-
-      // Popunjavanje Valuesa
-
-      associationsBtns.forEach((associationsBtn) => {
-        switch(associationsBtn.innerHTML.substring(0, 1)){
-            case 'A':
-                associationsBtn.value = data['A'][counterA++];
-                break;
-            case 'B':
-                associationsBtn.value = data['B'][counterB++];
-                break;
-            case 'C':
-                associationsBtn.value = data['C'][counterC++];
-                break;
-            case 'D':
-                associationsBtn.value = data['D'][counterD++];
-                break;
-        }
-      });
-
-
-      // Add event listenera
-
-      associationsBtns.forEach((associationsBtn) => {
-        associationsBtn.addEventListener('click', (event) => {
-            event.target.innerHTML = event.target.value;
-        });
-      });
-
-      columFinalInputs.forEach((columFinalInput) => {
-        columFinalInput.addEventListener('keyup', (event) => {
-
-            let column = event.target.getAttribute('data-value');
-            let value = event.target.value;
-
-            if(value == ""){
-                event.target.classList.remove('is-invalid');
-            }else{
-
-                if(value.toUpperCase() == data[column][0].toUpperCase()){
-                    event.target.disabled = true;
-                    event.target.classList.remove('is-invalid');
-                    event.target.classList.add('is-valid');
-
-                    // Prikazi i otvori preostala polja
-                }else{
-                    event.target.classList.add('is-invalid');
-                }
-
-            }
-          });
-      });
-
-      // ISTO I ZA KONACNO
-
-      finalInput.addEventListener('keyup', (event) =>{
-        let value = event.target.value;
-        counter = 0;
-
-        if(value == ""){
-            event.target.classList.remove('is-invalid');
-            console.log(event.target.classList)
-        }else{
-
-            if(data['KONACNO'].find((element) => element.toUpperCase() == value.toUpperCase())){
-                event.target.disabled = true;
-                event.target.classList.remove('is-invalid');
-                event.target.classList.add('is-valid');     
-                
-                // PRikazi sva polja i otvori ih
-            }else{
-                event.target.classList.add('is-invalid');
-            }
-
-        }
-      });
-
-      console.log(data)
-
-  });

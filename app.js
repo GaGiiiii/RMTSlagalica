@@ -189,6 +189,7 @@ io.on('connection', (socket) => { // Socket connected on server
       user.pointsSpojnice = 0;
       user.pointsSkocko = 0;
       user.pointsKoZnaZna = 0;
+      user.pointsAsocijacije = 0;
       user.points = 0;
       user.finishedGame = false;
     });
@@ -261,8 +262,6 @@ io.on('connection', (socket) => { // Socket connected on server
 
   socket.on('finishedKoZnaZna', (infoKoZnaZna) => {
     let user = getCurrentUser(socket.id);
-    let users = getJoinedUsers();
-    let everyoneFinished = true;
     
     if(!user){
       return;
@@ -273,6 +272,22 @@ io.on('connection', (socket) => { // Socket connected on server
     user.points += user.pointsKoZnaZna;
 
     io.emit('updateKoZnaZnaPoints', user);
+    socket.emit('startAsocijacije', dataForAsocijacijeP);
+  });
+
+  socket.on('finishedAsocijacije', (points) => {
+    let user = getCurrentUser(socket.id);
+    let users = getJoinedUsers();
+    let everyoneFinished = true;
+    
+    if(!user){
+      return;
+    }
+
+    user.pointsAsocijacije += points;
+    user.points += user.pointsAsocijacije;
+
+    io.emit('updateAsocijacijePoints', user);
     user.finishedGame = true;
     user.ready = false;
 
@@ -309,7 +324,6 @@ io.on('connection', (socket) => { // Socket connected on server
       io.emit('gameOverForMain'); // On page main now we can allow other users to join game if there is space
       io.emit('gameOver', winner); // Tell to clients who is winner and that game is over
     }
-    // socket.emit('startKoZnaZna', dataForKoZnaZna());
   });
 
   // Listen for chatMessage
@@ -543,37 +557,23 @@ function dataForAsocijacije(){
     "A": ['HARDVER', 'MONITOR', 'TASTATURA', 'MIŠ', 'ŠTAMPAČ'],
     "B": ['SOFTVER', 'PROGRAM', 'APLIKACIJA', 'OPERATIVNI SISTEM', 'LICENCA'],
     "C": ['LAPTOP', 'PREKLAPANJE', 'MOBILAN', 'UREĐAJ', 'TOUCHPAD'],
-    "D": ['IGRICE', 'WORLD OF WARCRAFT', 'CS:GO', 'LEAGUE OF LEGENDS', 'SUPER MARIO'],
+    "D": ['IGRICA', 'WORLD OF WARCRAFT', 'CS:GO', 'LEAGUE OF LEGENDS', 'SUPER MARIO'],
   }
 
   let data2 = {
-    "PORUKA": "POVEŽITE STATUSNE KODOVE SA ODGOVARAJUĆIM ODGOVOROM",
-    "OK": '200',
-    "MOVED PERMANENTLY": '301',
-    "NOT MODIFIED": '304',
-    "BAD REQUEST": '400',
-    "NOT FOUND": '404',
-    "HTTP VERSION NOT SUPPORTED": '505',
-  }
-
-  let data3 = {
-    "PORUKA": "POVEŽITE NAREDBE U PROGRAMSKOM JEZIKU JAVA SA ODGOVARAJUĆIM ZAHTEVOM",
-    "PRIHVATA ZAHTEV I USPOSTAVLJA NOVU TCP KONEKCIJU": 'Socket socket = server.accept();',
-    "INICIJALIZUJE TCP SERVERSKI SOKET": 'ServerSocket socket = new ServerSocket(6789);',
-    "INSTANCIRA TCP KLIJENTSKI SOKET": 'Socket socket = new Socket(\"localhost\", 6789);',
-    "PRIPREMA UDP SOKET ZA PRIJEM PODATAKA": 'DatagramSocket serverSocket = new DatagramSocket(9876);',
-    "VRAĆA BROJ PORTA NA KOME SE NALAZI SOKET": ' Socket socket = new Socket(); socket.getPort();',
-    "ŠALJE PAKET PREKO UDP PROTOKOLA": 'DatagramSocket socket = new datagramSocket(); DatagramPacket packet; socket.send(packet);',
+    "KONACNO": ["PROGRAMSKI JEZIK", "JEZIK", "PROGRAMIRANJE"],
+    "A": ['PYTHON', 'ZMIJA', 'MAŠINSKO UČENJE', 'BEZ TAČKE ZAREZA', 'DJANGO'],
+    "B": ['RUBY', 'DRAGI KAMEN', 'SAFIR', 'CRVEN', 'RAILS'],
+    "C": ['JAVA', 'SAN', 'OBJEKTNO-ORIJENTISAN', 'KLASE', 'SCRIPT'],
+    "D": ['C', 'VITAMIN', 'A', 'B', 'UGLJENIK'],
   }
 
   let array = [];
-  array.push(data, data2, data3);
+  array.push(data, data2);
 
   let randomIndex = Math.floor(Math.random() * (array.length - 1 + 0.5));
 
-  // return array[randomIndex]; // Gives random element from array
-
-  return data;
+  return array[randomIndex]; // Gives random element from array
 }
 
 // Checks if word exists in database of words

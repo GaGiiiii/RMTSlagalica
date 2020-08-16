@@ -11,6 +11,7 @@ function userJoins(id, username){
         pointsSpojnice: 0,
         pointsSkocko: 0,
         pointsKoZnaZna: 0,
+        pointsAsocijacije: 0,
         points: 0,
         finishedGame: false,
     }
