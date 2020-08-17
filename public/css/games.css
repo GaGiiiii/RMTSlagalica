@@ -107,8 +107,13 @@ td{
     min-height: 70px;
     min-width: 70px;
     box-sizing: border-box;
+    margin-top: -4rem;
 }
 
+.remove-padding{
+    padding-left: 0;
+    padding-right: 0;
+}
 
 .associations-btn{
     display: block;
@@ -189,6 +194,7 @@ td{
 
     .skocko-btn{
         padding: .5rem 1rem;
+        margin-top: -7rem;
     }
 
     .associations-btn{
@@ -226,6 +232,7 @@ td{
     .skocko-btn{
         padding: .5rem 1rem;
         font-size: .7rem;
+        margin-top: -7rem;
     }
 }
 
@@ -251,6 +258,7 @@ td{
     .skocko-btn{
         padding: .5rem 1rem;
         font-size: .7rem;
+        margin-top: -7rem;
     }
 
     .associations-btn{
@@ -263,6 +271,26 @@ td{
 
     .final-input{
         width: 250px;
+    }
+}
+
+@media only screen and (max-width: 390px){
+    .guess-container-btn-question{
+        font-size: .4rem;
+        min-height: 20px;
+        min-width: 15px;
+        margin: 1rem 0 0 0;
+        padding: .3rem .7rem;
+    }
+
+    .skocko-btn{
+        margin-top: -8rem;
+        padding: .4rem .8rem;
+    }
+
+    .remove-padding{
+        padding-left: 0;
+        padding-right: 0;
     }
 }
 
