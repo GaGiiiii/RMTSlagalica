@@ -1253,65 +1253,64 @@ function startAsocijacije(data){
     outputAsocijacije();
     currentGame = 'Asocijacije'; // Set current game to Asocijacije
 
-    let points = 0;
-    let numberOfOpenFields = 0
-    let guessedColumns = 0;
-    let associationsBtns = document.querySelectorAll('.associations-btn');
-    let columFinalInputs = document.querySelectorAll('.column-final-input');
-    let finalInput = document.getElementById('answer-input-final');
+    let points = 0; // User has 0 points at the beginning
+    let numberOfOpenFields = 0 // Number of open fields when user guesses column
+    let guessedColumns = 0; // Number of guessed columns when user guesses final
+    let associationsBtns = document.querySelectorAll('.associations-btn'); // Associations buttons
+    let columFinalInputs = document.querySelectorAll('.column-final-input'); // Colum final inputs
+    let finalInput = document.getElementById('answer-input-final'); // Final input
 
-    let counterA = 1;
+    let counterA = 1; // Counter starts at 1 cuz in database at 0 is FINAL for that column
     let counterB = 1;
     let counterC = 1;
     let counterD = 1;
 
-    // Popunjavanje Valuesa
-
+    // Adding values to buttons, so when user clicks them we show their value
     associationsBtns.forEach((associationsBtn) => {
-    switch(associationsBtn.innerHTML.substring(0, 1)){
-        case 'A':
-            associationsBtn.value = data['A'][counterA++];
-            break;
-        case 'B':
-            associationsBtn.value = data['B'][counterB++];
-            break;
-        case 'C':
-            associationsBtn.value = data['C'][counterC++];
-            break;
-        case 'D':
-            associationsBtn.value = data['D'][counterD++];
-            break;
-    }
+        switch(associationsBtn.innerHTML.substring(0, 1)){ // This will cut A1, B3, C4 etc and retrieve only A, B, C...
+            case 'A':
+                associationsBtn.value = data['A'][counterA++];
+                break;
+            case 'B':
+                associationsBtn.value = data['B'][counterB++];
+                break;
+            case 'C':
+                associationsBtn.value = data['C'][counterC++];
+                break;
+            case 'D':
+                associationsBtn.value = data['D'][counterD++];
+                break;
+        }
     });
 
     let timer = setTimer(); // Start the timer
 
-    // Add event listenera
-
+    // When user clicks the button show the value
     associationsBtns.forEach((associationsBtn) => {
         associationsBtn.addEventListener('click', (event) => {
             event.target.innerHTML = event.target.value;
         });
     });
 
+    // Loop through all the column final inputs and add event on keyup
     columFinalInputs.forEach((columFinalInput) => {
         columFinalInput.addEventListener('keyup', (event) => {
 
-            let column = event.target.getAttribute('data-value');
-            let value = event.target.value;
+            let column = event.target.getAttribute('data-value'); // Get the column of the input in which user is typing
+            let value = event.target.value; // Get the value user typed
 
+            // If user deleted all letters remove invalid class
             if(value == ""){
                 event.target.classList.remove('is-invalid');
             }else{
 
-                if(value.toUpperCase() == data[column][0].toUpperCase()){
-                    event.target.disabled = true;
-                    event.target.classList.remove('is-invalid');
-                    event.target.classList.add('is-valid');
-                    numberOfOpenFields = 0;
+                if(value.toUpperCase() == data[column][0].toUpperCase()){ // Check if user guessed final column answer
+                    event.target.disabled = true; // Disable current input
+                    event.target.classList.remove('is-invalid'); // Remove invalid class
+                    event.target.classList.add('is-valid'); // Add valid class
+                    numberOfOpenFields = 0; // Reset counter
 
-                    // Prikazi i otvori preostala polja
-
+                    // Show all unopened fields and count unopened fields
                     associationsBtns.forEach((associationsBtn) => {
                         if(associationsBtn.innerHTML.substring(0, 1) == column){
                             numberOfOpenFields++;
@@ -1319,10 +1318,9 @@ function startAsocijacije(data){
                         }
                     });
 
-                    numberOfOpenFields = 4 - numberOfOpenFields;
+                    numberOfOpenFields = 4 - numberOfOpenFields; // We meed this because Math stuff
 
-                    // POINTS
-
+                    // Calculate points for guessed column final
                     switch(numberOfOpenFields){
                         case 1:
                             points += 8;
@@ -1341,45 +1339,45 @@ function startAsocijacije(data){
                             break;
                     }
                 }else{
-                    event.target.classList.add('is-invalid');
+                    event.target.classList.add('is-invalid'); // User didn't guess final so we add invalid class
                 }
 
             }
         });
     });
 
-    // ISTO I ZA KONACNO
-
+    // Add event on keyup for FINAL input, same as for column final inputs
     finalInput.addEventListener('keyup', (event) =>{
-        let value = event.target.value;
+        let value = event.target.value; // Get value that user typed
         counter = 0;
 
+        // If user deleted all letters remove invalid class
         if(value == ""){
             event.target.classList.remove('is-invalid');
         }else{
 
-            if(data['KONACNO'].find((element) => element.toUpperCase() == value.toUpperCase())){
-                event.target.disabled = true;
-                event.target.classList.remove('is-invalid');
-                event.target.classList.add('is-valid'); 
+            if(data['KONACNO'].find((element) => element.toUpperCase() == value.toUpperCase())){ // User guessed final
+                event.target.disabled = true; // Disable final input
+                event.target.classList.remove('is-invalid'); // Remove invalid class
+                event.target.classList.add('is-valid'); // Add valid class
                 
-                // PRikazi sva polja i otvori ih
+                // Show all unopened buttons
                 associationsBtns.forEach((associationsBtn) => {
                     associationsBtn.innerHTML = associationsBtn.value;
                 });
 
+                // Count guessed columns
                 columFinalInputs.forEach((columFinalInput) => {
                     if(columFinalInput.value != ''){
                         guessedColumns++;
                     }
 
-                    columFinalInput.disabled = true;
-                    let column = columFinalInput.getAttribute('data-value');
-                    columFinalInput.value = data[column][0].toUpperCase();
+                    columFinalInput.disabled = true; // Disable column final inputs
+                    let column = columFinalInput.getAttribute('data-value'); // Get current column for input
+                    columFinalInput.value = data[column][0].toUpperCase(); // Show correct answer for that column
                 });
 
-                // POINTS
-
+                // Calculate points for guessed final based on number of guessed columns
                 switch(guessedColumns){
                     case 0:
                         points += 40;
@@ -1400,12 +1398,12 @@ function startAsocijacije(data){
 
                 clearInterval(timer); // Stop the timer
 
-                setTimeout(() => { // Tell server that user finished KoZnaZna
+                setTimeout(() => { // Tell server that user finished Asocijacije
                     socket.emit('finishedAsocijacije', points);
                     gamesContainer.innerHTML = ""; // There is no next game so we empty games container
                 }, 7000);
             }else{
-                event.target.classList.add('is-invalid');
+                event.target.classList.add('is-invalid'); // User didn't guess the final so add invalid class
             }
 
         }
@@ -1413,21 +1411,23 @@ function startAsocijacije(data){
 
     // If time is up and user didn't confirm word
     socket.once('timeIsUpAsocijacije', () => {
+        // Show all buttons values
         associationsBtns.forEach((associationsBtn) => {
             associationsBtn.innerHTML = associationsBtn.value;
         });
 
-        finalInput.value = data["KONACNO"][0];
-        finalInput.disabled = true;
+        finalInput.value = data["KONACNO"][0]; // Show final answer
+        finalInput.disabled = true; // Disable final input
 
+        // Count guessed columns
         columFinalInputs.forEach((columFinalInput) => {
             if(columFinalInput.value != ''){
                 guessedColumns++;
             }
 
-            columFinalInput.disabled = true;
-            let column = columFinalInput.getAttribute('data-value');
-            columFinalInput.value = data[column][0].toUpperCase();
+            columFinalInput.disabled = true; // Disable column final inputs
+            let column = columFinalInput.getAttribute('data-value'); // Get current inputs column
+            columFinalInput.value = data[column][0].toUpperCase(); // Show answer for current input
         });
 
         clearInterval(timer); // Stop the timer   
@@ -1526,6 +1526,7 @@ socket.on('updateKoZnaZnaPoints', (user) => {
     pointsFieldTotal.innerText = user.points;
 });
 
+// Update points for asocijacije, update for asocijacije field and total field
 socket.on('updateAsocijacijePoints', (user) => {
     let pointsField = document.querySelector('#' + user.username + '-game6-score');
     let pointsFieldTotal = document.querySelector('#' + user.username + '-game7-score');
