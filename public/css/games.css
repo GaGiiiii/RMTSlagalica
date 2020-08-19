@@ -76,8 +76,8 @@ td{
 
 #correct-answer{
     font-size: 1.5rem;
-    margin-top: 2rem;
-    margin-bottom: 0;
+    /* margin-top: 2rem; */
+    margin-bottom: 2rem;
 }
 
 .jumbotron-custom{
@@ -208,6 +208,11 @@ td{
     .final-input{
         width: 300px;
     }
+    
+    #correct-answer{
+        margin-top: -2rem;
+        margin-bottom: 2.5rem;
+    }
 }
 
 @media only screen and (max-width: 520px){
@@ -291,6 +296,11 @@ td{
     .remove-padding{
         padding-left: 0;
         padding-right: 0;
+    }
+
+    #correct-answer{
+        margin-top: -2rem;
+        margin-bottom: 3rem;
     }
 }
 

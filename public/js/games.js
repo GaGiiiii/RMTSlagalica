@@ -969,7 +969,7 @@ function outputSkockoHTML(){
         </div>
     
         <br>
-    
+        
         <p id='correct-answer'></p>
         
         <br>
