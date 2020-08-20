@@ -80,6 +80,12 @@ td{
     margin-bottom: 2rem;
 }
 
+#correct-answerK{
+    font-size: 1.5rem;
+    margin-top: 2rem;
+    margin-bottom: 1rem;
+}
+
 .jumbotron-custom{
     padding: 1rem 2rem;
 }

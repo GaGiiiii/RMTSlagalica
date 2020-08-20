@@ -1162,7 +1162,7 @@ function startKoZnaZna(data){
     let helpArrayValues = Object.values(data); // Array holding all the VALUES from data object, ANSWERS
     currentGame = 'KoZnaZna'; // Set current game to KoZnaZna
 
-    const correctAnswerP = document.getElementById('correct-answer'); // Get correct answer paragraph
+    const correctAnswerP = document.getElementById('correct-answerK'); // Get correct answer paragraph
     const questionContainer = document.getElementById('question'); // Get question container
     const answerInput = document.getElementById('answer-input'); // Get answer inpput
     const sendAnswerBtn = document.getElementById('send-answer-button'); // Get send answer button
@@ -1250,7 +1250,7 @@ function outputKoZnaZnaHTML(){
            <div class='form-group has-success'>\
               <input type='text' placeholder='Unesite Odgovor' class='form-control' id='answer-input' maxlength='20'>\
               <button class='btn btn-primary btn-lg' id='send-answer-button' role='button'>Pošalji</button>\
-              <p id='correct-answer'></p>\
+              <p id='correct-answerK'></p>\
           </div>\
           </div>\
         </div>\
