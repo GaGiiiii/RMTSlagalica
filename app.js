@@ -75,195 +75,31 @@ io.on('connection', (socket) => { // Socket connected on server
   }
 
   io.emit('userJoinedOnServer', object);
-
   socket.on('userJoinedInGame', (username) => {
-      const user = userJoins(socket.id, username); // Add user to users array
-
-      // If game is in progress and user joins server redirect him and return
-      if(gameInProgress){
-        let redirectInfo = {
-          username: username,
-          destination: '/'
-        }
-
-        io.emit('redirect', redirectInfo);
-
-        return;
-      }
-
-      // Welcome current user
-      socket.emit('message', formatMessage('Admin', 'Uspešno ste se konektovali.'));
-
-      // Broadcast when user connects
-      socket.broadcast.emit('message', formatMessage('Admin', `${user.username} se konektovao.`));
-
-      // Send users and room info
-      io.emit('connectedUsersInfo', getJoinedUsers());
-
-
-      io.emit('startAsocijacije', dataForAsocijacijeP);// zameni sa promenljivom
+    userJoinedGame(username, socket);
   });
 
-  socket.on('userReady', (id) => { // User clicked ready btn
-    let users = getJoinedUsers(); // Get all users 
-    let user = users.find(user => user.id === id); // Find user that clicked ready
-
-    if(user){
-      user.ready = true;
-    }
-
-    // If there are users that are not ready don't start the game
-    for(let i = 0; i < users.length; i++){
-      if(!users[i].ready){
-          io.emit('userReady', user);
-
-          return;
-      }
-    }
-
-    // ALL USERS READY GAME CAN START NOW
-
-    // Set default values for users
-    users.forEach((user) => {
-      user.pointsSlagalica = 0;
-      user.pointsSpojnice = 0;
-      user.pointsSkocko = 0;
-      user.pointsKoZnaZna = 0;
-      user.pointsAsocijacije = 0;
-      user.points = 0;
-      user.finishedGame = false;
-    });
-
-    gameInProgress = true; // Game starts now
-
-    wordsAndLetters = require('./utils/slagalicaData').dataForSlagalica();
-    dataForSpojniceP = require('./utils/spojniceData').dataForSpojnice();
-    dataForSkockoP = require('./utils/skockoData').dataForSkocko();
-    dataForKoZnaZnaP = require('./utils/koZnaZnaData').dataForKoZnaZna();
-    dataForAsocijacijeP = require('./utils/asocijacijeData').dataForAsocijacije();
-
-    io.emit('userReady', user);
-    io.emit("allUsersReady", wordsAndLetters);
-    io.emit("gameStartedDisableJoins");
-  });
-
-  socket.on('userNotReady', (id) => {
-    let users = getJoinedUsers();
-    let user = users.find(user => user.id === id);
-    user.ready = false;
-    io.emit("userNotReady", user);
-  });
+  socket.on('userReady', userReady); // User clicked ready btn
+  socket.on('userNotReady', userNotReady);
 
   socket.on('timeIsUp', (currentGame) => {
     socket.emit('timeIsUp' + currentGame); // Time is up for specific game
   });
 
   socket.on('finishedSlagalicaGiveDataForSpojnice', (word) => {
-    let user = getCurrentUser(socket.id);
-
-    if(!user){
-      return;
-    }
-
-    // If word exists in database give him a score
-    if(isCorrectWord(word)){
-      user.pointsSlagalica = word.length * 2;
-      user.points += user.pointsSlagalica;
-    }
-
-    io.emit('updateSlagalicaPoints', user);
-    socket.emit('startSpojnice', dataForSpojniceP);
+    finishedSlagalicaGiveDataForSpojnice(word, socket);
   });
-
   socket.on('finishedSpojniceGiveDataForSkocko', (correctAnswers) => {
-    let user = getCurrentUser(socket.id);
-
-    if(user){
-      user.pointsSpojnice = correctAnswers * 5;
-      user.points += user.pointsSpojnice;
-    }
-
-    io.emit('updateSpojnicePoints', user);
-    socket.emit('startSkocko', dataForSkockoP);
+    finishedSpojniceGiveDataForSkocko(correctAnswers, socket);
   });
-
   socket.on('finishedSkockoGiveDataForKoZnaZna', (info) => {
-    let user = getCurrentUser(socket.id);
-    
-    if(user){
-      user.pointsSkocko = info.attemptsLeft * 5;
-      user.points += user.pointsSkocko;
-      console.log(info)
-    }
-
-    io.emit('updateSkockoPoints', user);
-    socket.emit('startKoZnaZna', dataForKoZnaZnaP);
+    finishedSkockoGiveDataForKoZnaZna(info, socket);
   });
-
   socket.on('finishedKoZnaZna', (infoKoZnaZna) => {
-    let user = getCurrentUser(socket.id);
-    
-    if(!user){
-      return;
-    }
-
-    user.pointsKoZnaZna = infoKoZnaZna.correctAnswers * 10;
-    user.pointsKoZnaZna += infoKoZnaZna.wrongAnswers * -5;
-    user.points += user.pointsKoZnaZna;
-
-    io.emit('updateKoZnaZnaPoints', user);
-    socket.emit('startAsocijacije', dataForAsocijacijeP);
+    finishedKoZnaZna(infoKoZnaZna, socket);
   });
-
   socket.on('finishedAsocijacije', (points) => {
-    let user = getCurrentUser(socket.id);
-    let users = getJoinedUsers();
-    let everyoneFinished = true;
-    
-    if(!user){
-      return;
-    }
-
-    user.pointsAsocijacije += points;
-    user.points += user.pointsAsocijacije;
-
-    io.emit('updateAsocijacijePoints', user);
-    user.finishedGame = true;
-    user.ready = false;
-
-    // Find if everyone finished
-    for(let i = 0; i < users.length; i++){
-      if(!users[i].finishedGame){
-        everyoneFinished = false;
-
-        break;
-      }
-    }
-
-    // If everyone finished game is over, find winner
-    if(everyoneFinished){
-      let winner = users[0];
-      let draw = false;
-      gameInProgress = false;
-
-      for(let i = 1; i < users.length; i++){
-        if(users[i].points > winner.points){
-          winner = users[i];
-        }
-      }
-
-      for(let i = 1; i < users.length; i++){
-        if(users[i] != winner && users[i].points == winner.points){
-          draw = true;
-
-          winner = undefined;
-        }
-      }
-
-
-      io.emit('gameOverForMain'); // On page main now we can allow other users to join game if there is space
-      io.emit('gameOver', winner); // Tell to clients who is winner and that game is over
-    }
+    finishedAsocijacije(points, socket);
   });
 
   // Listen for chatMessage
@@ -300,6 +136,189 @@ io.on('connection', (socket) => { // Socket connected on server
 
 
 /* ********** FUNCTIONS ********** */
+
+function userJoinedGame(username, socket){
+  const user = userJoins(socket.id, username); // Add user to users array
+
+    // If game is in progress and user joins server redirect him and return
+    if(gameInProgress){
+      let redirectInfo = {
+        username: username,
+        destination: '/'
+      }
+
+      io.emit('redirect', redirectInfo);
+
+      return;
+    }
+
+    // Welcome current user
+    socket.emit('message', formatMessage('Admin', 'Uspešno ste se konektovali.'));
+
+    // Broadcast when user connects
+    socket.broadcast.emit('message', formatMessage('Admin', `${user.username} se konektovao.`));
+
+    // Send users and room info
+    io.emit('connectedUsersInfo', getJoinedUsers());
+}
+
+function userReady(id){
+  let users = getJoinedUsers(); // Get all users 
+  let user = users.find(user => user.id === id); // Find user that clicked ready
+
+  if(user){
+    user.ready = true;
+  }
+
+  // If there are users that are not ready don't start the game
+  for(let i = 0; i < users.length; i++){
+    if(!users[i].ready){
+        io.emit('userReady', user);
+
+        return;
+    }
+  }
+
+  // ALL USERS READY GAME CAN START NOW
+
+  // Set default values for users
+  users.forEach((user) => {
+    user.pointsSlagalica = 0;
+    user.pointsSpojnice = 0;
+    user.pointsSkocko = 0;
+    user.pointsKoZnaZna = 0;
+    user.pointsAsocijacije = 0;
+    user.points = 0;
+    user.finishedGame = false;
+  });
+
+  gameInProgress = true; // Game starts now
+
+  wordsAndLetters = require('./utils/slagalicaData').dataForSlagalica();
+  dataForSpojniceP = require('./utils/spojniceData').dataForSpojnice();
+  dataForSkockoP = require('./utils/skockoData').dataForSkocko();
+  dataForKoZnaZnaP = require('./utils/koZnaZnaData').dataForKoZnaZna();
+  dataForAsocijacijeP = require('./utils/asocijacijeData').dataForAsocijacije();
+
+  io.emit('userReady', user);
+  io.emit("allUsersReady", wordsAndLetters);
+  io.emit("gameStartedDisableJoins");
+}
+
+function userNotReady(id){
+  let users = getJoinedUsers();
+  let user = users.find(user => user.id === id);
+  user.ready = false;
+  io.emit("userNotReady", user);
+}
+
+function finishedSlagalicaGiveDataForSpojnice(word, socket){
+  let user = getCurrentUser(socket.id);
+
+  if(!user){
+    return;
+  }
+
+  // If word exists in database give him a score
+  if(isCorrectWord(word)){
+    user.pointsSlagalica = word.length * 2;
+    user.points += user.pointsSlagalica;
+  }
+
+  io.emit('updateSlagalicaPoints', user);
+  socket.emit('startSpojnice', dataForSpojniceP);
+}
+
+function finishedSpojniceGiveDataForSkocko(correctAnswers, socket){
+  let user = getCurrentUser(socket.id);
+
+  if(user){
+    user.pointsSpojnice = correctAnswers * 5;
+    user.points += user.pointsSpojnice;
+  }
+
+  io.emit('updateSpojnicePoints', user);
+  socket.emit('startSkocko', dataForSkockoP);
+}
+
+function finishedSkockoGiveDataForKoZnaZna(info, socket){
+  let user = getCurrentUser(socket.id);
+  
+  if(user){
+    user.pointsSkocko = info.attemptsLeft * 5;
+    user.points += user.pointsSkocko;
+    console.log(info)
+  }
+
+  io.emit('updateSkockoPoints', user);
+  socket.emit('startKoZnaZna', dataForKoZnaZnaP);
+}
+
+function finishedKoZnaZna(infoKoZnaZna, socket){
+  let user = getCurrentUser(socket.id);
+  
+  if(!user){
+    return;
+  }
+
+  user.pointsKoZnaZna = infoKoZnaZna.correctAnswers * 10;
+  user.pointsKoZnaZna += infoKoZnaZna.wrongAnswers * -5;
+  user.points += user.pointsKoZnaZna;
+
+  io.emit('updateKoZnaZnaPoints', user);
+  socket.emit('startAsocijacije', dataForAsocijacijeP);
+}
+
+function finishedAsocijacije(points, socket){
+  let user = getCurrentUser(socket.id);
+  let users = getJoinedUsers();
+  let everyoneFinished = true;
+  
+  if(!user){
+    return;
+  }
+
+  user.pointsAsocijacije += points;
+  user.points += user.pointsAsocijacije;
+
+  io.emit('updateAsocijacijePoints', user);
+  user.finishedGame = true;
+  user.ready = false;
+
+  // Find if everyone finished
+  for(let i = 0; i < users.length; i++){
+    if(!users[i].finishedGame){
+      everyoneFinished = false;
+
+      break;
+    }
+  }
+
+  // If everyone finished game is over, find winner
+  if(everyoneFinished){
+    let winner = users[0];
+    let draw = false;
+    gameInProgress = false;
+
+    for(let i = 1; i < users.length; i++){
+      if(users[i].points > winner.points){
+        winner = users[i];
+      }
+    }
+
+    for(let i = 1; i < users.length; i++){
+      if(users[i] != winner && users[i].points == winner.points){
+        draw = true;
+
+        winner = undefined;
+      }
+    }
+
+
+    io.emit('gameOverForMain'); // On page main now we can allow other users to join game if there is space
+    io.emit('gameOver', winner); // Tell to clients who is winner and that game is over
+  }
+}
 
 // Checks if word exists in database of words
 function isCorrectWord(word){
