@@ -7,11 +7,11 @@ let gameSchema = new Schema({
       of: Array,
     },
     started_at: {
-      type: Date,
-      default: Date.now
+      type: String,
+      default: undefined
     },
     finished_at: {
-      type: Date,
+      type: String,
       default: undefined
     },
 });

@@ -8,7 +8,7 @@ const http = require('http'); // HTTP
 const path = require('path'); // PATH
 const expressHandlebars = require('express-handlebars'); // HandleBars
 const formatMessage = require('./utils/messages'); // Messages
-const {userJoins, getCurrentUser, userLeaves, getJoinedUsers} = require('./utils/users'); // Users methods
+const {userJoins, getCurrentUser, userLeaves, getJoinedUsers, updateAllUsers} = require('./utils/users'); // Users methods
 const config = require('./config/database'); // Config
 
 let gameInProgress = false; // Is game in progress
@@ -80,6 +80,7 @@ app.use('/', gamesRoutes);
 // Database for words
 let words = require('./utils/words').words; // Why u do dis
 let started_at = undefined; // Date when game started
+let finished_at = undefined; // Date when game finished
 
 
 let wordsAndLetters;
@@ -137,7 +138,7 @@ io.on('connection', (socket) => { // Socket connected on server
   socket.on('disconnect', () => {
       console.log("Socket disconnects.");
 
-      const user = userLeaves(socket.id); // Find user that left
+      const user = userLeaves(socket.id, gameInProgress); // Find user that left
 
       if(user){
           io.emit('message', formatMessage('Admin', `${user.username} se diskonektovao.`)); // Tell other users who left
@@ -147,33 +148,10 @@ io.on('connection', (socket) => { // Socket connected on server
             io.emit('allUsersDisconnected');
 
             if(gameInProgress){
-              const GameModel = require('./models/game');
-
-              // Create Movie Object
-          
-              let game_info = {
-                "players": ['GaGi', 'Pera'],
-                "playersPoints": ['10', '20', '0', '0', '0', '60', '0', '0', '0', '0', '80', '0',]
-              };
-          
-              let game = new GameModel({
-                game_info: game_info,
-                // started_at: started_at,
-                // finished_at: Date.now,
-              });
-          
-              // Save Movie
-          
-              game.save((error) => {
-                if(error){
-                  console.log("Error: " + error);
-                }else{
-                  console.log("Game saved.\n");
-                  console.log(game);
-                }
-              });
+              finished_at = new Date();
+              finished_at = `${addZero(finished_at.getMonth() + 1)}.${addZero(finished_at.getDate())}.${finished_at.getFullYear()}.  ${addZero(finished_at.getHours())}:${addZero(finished_at.getMinutes())}h`;
+              require('./utils/addGameToDB').saveGame(started_at, finished_at);
             }
-
 
             gameInProgress = false;
           }
@@ -246,6 +224,8 @@ function userReady(id){
     user.finishedGame = false;
   });
 
+  updateAllUsers();
+
   gameInProgress = true; // Game starts now
 
   wordsAndLetters = require('./utils/slagalicaData').dataForSlagalica();
@@ -254,7 +234,8 @@ function userReady(id){
   dataForKoZnaZnaP = require('./utils/koZnaZnaData').dataForKoZnaZna();
   dataForAsocijacijeP = require('./utils/asocijacijeData').dataForAsocijacije();
 
-  started_at = Date.now;
+  started_at = new Date();
+  started_at = `${addZero(started_at.getMonth() + 1)}.${addZero(started_at.getDate())}.${started_at.getFullYear()}.  ${addZero(started_at.getHours())}:${addZero(started_at.getMinutes())}h`;
 
   io.emit('userReady', user);
   io.emit("allUsersReady", wordsAndLetters);
@@ -370,45 +351,9 @@ function finishedAsocijacije(points, socket){
       }
     }
 
-
-    const GameModel = require('./models/game');
-
-    // Create Movie Object
-
-    let game_info = {
-
-    };
-
-    let game = new GameModel({
-      game_info: game_info,
-      started_at: started_at,
-      finished_at: Date.now,
-    });
-
-    // Save Movie
-
-    game.save((error) => {
-      if(error){
-        console.log("Error: " + error);
-      }else{
-        console.log("Game saved.\n");
-        console.log(game);
-      }
-    });
-    
-
-
-
-
-
-
-
-
-
-
-
-
-
+    finished_at = new Date();
+    finished_at = `${addZero(finished_at.getMonth() + 1)}.${addZero(finished_at.getDate())}.${finished_at.getFullYear()}.  ${addZero(finished_at.getHours())}:${addZero(finished_at.getMinutes())}h`;
+    require('./utils/addGameToDB').saveGame(started_at, finished_at);
 
     io.emit('gameOverForMain'); // On page main now we can allow other users to join game if there is space
     io.emit('gameOver', winner); // Tell to clients who is winner and that game is over
@@ -424,6 +369,15 @@ function isCorrectWord(word){
   }
 
   return false;
+}
+
+// Adding zero on dates to show 00:22h instead of 0:22h
+function addZero(i) {
+  if (i < 10) {
+    i = "0" + i;
+  }
+
+  return i;
 }
 
 /* ********** SERVER START ********** */
