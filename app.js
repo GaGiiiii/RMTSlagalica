@@ -1,6 +1,7 @@
 /* ********** DEPENDENCIES ********** */
 
 const express = require('express'); // Express
+const mongoose = require('mongoose'); // Mongoose
 const socketio = require('socket.io'); // SocketIO
 const bodyParser = require('body-parser'); // BodyParser
 const http = require('http'); // HTTP
@@ -8,6 +9,7 @@ const path = require('path'); // PATH
 const expressHandlebars = require('express-handlebars'); // HandleBars
 const formatMessage = require('./utils/messages'); // Messages
 const {userJoins, getCurrentUser, userLeaves, getJoinedUsers} = require('./utils/users'); // Users methods
+const config = require('./config/database'); // Config
 
 let gameInProgress = false; // Is game in progress
 
@@ -22,6 +24,18 @@ const io = socketio(server);
 const globalRoutes = require('./routes/global.routes');
 const gamesRoutes = require('./routes/games.routes');
 const { use } = require('./routes/global.routes');
+
+/* ********** MONGOOSE ********** */
+
+let dev_db_url = config.database;
+const mongoDB = process.env.MONGODB_URI || dev_db_url;
+mongoose.connect(mongoDB, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true
+});
+mongoose.Promise = global.Promise;
+const db = mongoose.connection;
+db.on('error', console.error.bind(console, '\n\n *** MongoDB connection error:'));
 
 /* ********** APP USE ********** */
 
@@ -43,7 +57,16 @@ app.engine('.hbs', expressHandlebars({
   helpers: {
     ifEqualsString: (arg1, arg2, options) => {
       return (String(arg1) == String(arg2)) ? options.fn(this) : options.inverse(this);
-    }
+    },
+    counter: (index) => {
+      return index + 1;
+    },
+    for: (from, to, incr, block) => {
+      var accum = '';
+      for(var i = from; i < to; i += incr)
+          accum += block.fn(i);
+      return accum;
+    } 
   }
 }));
 app.set('view engine', '.hbs');
@@ -56,6 +79,7 @@ app.use('/', gamesRoutes);
 
 // Database for words
 let words = require('./utils/words').words; // Why u do dis
+let started_at = undefined; // Date when game started
 
 
 let wordsAndLetters;
@@ -121,6 +145,36 @@ io.on('connection', (socket) => { // Socket connected on server
           // If everyone disconnected tell that to cliends on main page
           if(getJoinedUsers() == 0){
             io.emit('allUsersDisconnected');
+
+            if(gameInProgress){
+              const GameModel = require('./models/game');
+
+              // Create Movie Object
+          
+              let game_info = {
+                "players": ['GaGi', 'Pera'],
+                "playersPoints": ['10', '20', '0', '0', '0', '60', '0', '0', '0', '0', '80', '0',]
+              };
+          
+              let game = new GameModel({
+                game_info: game_info,
+                // started_at: started_at,
+                // finished_at: Date.now,
+              });
+          
+              // Save Movie
+          
+              game.save((error) => {
+                if(error){
+                  console.log("Error: " + error);
+                }else{
+                  console.log("Game saved.\n");
+                  console.log(game);
+                }
+              });
+            }
+
+
             gameInProgress = false;
           }
       
@@ -199,6 +253,8 @@ function userReady(id){
   dataForSkockoP = require('./utils/skockoData').dataForSkocko();
   dataForKoZnaZnaP = require('./utils/koZnaZnaData').dataForKoZnaZna();
   dataForAsocijacijeP = require('./utils/asocijacijeData').dataForAsocijacije();
+
+  started_at = Date.now;
 
   io.emit('userReady', user);
   io.emit("allUsersReady", wordsAndLetters);
@@ -313,6 +369,45 @@ function finishedAsocijacije(points, socket){
         winner = undefined;
       }
     }
+
+
+    const GameModel = require('./models/game');
+
+    // Create Movie Object
+
+    let game_info = {
+
+    };
+
+    let game = new GameModel({
+      game_info: game_info,
+      started_at: started_at,
+      finished_at: Date.now,
+    });
+
+    // Save Movie
+
+    game.save((error) => {
+      if(error){
+        console.log("Error: " + error);
+      }else{
+        console.log("Game saved.\n");
+        console.log(game);
+      }
+    });
+    
+
+
+
+
+
+
+
+
+
+
+
+
 
 
     io.emit('gameOverForMain'); // On page main now we can allow other users to join game if there is space
